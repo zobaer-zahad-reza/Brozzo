@@ -73,16 +73,16 @@ const Home = () => {
           />
         )}
 
-        <HeroSlider />
+        {/* <HeroSlider /> */}
 
         {/* shop by category */}
-        <CategoryCarousel />
+        {/* <CategoryCarousel /> */}
 
-        <PromoBentoGrid />
+        {/* <PromoBentoGrid /> */}
 
-        <BestSellingProducts />
+        {/* <BestSellingProducts /> */}
 
-        <Link to={'/collection'} className="flex justify-center mt-12">
+        {/* <Link to={'/collection'} className="flex justify-center mt-12">
           <button className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full text-white font-bold text-lg shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden hover:cursor-pointer">
             <span className="relative z-10 flex items-center gap-3">
               More Collection
@@ -90,10 +90,10 @@ const Home = () => {
             </span>
             <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out skew-x-12"></div>
           </button>
-        </Link>
+        </Link> */}
 
         {/* Features Bar */}
-        <div className="py-16 bg-gradient-to-r from-gray-900 to-gray-800 mb-6 text-white mt-8 rounded-md">
+        {/* <div className="py-16 bg-gradient-to-r from-gray-900 to-gray-800 mb-6 text-white mt-8 rounded-md">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-orange-400 via-amber-200 to-orange-400 bg-clip-text text-transparent animate-text-gradient">
@@ -115,7 +115,7 @@ const Home = () => {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
 
       </div>
     </>
