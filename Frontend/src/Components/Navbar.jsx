@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { ShoppingCart, ChevronDown, Search, Menu, User, LogOut, Package } from "lucide-react";
+import { ShoppingCart, ChevronDown, ChevronRight, Search, Menu, User, LogOut, Package } from "lucide-react";
 import Logo from "../assets/logo.png";
 import UnderNav from "./UnderNave";
 import Sidebar from "./Sidebar";
@@ -9,32 +9,53 @@ import { ShopContext } from "../Context/ShopContext";
 
 const Navbar = () => {
   const { getCartCount, navigate, token, setToken, setCartItems } = useContext(ShopContext);
-  
+
   const [category, setCategory] = useState("All");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const [hoveredCategory, setHoveredCategory] = useState(null);
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const categories = [
-    "All", "Fashion", "Beauty & Personal Care", "Health & Household", 
-    "Home & Kitchen", "Electronics", "Baby Products", "Toys & Games", 
-    "Pet Supplies", "Arts, Crafts & Sewing", "Office Products", 
-    "Sports & Outdoors", "Automotive Accessories"
+    { name: "All", subCategories: [] },
+    { name: "Watch", subCategories: [] },
+    { 
+      name: "Men Accesoric", 
+      subCategories: ["Wallets", "Belts", "Caps", "Chain", "Ring"] 
+    },
+    { name: "Sun Glasses", subCategories: [] },
+    { name: "Tech Accesoric", subCategories: ["Headphones", "Chargers", "Cases"] },
+    { name: "Men Cloths", subCategories: ["T-Shirts", "Shirts", "Pants"] }
   ];
 
   const logout = () => {
-    navigate('/login');       
-    localStorage.removeItem('token'); 
-    setToken('');             
-    setCartItems({});         
+    navigate('/login');
+    localStorage.removeItem('token');
+    setToken('');
+    setCartItems({});
   }
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-        navigate(`/collection?search=${searchTerm}`);
+      navigate(`/collection?search=${searchTerm}`);
+    }
+  };
+
+  const handleCategoryClick = (mainCat, subCat = null) => {
+    const selected = subCat ? subCat : mainCat;
+    setCategory(selected);
+    setShowCategoryMenu(false);
+    setHoveredCategory(null);
+    
+    if (selected === "All") {
+      navigate('/collection');
+    } else {
+
+      navigate(`/collection?category=${encodeURIComponent(selected)}`);
     }
   };
 
@@ -42,83 +63,95 @@ const Navbar = () => {
     <>
       <div className="fixed top-0 left-0 w-full z-50">
         <style>{`
-            @keyframes shineMove {
-                0% { background-position: 0% center; }
-                100% { background-position: -200% center; }
-            }
-            .text-glow-animation {
-                background: linear-gradient(to left, #9ca3af 20%, #FF751F 50%, #9ca3af 80%);
-                background-size: 200% auto;
-                color: #9ca3af;
-                background-clip: text;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                animation: shineMove 3s linear infinite;
-            }
+            /* Smooth Scrollbar for Dropdown */
             .custom-scrollbar::-webkit-scrollbar {
                 width: 6px;
             }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: #18181b; 
+            }
             .custom-scrollbar::-webkit-scrollbar-thumb {
-                background: #4b5563;
+                background: #3f3f46;
                 border-radius: 10px;
             }
             .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                background: #FF751F;
+                background: #FF4955;
             }
         `}</style>
 
-        {/* MAIN HEADER - DARK THEME */}
-        <div className="bg-black text-gray-200 flex flex-col md:flex-row items-center px-4 py-2 md:py-3 relative z-[60] shadow-sm border-b border-gray-800">
-          
+        {/* MAIN HEADER */}
+        <div className="bg-black text-white flex flex-col md:flex-row items-center px-4 py-2 md:py-3 md:px-10 relative z-[60] shadow-md border-b border-zinc-900">
+
           {/* Logo & Menu */}
           <div className="flex justify-between items-center w-full md:w-auto">
             <div className="flex items-center gap-2 md:gap-4">
-              <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-gray-300 hover:bg-gray-800 p-1 rounded-md transition-colors">
+              <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-gray-300 hover:text-white hover:bg-zinc-800 p-2 rounded-md transition-all">
                 <Menu className="w-6 h-6" />
               </button>
               <Link to={"/"} className="flex-shrink-0">
-                {/* Note: Ensure your Logo.png has white text or transparent background suitable for black themes */}
-                <img className="w-28 md:w-36 object-contain" src={Logo} alt="Logo" />
+                <img className="w-20 md:w-24 object-contain" src={Logo} alt="Logo" />
               </Link>
             </div>
           </div>
 
           {/* Search Bar Section */}
-          <div className="w-full mt-2 md:mt-0 md:flex-1 flex justify-center md:px-6">
-            <form onSubmit={handleSearch} className="flex h-10 rounded-md border border-gray-700 focus-within:ring-2 focus-within:ring-[#FF751F] w-full md:max-w-[700px] relative bg-zinc-900">
+          <div className="w-full mt-3 md:mt-0 md:flex-1 flex justify-center md:px-8">
+            <form onSubmit={handleSearch} className="flex h-11 rounded-md border border-zinc-800 focus-within:border-[#FF4955] focus-within:ring-1 focus-within:ring-[#FF4955] w-full md:max-w-[700px] relative bg-[#18181b] transition-all duration-300">
 
               {/* Category Dropdown */}
-              <div 
-                className="relative hidden md:flex items-center bg-zinc-800 border-r border-gray-700 hover:bg-zinc-700 cursor-pointer h-full px-3 rounded-l-md transition-all group"
+              <div
+                className="relative hidden md:flex items-center bg-[#18181b] border-r border-zinc-700 hover:bg-zinc-800 cursor-pointer h-full px-4 rounded-l-md transition-all group"
                 onMouseEnter={() => setShowCategoryMenu(true)}
-                onMouseLeave={() => setShowCategoryMenu(false)}
+                onMouseLeave={() => {
+                    setShowCategoryMenu(false);
+                    setHoveredCategory(null);
+                }}
               >
-                <span className="text-gray-300 text-xs font-semibold whitespace-nowrap">{category}</span>
-                <ChevronDown className={`w-3 h-3 text-gray-400 ml-1 transition-transform duration-200 ${showCategoryMenu ? 'rotate-180' : ''}`} />
+                <span className="text-gray-300 text-sm font-medium whitespace-nowrap group-hover:text-white transition-colors">{category}</span>
+                <ChevronDown className={`w-4 h-4 text-gray-400 ml-2 transition-transform duration-200 group-hover:text-white ${showCategoryMenu ? 'rotate-180' : ''}`} />
 
-                {/* Dropdown Menu */}
+                {/* MAIN DROPDOWN MENU */}
                 {showCategoryMenu && (
-                  <div className="absolute top-[38px] left-0 w-64 bg-zinc-900 border border-gray-800 shadow-2xl rounded-b-md z-[100] py-2 max-h-80 overflow-y-auto custom-scrollbar">
+                  <div className="absolute top-[42px] left-0 w-64 bg-[#18181b] border border-zinc-800 shadow-2xl rounded-b-md z-[100] py-2">
                     {categories.map((item) => (
-                      <p 
-                        key={item}
-                        onClick={() => { 
-                          setCategory(item); 
-                          setShowCategoryMenu(false);
-                          if (item === "All") {
-                            navigate('/collection');
-                          } else {
-                            navigate(`/collection?category=${encodeURIComponent(item)}`);
-                          }
-                        }}
-                        className={`px-4 py-2.5 text-sm transition-all duration-150 cursor-pointer flex items-center
-                          ${category === item 
-                            ? 'bg-zinc-800 text-[#FF751F] font-bold border-l-4 border-[#FF751F]' 
-                            : 'text-gray-300 hover:bg-[#FF751F] hover:text-white'
-                          }`}
+                      <div 
+                        key={item.name}
+                        className="relative"
+                        onMouseEnter={() => setHoveredCategory(item.name)}
+                        onMouseLeave={() => setHoveredCategory(null)}
                       >
-                        {item}
-                      </p>
+                        <div
+                          onClick={() => handleCategoryClick(item.name)}
+                          className={`px-4 py-3 text-sm transition-all duration-150 cursor-pointer flex items-center justify-between
+                            ${category === item.name
+                              ? 'bg-zinc-800 text-[#FF4955] font-bold border-l-2 border-[#FF4955]'
+                              : 'text-gray-300 hover:bg-zinc-800 hover:text-white hover:pl-5'
+                            }`}
+                        >
+                          {item.name}
+                          {item.subCategories.length > 0 && (
+                            <ChevronRight size={14} className="text-gray-500" />
+                          )}
+                        </div>
+
+                        {/* SUB-MENU */}
+                        {item.subCategories.length > 0 && hoveredCategory === item.name && (
+                           <div className="absolute left-full top-0 w-48 bg-[#18181b] border border-zinc-800 shadow-xl rounded-r-md -ml-[1px] z-[101]">
+                              {item.subCategories.map((sub) => (
+                                <p
+                                  key={sub}
+                                  onClick={(e) => {
+                                    e.stopPropagation(); 
+                                    handleCategoryClick(item.name, sub);
+                                  }}
+                                  className="px-4 py-2.5 text-sm text-gray-400 hover:text-white hover:bg-zinc-800 cursor-pointer transition-colors block"
+                                >
+                                  {sub}
+                                </p>
+                              ))}
+                           </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
@@ -128,52 +161,53 @@ const Navbar = () => {
               <input
                 onChange={(e) => setSearchTerm(e.target.value)}
                 value={searchTerm}
-                className="grow px-3 bg-transparent text-white text-[15px] outline-none placeholder-gray-500 w-full"
+                className="grow px-4 bg-transparent text-gray-200 text-[15px] outline-none placeholder-gray-500 w-full"
                 type="text"
-                placeholder="Search Brozzo..."
+                placeholder="Search for products..."
               />
 
               {/* Search Button */}
-              <button type="submit" className="bg-[#FF751F] hover:bg-[#e66a1c] w-12 flex-shrink-0 flex items-center justify-center text-white transition-colors rounded-r-md">
-                <Search className="w-5 h-5 text-white" />
+              <button type="submit" className="bg-[#FF4955] hover:bg-[#e03e49] px-5 flex-shrink-0 flex items-center justify-center text-white transition-colors rounded-r-md">
+                <Search className="w-5 h-5" />
               </button>
             </form>
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-5 ml-4">
-            
+          <div className="hidden md:flex items-center gap-6 ml-4">
             {/* Profile */}
             {token ? (
               <div className="group relative">
-                <div className="flex items-center gap-2 cursor-pointer p-1">
-                  <User className="w-6 h-6 text-gray-300 hover:text-[#FF751F] transition" />
+                <div className="flex items-center gap-2 cursor-pointer py-2">
+                  <div className="p-2 rounded-full hover:bg-zinc-800 transition-colors">
+                    <User className="w-6 h-6 text-gray-300 group-hover:text-[#FF4955] transition" />
+                  </div>
                 </div>
-                <div className="group-hover:block hidden absolute right-0 pt-2 z-50 w-44">
-                    <div className="flex flex-col gap-1 py-3 px-4 bg-zinc-900 shadow-xl rounded border border-gray-800 text-gray-300">
-                        <p onClick={()=>navigate('/profile')} className="cursor-pointer hover:text-[#FF751F] flex items-center gap-2 font-medium transition-colors">
-                            <User size={16}/> My Profile
-                        </p>
-                        <p onClick={()=>navigate('/orders')} className="cursor-pointer hover:text-[#FF751F] flex items-center gap-2 font-medium transition-colors">
-                            <Package size={16}/> Orders
-                        </p>
-                        <hr className="my-1 border-gray-700"/>
-                        <p onClick={logout} className="cursor-pointer hover:text-red-500 flex items-center gap-2 font-medium transition-colors">
-                            <LogOut size={16}/> Logout
-                        </p>
-                    </div>
+                <div className="group-hover:block hidden absolute right-0 pt-2 z-50 w-48">
+                  <div className="flex flex-col py-2 px-1 bg-[#18181b] shadow-xl rounded-md border border-zinc-800 text-gray-300">
+                    <p onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-zinc-800 hover:text-[#FF4955] px-4 py-2 rounded-sm flex items-center gap-3 font-medium transition-all">
+                      <User size={16} /> My Profile
+                    </p>
+                    <p onClick={() => navigate('/orders')} className="cursor-pointer hover:bg-zinc-800 hover:text-[#FF4955] px-4 py-2 rounded-sm flex items-center gap-3 font-medium transition-all">
+                      <Package size={16} /> Orders
+                    </p>
+                    <div className="my-1 border-t border-zinc-700 mx-2"></div>
+                    <p onClick={logout} className="cursor-pointer hover:bg-red-900/20 hover:text-red-500 px-4 py-2 rounded-sm flex items-center gap-3 font-medium transition-all">
+                      <LogOut size={16} /> Logout
+                    </p>
+                  </div>
                 </div>
               </div>
             ) : (
-              <Link to={'/login'} className="px-5 py-2 rounded-md bg-[#FF751F] font-bold text-sm text-white hover:bg-[#e66a1c] shadow-sm transition-all active:scale-95">
+              <Link to={'/login'} className="px-6 py-2 rounded-full bg-[#FF4955] font-semibold text-sm text-white hover:bg-[#e03e49] shadow-[0_0_10px_rgba(255,73,85,0.3)] transition-all active:scale-95">
                 {t("login")}
               </Link>
             )}
 
             {/* Cart Icon */}
-            <Link to={'/cart'} className="relative flex items-center p-1 hover:bg-zinc-800 rounded-full transition-colors group">
-              <ShoppingCart className="w-7 h-7 text-gray-300 group-hover:text-[#FF751F]" />
-              <span className="absolute -top-1 -right-1 text-white font-bold text-[10px] bg-[#FF751F] rounded-full px-1.5 py-0.5 border-2 border-black">
+            <Link to={'/cart'} className="relative flex items-center p-2 hover:bg-zinc-800 rounded-full transition-colors group">
+              <ShoppingCart className="w-6 h-6 text-gray-300 group-hover:text-[#FF4955] transition-colors" />
+              <span className="absolute top-0 right-0 flex items-center justify-center min-w-[18px] h-[18px] text-white font-bold text-[10px] bg-[#FF4955] rounded-full border-2 border-black">
                 {getCartCount()}
               </span>
             </Link>
