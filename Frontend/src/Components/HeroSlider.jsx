@@ -3,12 +3,35 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const HeroSlider = () => {
-  const [slides, setSlides] = useState([]);
+  // --- STATIC DATA (Temporary) ---
+  const staticSlides = [
+    {
+      id: 1,
+      image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop",
+      link: "/collection"
+    },
+    {
+      id: 2,
+      image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop",
+      link: "/collection"
+    },
+    {
+      id: 3,
+      image: "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071&auto=format&fit=crop",
+      link: "/collection"
+    }
+  ];
+
+  // Initialize state with static data
+  const [slides, setSlides] = useState(staticSlides);
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef(null);
   const navigate = useNavigate();
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  
+  // const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+  // --- DYNAMIC DATA FETCHING (Commented Out) ---
+  /*
   useEffect(() => {
     const fetchSlides = async () => {
       try {
@@ -22,7 +45,9 @@ const HeroSlider = () => {
     };
     fetchSlides();
   }, [backendUrl]);
+  */
 
+  // --- Auto Scroll Logic ---
   useEffect(() => {
     if (slides.length > 1) {
       const interval = setInterval(() => {
@@ -32,6 +57,7 @@ const HeroSlider = () => {
     }
   }, [slides.length, currentIndex]);
 
+  // --- Smooth Scroll Animation ---
   useEffect(() => {
     if (carouselRef.current && slides.length > 0) {
       const scrollAmount = carouselRef.current.clientWidth * currentIndex;
@@ -55,8 +81,9 @@ const HeroSlider = () => {
   return (
     <div className="w-full mt-6 relative group overflow-hidden rounded-md">
       
+      {/* Slides Container - HEIGHT INCREASED HERE */}
       <div
-        className="carousel w-full h-[200px] sm:h-[300px]  flex overflow-x-hidden scroll-smooth"
+        className="carousel w-full h-[300px] sm:h-[450px] md:h-[600px] flex overflow-x-hidden scroll-smooth"
         ref={carouselRef}
       >
         {slides.map((slide, index) => (
@@ -67,35 +94,40 @@ const HeroSlider = () => {
           >
             <img
               src={slide.image}
-              className="w-full h-full object-cover md:object-fill"
+              className="w-full h-full object-cover" 
               alt={`Slide ${index + 1}`}
             />
+            
+            {/* Optional: Add a dark overlay for better text visibility if you add text later */}
+            <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-colors"></div>
           </div>
         ))}
       </div>
 
-      <div className="absolute left-2 right-2 top-1/2 flex -translate-y-1/2 transform justify-between px-2">
+      {/* Navigation Arrows (Prev/Next) */}
+      <div className="absolute left-2 right-2 top-1/2 flex -translate-y-1/2 transform justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
           onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-          className="btn btn-circle btn-sm sm:btn-md bg-black/30 hover:bg-black/50 text-[#FFA24C] border-none"
+          className="btn btn-circle btn-sm sm:btn-md bg-black/50 hover:bg-[#FF4955] text-white border-none transition-all"
         >
-          ❮
+          ❯
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); handleNext(); }}
-          className="btn btn-circle btn-sm sm:btn-md bg-black/30 hover:bg-black/50 text-[#FFA24C] border-none"
+          className="btn btn-circle btn-sm sm:btn-md bg-black/50 hover:bg-[#FF4955] text-white border-none transition-all"
         >
           ❯
         </button>
       </div>
 
+      {/* Dots Indicator */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={(e) => { e.stopPropagation(); setCurrentIndex(index); }}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              currentIndex === index ? "bg-[#FFA24C] w-4" : "bg-white/50"
+            className={`h-2 rounded-full transition-all duration-300 ${
+              currentIndex === index ? "bg-[#FF4955] w-6" : "bg-white/50 w-2 hover:bg-white"
             }`}
           ></button>
         ))}

@@ -73,12 +73,12 @@ const Home = () => {
           />
         )}
 
-        {/* <HeroSlider /> */}
+        <HeroSlider />
 
         {/* shop by category */}
         {/* <CategoryCarousel /> */}
 
-        {/* <PromoBentoGrid /> */}
+        <PromoBentoGrid />
 
         {/* <BestSellingProducts /> */}
 
