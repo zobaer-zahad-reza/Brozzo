@@ -1,208 +1,136 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import {
-  FaMapMarkerAlt,
-  FaPhoneAlt,
-  FaEnvelope,
-  FaArrowUp,
-  FaFacebookF,
-  FaInstagram,
-  FaTiktok,
-  FaLinkedinIn,
-} from "react-icons/fa";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
+import Logo from '../assets/logo.png'; 
+import { BsTiktok } from 'react-icons/bs';
 
 const Footer = () => {
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
   return (
-    <footer className="w-full font-sans bg-[#111827]">
-      {/* Back to Top */}
-      <div
-        onClick={scrollToTop}
-        className="bg-[#232f3e] hover:bg-[#37475a] text-white py-4 cursor-pointer transition-all duration-300 flex justify-center items-center gap-2 text-sm font-semibold group"
-      >
-        <span>Back to top</span>
-        <FaArrowUp className="group-hover:-translate-y-1 transition-transform duration-300" />
-      </div>
+    <footer className="bg-black text-gray-400 border-t border-zinc-900 mt-20 font-sans">
+      
 
-      {/* Main Footer */}
-      <div className="text-gray-300 py-20 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-14 text-center">
 
-            {/* USA */}
-            <div className="flex flex-col items-center space-y-6 md:border-r border-gray-700">
-              <div className="space-y-1">
-                <h3 className="text-[#FEA24D] font-bold text-xl uppercase tracking-widest">
-                  USA Office
-                </h3>
-                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-widest bg-gray-800 px-2 py-0.5 rounded">
-                  Head Office
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-5 items-center max-w-[260px]">
-                <div className="flex flex-col items-center gap-2 group">
-                  <div className="p-2 rounded-full bg-gray-800 group-hover:bg-[#FEA24D] transition">
-                    <FaMapMarkerAlt className="text-gray-400 group-hover:text-white text-sm" />
-                  </div>
-                  <p className="text-sm text-gray-400 group-hover:text-white transition">
-                    88-26 201st St, Jamaica,<br /> NY 11423, USA
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2 group">
-                  <FaPhoneAlt className="text-gray-500 group-hover:text-[#FEA24D] text-sm transition" />
-                  <p className="text-sm text-gray-400 group-hover:text-white transition">
-                    +1(347) 632-6743
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2 group">
-                  <FaEnvelope className="text-gray-500 group-hover:text-[#FEA24D] text-sm transition" />
-                  <p className="text-sm text-gray-400 group-hover:text-white transition">
-                    info@vividvalley.net
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Italy */}
-            <div className="flex flex-col items-center space-y-6 md:border-r border-gray-700">
-              <h3 className="text-[#FEA24D] font-bold text-xl uppercase tracking-widest">
-                Italy Office
-              </h3>
-
-              <div className="flex flex-col gap-5 items-center max-w-[260px]">
-                <div className="flex flex-col items-center gap-2 group">
-                  <div className="p-2 rounded-full bg-gray-800 group-hover:bg-[#FEA24D] transition">
-                    <FaMapMarkerAlt className="text-gray-400 group-hover:text-white text-sm" />
-                  </div>
-                  <p className="text-sm text-gray-400 group-hover:text-white transition">
-                    VIA ALBERTO EINSTEIN, 2.<br /> BOLOGNA, ITALY 40133
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2 group">
-                  <FaPhoneAlt className="text-gray-500 group-hover:text-[#FEA24D] text-sm transition" />
-                  <p className="text-sm text-gray-400 group-hover:text-white transition">
-                    +39 3272233659
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2 group">
-                  <FaEnvelope className="text-gray-500 group-hover:text-[#FEA24D] text-sm transition" />
-                  <p className="text-sm text-gray-400 group-hover:text-white transition">
-                    npuitaly@vividvalley.net
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Bangladesh */}
-            <div className="flex flex-col items-center space-y-6">
-              <h3 className="text-[#FEA24D] font-bold text-xl uppercase tracking-widest">
-                BD Office
-              </h3>
-
-              <div className="flex flex-col gap-5 items-center max-w-[260px]">
-                <div className="flex flex-col items-center gap-2 group">
-                  <div className="p-2 rounded-full bg-gray-800 group-hover:bg-[#FEA24D] transition">
-                    <FaMapMarkerAlt className="text-gray-400 group-hover:text-white text-sm" />
-                  </div>
-                  <p className="text-sm text-gray-400 group-hover:text-white transition">
-                    Din Nath Sen Road, Gendaria<br /> Dhaka-1204, Bangladesh
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2 group">
-                  <FaPhoneAlt className="text-gray-500 group-hover:text-[#FEA24D] text-sm transition" />
-                  <p className="text-sm text-gray-400 group-hover:text-white transition">
-                    +880 1624-059596
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2 group">
-                  <FaEnvelope className="text-gray-500 group-hover:text-[#FEA24D] text-sm transition" />
-                  <p className="text-sm text-gray-400 group-hover:text-white transition">
-                    rozybd@vividvalley.net
-                  </p>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom */}
-      <div className="bg-[#0f1522] py-12 border-t border-gray-800">
-        <div className="container mx-auto px-4 flex flex-col items-center gap-8">
-
-          {/* Social Icons */}
-          <div className="flex gap-4">
-            {[
-              { icon: <FaFacebookF />, link: "https://facebook.com" },
-              { icon: <FaInstagram />, link: "https://instagram.com" },
-              { icon: <FaTiktok />, link: "https://tiktok.com" },
-              { icon: <FaLinkedinIn />, link: "https://linkedin.com" },
-            ].map((item, i) => (
-              <a
-                key={i}
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 text-gray-400 hover:bg-[#FEA24D] hover:text-[#111827] transition shadow-sm"
-              >
-                {item.icon}
-              </a>
-            ))}
-          </div>
-
-          {/* Nav */}
-          <nav>
-            <ul className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm font-medium text-gray-400">
-              {["Home", "Collection", "Blog", "Contact", "About Us", "Our Team"].map(
-                (item) => (
-                  <li key={item}>
-                    <Link
-                      to={item === "Home" ? "/" : `/${item.toLowerCase().replace(" ", "-")}`}
-                      className="hover:text-[#FEA24D] transition"
-                    >
-                      {item}
-                    </Link>
-                  </li>
-                )
-              )}
-            </ul>
-          </nav>
-
-          <hr className="w-full max-w-4xl border-gray-800" />
-
-          <div className="text-center space-y-3">
-            <div className="flex justify-center gap-6 text-[11px] text-gray-500 uppercase tracking-widest">
-              <Link to="/privacy-notice" className="hover:text-[#FEA24D] transition">
-                Privacy Notice
-              </Link>
-              <Link to="/conditions" className="hover:text-[#FEA24D] transition">
-                Conditions of Use
-              </Link>
-            </div>
-            <p className="text-xs text-gray-500">
-              &copy; {new Date().getFullYear()}{" "}
-              <span className="font-bold text-gray-400">VIVID VALLEY</span> &{" "}
-              <a
-                className="hover:text-[#FEA24D] transition"
-                target="_blank"
-                rel="noreferrer"
-                href="https://startedge.net/"
-              >
-                Startedge
-              </a>
-              . All rights reserved.
+      {/* Footer Content */}
+      <div className="container mx-auto px-4 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          
+          {/* Brand Info */}
+          <div className="flex flex-col gap-4">
+            <img src={Logo} alt="Brozzo Logo" className="w-32 mb-2 object-contain" />
+            <p className="text-sm leading-relaxed text-gray-500">
+              Brozzo is your ultimate destination for premium fashion and lifestyle accessories. We define style with elegance and quality.
             </p>
+            <div className="flex gap-4 mt-2">
+              <a href="https://www.facebook.com/brozzo.bd?rdid=wfXu23nMoiwSI6m7&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F16d6LGkDpM%2F#"
+              target='_blank'
+              className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center hover:bg-[#FF4955] hover:text-white transition-all duration-300 group">
+                <Facebook size={18} />
+              </a>
+              <a href="https://www.instagram.com/brozzo.bd?igsh=Y3JkcG02OWp4Y3M4" 
+              target='_blank'
+              className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center hover:bg-[#FF4955] hover:text-white transition-all duration-300 group">
+                <Instagram size={18} />
+              </a>
+              <a href="https://www.tiktok.com/@brozzo.bd?_r=1&_t=ZS-93l2ayVD1CK"
+              target='_blank'
+              className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center hover:bg-[#FF4955] hover:text-white transition-all duration-300 group">
+                <BsTiktok size={18} />
+              </a>
+            </div>
           </div>
+
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-white font-bold text-lg mb-6 uppercase tracking-wider">Company</h4>
+            <ul className="flex flex-col gap-3 text-sm">
+              <li>
+                <Link to="/" className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#FF4955]" />
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/about-us" className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#FF4955]" />
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/collection" className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#FF4955]" />
+                  Collection
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#FF4955]" />
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Policies */}
+          <div>
+            <h4 className="text-white font-bold text-lg mb-6 uppercase tracking-wider">Policies</h4>
+            <ul className="flex flex-col gap-3 text-sm">
+              <li>
+                <Link to="/privacy-policy" className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#FF4955]" />
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-conditions" className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#FF4955]" />
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link to="/shipping-policy" className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#FF4955]" />
+                  Shipping Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/returns" className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#FF4955]" />
+                  Returns & Exchanges
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h4 className="text-white font-bold text-lg mb-6 uppercase tracking-wider">Get In Touch</h4>
+            <ul className="flex flex-col gap-4 text-sm">
+              <li className="flex items-start gap-3">
+                <MapPin className="text-[#FF4955] mt-1 shrink-0" size={18} />
+                <p>123 Premium Street, Fashion City, Dhaka, Bangladesh</p>
+              </li>
+              <li className="flex items-center gap-3">
+                <Phone className="text-[#FF4955] shrink-0" size={18} />
+                <p>+880 1234 567 890</p>
+              </li>
+              <li className="flex items-center gap-3">
+                <Mail className="text-[#FF4955] shrink-0" size={18} />
+                <p>support@brozzo.com</p>
+              </li>
+            </ul>
+          </div>
+
         </div>
       </div>
+
+      {/* Bottom Copyright */}
+      <div className="bg-[#0a0a0a] border-t border-zinc-900 py-6">
+        <div className="text-center mx-auto px-4   text-xs text-gray-600">
+          <p>&copy; {new Date().getFullYear()} <Link to={"https://startedge.net/"} target='_blank' className='text-[#FF4955]' >Startedge</Link>. All rights reserved.</p>
+          
+        </div>
+      </div>
+
     </footer>
   );
 };

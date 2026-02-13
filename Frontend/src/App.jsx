@@ -21,7 +21,7 @@ function App() {
         <Outlet />
       </div>
 
-      {/* <Footer /> */}
+      <Footer />
     </div>
     </ShopContextProvider>
   );

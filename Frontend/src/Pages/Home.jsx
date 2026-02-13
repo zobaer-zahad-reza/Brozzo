@@ -80,7 +80,7 @@ const Home = () => {
 
         <PromoBentoGrid />
 
-        {/* <BestSellingProducts /> */}
+        <BestSellingProducts />
 
         {/* <Link to={'/collection'} className="flex justify-center mt-12">
           <button className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full text-white font-bold text-lg shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden hover:cursor-pointer">

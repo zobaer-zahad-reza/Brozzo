@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShopContext } from '../Context/ShopContext';
 
 const ProductCard = ({ id, image, name, price, offerPrice }) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const { currency } = useContext(ShopContext);
+  // Use a default currency if context is not available (for static demo)
+  const context = useContext(ShopContext);
+  const currency = context?.currency || "$"; 
+  
   const navigate = useNavigate();
 
   const handleBuyNow = (e) => {
@@ -28,78 +30,50 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
     <Link 
       to={`/product/${id}`}
       onClick={() => window.scrollTo(0, 0)}
-      className="group cursor-pointer flex flex-col gap-3 w-full border border-gray-100 p-2 rounded-xl hover:shadow-xl transition-shadow duration-300 bg-white"
+      className="group cursor-pointer flex flex-col gap-3 w-full border border-zinc-800 p-2 rounded-xl bg-[#18181b] hover:border-[#FF4955]/50 hover:shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-all duration-300"
     >
       
       {/* Image Container */}
-      <div className="relative w-full aspect-square overflow-hidden rounded-xl bg-gray-100">
+      <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-zinc-900">
         <img
           src={Array.isArray(image) ? image[0] : image}
           alt={name}
           className="h-full w-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
           onError={(e) => {
-             e.target.src = "https://placehold.co/400x400/png?text=No+Image"; 
+             e.target.src = "https://placehold.co/400x400/18181b/FFFFFF/png?text=No+Image"; 
           }}
         />
 
         {/* Discount Badge */}
-        {offerPrice > 0 && (
-            <span className="absolute top-2 left-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm z-10">
+        {offerPrice > 0 && offerPrice < price && (
+            <span className="absolute top-2 left-2 bg-[#FF4955] text-white text-[10px] font-bold px-2 py-1 rounded-sm shadow-sm z-10">
                 {Math.round(((price - offerPrice) / price) * 100)}% OFF
             </span>
         )}
-
-        {/* Heart Icon Button */}
-        {/* <button
-          onClick={(e) => {
-            e.preventDefault(); 
-            e.stopPropagation();
-            setIsLiked(!isLiked);
-          }}
-          className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white backdrop-blur-sm transition-colors shadow-sm z-10"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill={isLiked ? "#ef4444" : "none"}
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className={`w-5 h-5 ${
-              isLiked ? "stroke-red-500" : "stroke-gray-900"
-            }`}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-            />
-          </svg>
-        </button> */}
       </div>
 
       {/* Content Area */}
-      <div className="flex flex-col gap-2">
-        <h3 className="text-[15px] font-semibold text-gray-900 leading-snug line-clamp-2 min-h-10 group-hover:text-[#FEA24D] transition-colors">
+      <div className="flex flex-col gap-2 p-1">
+        <h3 className="text-[14px] md:text-[15px] font-medium text-gray-200 leading-snug line-clamp-2 min-h-[42px] group-hover:text-[#FF4955] transition-colors">
           {name}
         </h3>
         
         {/* Price Section */}
-        <div className='flex items-center justify-between'>
-            <p className="text-sm text-gray-500">Price</p>
+        <div className='flex items-center justify-between mt-1'>
+            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Price</p>
             
             <div className="flex flex-col items-end">
-                {offerPrice > 0 ? (
+                {offerPrice > 0 && offerPrice < price ? (
                     <>
-                        {/* offer Price */}
-                        <p className="text-lg font-bold text-gray-900 leading-none">
+                        <p className="text-lg font-bold text-white leading-none">
                             {currency}{offerPrice}
                         </p>
-                        <p className="text-xs text-gray-400 line-through">
+                        <p className="text-xs text-gray-500 line-through mt-0.5">
                             {currency}{price}
                         </p>
                     </>
                 ) : (
-                    <p className="text-lg font-bold text-gray-900">{currency}{price}</p>
+                    <p className="text-lg font-bold text-white">{currency}{price}</p>
                 )}
             </div>
         </div>
@@ -107,7 +81,7 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
         {/* Buy Now Button */}
         <button 
           onClick={handleBuyNow} 
-          className="w-full py-2 bg-[#FEA24D] hover:bg-[#e89344] text-white font-bold rounded-lg transition-colors text-sm shadow-sm mt-1 z-20 relative"
+          className="w-full py-2 bg-zinc-800 hover:bg-[#FF4955] text-gray-300 hover:text-white font-semibold rounded-md transition-all duration-300 text-sm shadow-sm mt-2 border border-zinc-700 hover:border-[#FF4955] active:scale-95"
         >
           Buy Now
         </button>
