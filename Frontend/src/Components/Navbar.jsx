@@ -80,7 +80,7 @@ const Navbar = () => {
         `}</style>
 
         {/* MAIN HEADER */}
-        <div className="bg-black text-white flex flex-col md:flex-row items-center px-4 py-2 md:py-3 md:px-10 relative z-[60] shadow-md border-b border-zinc-900">
+        <div className="bg-black text-white flex flex-col md:flex-row items-center px-4 py-2 md:py-3 md:px-10 relative z-[999] shadow-md border-b border-zinc-900">
 
           {/* Logo & Menu */}
           <div className="flex justify-between items-center w-full md:w-auto">
