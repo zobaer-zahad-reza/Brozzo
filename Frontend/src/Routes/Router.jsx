@@ -17,7 +17,6 @@ import Profile from "../Pages/Profile";
 import PlaceOrder from "../Pages/PlaceOrder";
 import Orders from "../Pages/Orders";
 
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -29,55 +28,55 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path:'/privacy-notice',
+        path: "/privacy-notice",
         // element: <PrivacyNotice />
       },
       {
-        path:'/contact',
-        // element: <Contact />
+        path: "/contact",
+        element: <Contact />,
       },
       {
-        path:'/collection',
-        element: <Collection />
+        path: "/collection",
+        element: <Collection />,
       },
       {
-        path:'/about-us',
+        path: "/about-us",
         // element: <AboutUs />
       },
       {
-        path:'/product/:id',
+        path: "/product/:id",
         // element: <ProductDetails />
       },
       {
-        path:'/login',
+        path: "/login",
         // element: <Login />
       },
       {
-        path:'/cart',
+        path: "/cart",
         // element: <Cart />
       },
       {
-        path:'/signup',
+        path: "/signup",
         // element: <SignUp />
       },
       {
-        path:'/forgot-password',
+        path: "/forgot-password",
         // element: <ForgotPassword />
       },
       {
-        path:'/profile',
+        path: "/profile",
         // element: <Profile />
       },
       {
-        path:"/place-order",
+        path: "/place-order",
         // element: <PlaceOrder />
       },
       {
         path: "/orders",
         // element: <Orders />
-      }
-    ]
-  }
+      },
+    ],
+  },
 ]);
 
 export default router;

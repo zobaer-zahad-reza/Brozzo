@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import assets from "../assets/logo.png";
+import assets from "../assets/logo.png"; // Brozzo Logo
 import Swal from "sweetalert2";
 import LocationMap from "../Components/LocationMap";
+import { Phone, Mail, MapPin, Briefcase } from "lucide-react";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -20,168 +21,162 @@ const Contact = () => {
 
     Swal.fire({
       title: "Sending your message...",
-      text: "Please wait.",
+      text: "Please wait while we connect with Brozzo support.",
       allowOutsideClick: false,
+      background: "#18181b",
+      color: "#fff",
       didOpen: () => {
         Swal.showLoading();
       },
-      confirmButtonColor: "#FF751F",
     });
+
+    // এখানে আপনার API কল করতে পারেন
+    setTimeout(() => {
+      Swal.fire({
+        icon: "success",
+        title: "Message Sent!",
+        text: "Thank you for contacting Brozzo. We will get back to you soon.",
+        confirmButtonColor: "#FF4955",
+        background: "#18181b",
+        color: "#fff",
+      });
+      setFormData({ name: "", email: "", message: "" });
+    }, 2000);
   };
 
   return (
-    <div>
-      <div className="flex justify-center text-4xl pt-10 border-gray-100 uppercase">
-        <h1>
-          <span className="text-[#6B7280]">Contact</span>{" "}
-          <span className="text-[#6B7280]">Us</span>
+    <div className="bg-black text-white min-h-screen">
+      {/* Page Title */}
+      <div className="flex flex-col items-center justify-center pt-16 pb-10 uppercase tracking-widest">
+        <h1 className="text-4xl md:text-5xl font-bold">
+          <span className="text-gray-500">Contact</span>{" "}
+          <span className="text-white">Us</span>
         </h1>
-        <span className="w-10 mt-5 ml-4  border-t-2 border-[#6B7280]"></span>
+        <div className="w-20 h-1 bg-[#FF4955] mt-4"></div>
       </div>
 
-      <div className="bg-white font-sans text-gray-800 py-12 ">
+      <div className="font-sans py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-          <div className="text-center mb-12 md:mb-16">
-            <p className="text-gray-500  max-w-2xl mx-auto">
-              We'd love to hear from you. Whether you have a question about{" "}
-              <span className="font-semibold text-[#FEA14A]">Vivid Valley</span>{" "}
-              products, pricing, or anything else, our team is ready to answer
-              all your questions.
+          <div className="text-center mb-16">
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+              Have a question about{" "}
+              <span className="text-[#FF4955] font-semibold">Brozzo</span>{" "}
+              products or an order? Our team is dedicated to providing you with
+              the best fashion experience.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             {/* Contact Form Section */}
-            <div className="bg-gray-50 p-8 rounded-lg border border-gray-200 shadow-sm">
-              <h2 className="text-2xl font-semibold mb-6 text-[#6B7280]">
+            <div className="bg-[#111113] p-8 rounded-2xl border border-zinc-800 shadow-2xl">
+              <h2 className="text-2xl font-bold mb-8 text-white flex items-center gap-2">
                 Send us a Message
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
                     Full Name
                   </label>
                   <input
                     type="text"
                     name="name"
-                    id="name"
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#FEA14A] focus:border-transparent outline-none transition"
-                    placeholder="Your Name"
+                    className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl focus:ring-2 focus:ring-[#FF4955] focus:border-transparent outline-none transition text-white placeholder-zinc-600"
+                    placeholder="Enter your name"
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
                     Email Address
                   </label>
                   <input
                     type="email"
                     name="email"
-                    id="email"
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#FEA14A] focus:border-transparent outline-none transition"
-                    placeholder="you@example.com"
+                    className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl focus:ring-2 focus:ring-[#FF4955] focus:border-transparent outline-none transition text-white placeholder-zinc-600"
+                    placeholder="example@mail.com"
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Message
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                    Your Message
                   </label>
                   <textarea
                     name="message"
-                    id="message"
-                    rows="5"
+                    rows="4"
                     required
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#FEA14A] focus:border-transparent outline-none transition"
+                    className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl focus:ring-2 focus:ring-[#FF4955] focus:border-transparent outline-none transition text-white placeholder-zinc-600 resize-none"
                     placeholder="How can we help you?"
                   ></textarea>
                 </div>
-                <div>
-                  <button
-                    type="submit"
-                    className="w-full bg-[#FEA14A] text-white font-bold py-3 px-8 rounded-md hover:bg-[#FEA14A] transition-all duration-300 ease-in-out uppercase text-sm tracking-wider shadow-md hover:shadow-lg hover:cursor-pointer"
-                  >
-                    Send Message
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-[#FF4955] text-white font-bold py-4 px-8 rounded-xl hover:bg-[#e63e49] transition-all duration-300 uppercase text-sm tracking-[2px] shadow-lg active:scale-95"
+                >
+                  Send Message
+                </button>
               </form>
             </div>
 
             {/* Info Section */}
-            <div className="flex flex-col justify-center items-start gap-10">
-              <div className="w-full relative group">
+            <div className="flex flex-col gap-10">
+              {/* Image with Logo */}
+              <div className="relative group overflow-hidden rounded-2xl border border-zinc-800 shadow-xl bg-zinc-900 flex items-center justify-center h-64">
                 <img
-                  className="w-full rounded-lg shadow-md object-cover h-64 transition-transform duration-300 group-hover:scale-[1.01]"
+                  className="w-48 object-contain transition-transform duration-500 group-hover:scale-110"
                   src={assets}
-                  alt="Vivid Valley Storefront"
+                  alt="Brozzo Logo"
                 />
-                <div className="absolute inset-0 bg-black/5 rounded-lg pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               </div>
 
-              <div className="flex flex-col justify-center items-start gap-3">
-                <h3 className="font-semibold text-xl text-[#6B7280] border-l-4 border-[#FEA14A] pl-3">
-                  Head Office
+              {/* Office Details */}
+              <div className="space-y-6">
+                <h3 className="text-2xl font-bold text-white border-l-4 border-[#FF4955] pl-4">
+                  Get in Touch
                 </h3>
-                <p className="text-gray-600 leading-relaxed pl-4">
-                  88-26 201st St, Jamaica, NY 11423
-                  <br />
-                  USA
-                </p>
-                <div className="text-gray-600 leading-relaxed pl-4 ">
-                  <p>
-                    <span className="font-medium text-gray-900">Tel:</span>{" "}
+
+                <div className="space-y-4 pl-5">
+                  <div className="flex items-start gap-4">
+                    <MapPin className="text-[#FF4955] shrink-0" size={22} />
+                    <p className="text-gray-400">
+                      Pagla, Fatullah, Narayanganj 1421, Bangladesh
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <Phone className="text-[#FF4955] shrink-0" size={22} />
                     <a
-                      href="tel:+8801608068403"
-                      className="hover:text-[#FEA14A] hover:underline transition-all"
+                      href="tel:+8801737912273"
+                      className="text-gray-400 hover:text-white transition-colors"
                     >
-                      +1347 632-6743
+                      +880 1737 912 273
                     </a>
-                  </p>
-                  <p>
-                    <span className="font-medium text-gray-900">Email:</span>{" "}
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <Mail className="text-[#FF4955] shrink-0" size={22} />
                     <a
-                      href="mailto:support@vividvalley.com"
-                      className="hover:text-[#FEA14A] hover:underline transition-all"
+                      href="mailto:brozzo.bd71@gmail.com"
+                      className="text-gray-400 hover:text-white transition-colors"
                     >
-                      info@vividvalley.net
+                      brozzo.bd71@gmail.com
                     </a>
-                  </p>
+                  </div>
                 </div>
-              </div>
-
-              <div className="flex flex-col justify-center items-start gap-4 border-t border-gray-200 pt-8 w-full">
-                <h3 className="font-semibold text-xl text-[#6B7280] border-l-4 border-[#FEA14A] pl-3">
-                  Careers At Vivid Valley
-                </h3>
-                <p className="text-gray-600 pl-4">
-                  Interested in joining our innovative team? Learn more about
-                  our company culture and open positions.
-                </p>
-                <button className="ml-4 mt-2 border border-gray-300 px-6 py-2 text-sm font-medium bg-[#FEA14A] text-white hover:bg-[#FEA14A] hover:text-white transition-all duration-300 hover:cursor-pointer rounded-md">
-                  Explore Jobs
-                </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Location */}
-        <div className="w-full">
+        {/* Location Map Section */}
+        <div className="w-full mt-10 grayscale-[1] contrast-[1.2] hover:grayscale-0 transition-all duration-700">
           <LocationMap />
         </div>
       </div>
