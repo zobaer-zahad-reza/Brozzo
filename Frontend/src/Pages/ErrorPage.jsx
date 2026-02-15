@@ -1,110 +1,123 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ShoppingBag, ArrowLeft, Home, Search } from "lucide-react";
 
 const ErrorPage = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="min-h-screen bg-[#FDFBF7] flex items-center relative overflow-hidden font-sans">
-      
-      {/* Background World Map Patter */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <svg className="w-full h-full text-gray-400 fill-current" viewBox="0 0 2000 1000" xmlns="http://www.w3.org/2000/svg">
-             <pattern id="dotPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1" />
-             </pattern>
-             <rect width="100%" height="100%" fill="url(#dotPattern)" />
-        </svg>
+    <section className="min-h-screen bg-black flex items-center relative overflow-hidden font-sans text-gray-200">
+      {/* Background Decorative Elements */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#1a1a1a_1px,transparent_1px)] [background-size:20px_20px]"></div>
+        <div className="absolute top-1/4 -right-20 w-96 h-96 bg-[#FF4955]/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-[#FF4955]/5 rounded-full blur-[100px]"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center z-10 py-12">
-        
         {/* Content & Action */}
-        <div className="text-center lg:text-left order-2 lg:order-1 space-y-8">
-            <div className="space-y-4">
-                <p className="text-orange-500 font-bold tracking-widest uppercase text-sm md:text-base">
-                    Error Code: 404
-                </p>
-                <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight">
-                    Shipment <br className="hidden md:block" /> Not Found
-                </h1>
-                <p className="text-gray-500 text-lg md:text-xl max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                    The page you are looking for might have been moved, deleted, or got lost in transit between our warehouses.
-                </p>
+        <div className="text-center lg:text-left order-2 lg:order-1 space-y-10">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/50">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4955] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF4955]"></span>
+              </span>
+              <p className="text-[#FF4955] font-black tracking-[3px] uppercase text-[10px]">
+                Error Code: 404
+              </p>
             </div>
 
-            {/* Fake Search Bar for UX */}
-            <div className="max-w-md mx-auto lg:mx-0 relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                     <svg className="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-                <input 
-                    type="text" 
-                    placeholder="Search for pages or products..." 
-                    className="block w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition duration-300 shadow-sm"
-                />
-            </div>
+            <h1 className="text-5xl md:text-8xl font-black text-white leading-none tracking-tighter uppercase">
+              Style <br className="hidden md:block" />{" "}
+              <span className="text-[#FF4955]">Out of Stock</span>
+            </h1>
 
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-2">
-                <button 
-                    onClick={() => navigate('/')}
-                    className="px-8 py-4 bg-orange-500 text-white text-base font-bold rounded-xl shadow-lg shadow-orange-500/30 hover:bg-orange-600 hover:-translate-y-1 transition-all duration-300"
-                >
-                    Return Home
-                </button>
-                <button 
-                    onClick={() => navigate(-1)}
-                    className="px-8 py-4 bg-white text-gray-700 border border-gray-200 text-base font-bold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-300"
-                >
-                    Go Back
-                </button>
-            </div>
+            <p className="text-zinc-500 text-lg md:text-xl max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium italic">
+              The look you're searching for isn't in our current collection. It
+              might have been retired or moved to a new aisle.
+            </p>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+            <button
+              onClick={() => navigate("/")}
+              className="px-10 py-4 bg-[#FF4955] text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-[0_10px_20px_-5px_rgba(255,73,85,0.4)] hover:bg-[#e63e49] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <Home size={18} /> Return Home
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="px-10 py-4 bg-transparent text-white border-2 border-zinc-800 text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-zinc-900 hover:border-zinc-700 transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <ArrowLeft size={18} /> Back to Shop
+            </button>
+          </div>
         </div>
 
-        {/* Right Side: Visual / Illustration */}
+        {/* Right Side: Visual Illustration */}
         <div className="order-1 lg:order-2 flex justify-center lg:justify-end relative">
-            
-            {/* The "404" Container Box */}
-            <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
-                
-                {/* Decorative Blob */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-orange-100/50 rounded-full blur-3xl -z-10"></div>
+          <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
+            {/* 404 Visual Card */}
+            <div className="relative bg-[#111113] border border-zinc-800 rounded-[40px] p-12 md:p-16 shadow-[30px_30px_60px_-15px_rgba(0,0,0,0.5)] transform hover:rotate-2 transition-transform duration-700 ease-out group">
+              {/* Brozzo Branding Badge */}
+              <div className="absolute -top-4 -right-4 bg-white text-black text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-tighter">
+                Brozzo Premium
+              </div>
 
-                <div className="relative bg-white border-2 border-gray-900 rounded-3xl p-8 md:p-12 shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] rotate-[-3deg] hover:rotate-0 transition-transform duration-500">
-                    <div className="absolute top-4 left-4 flex gap-2">
-                        <div className="w-3 h-3 rounded-full bg-red-500 border border-black"></div>
-                        <div className="w-3 h-3 rounded-full bg-yellow-500 border border-black"></div>
-                        <div className="w-3 h-3 rounded-full bg-green-500 border border-black"></div>
+              <div className="text-center space-y-8">
+                <div className="relative">
+                  <h2 className="text-[120px] md:text-[150px] font-black text-white leading-none tracking-tighter opacity-10">
+                    404
+                  </h2>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-24 h-24 bg-[#FF4955] rounded-3xl rotate-12 flex items-center justify-center border-4 border-black shadow-2xl group-hover:rotate-0 transition-transform duration-500">
+                      <ShoppingBag size={40} className="text-white" />
                     </div>
-                    
-                    <div className="mt-8 text-center space-y-6">
-                        <div className="w-24 h-24 bg-orange-500 mx-auto rounded-2xl flex items-center justify-center border-2 border-black">
-                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 className="text-4xl font-black text-gray-900">404</h2>
-                            <p className="text-gray-500 font-medium">Page Missing</p>
-                        </div>
-                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                             <div className="h-full bg-orange-500 w-2/3 animate-pulse"></div>
-                        </div>
-                        <p className="text-xs text-gray-400 font-mono">ID: VIVID-VALLEY-MISSING-PG</p>
-                    </div>
+                  </div>
                 </div>
 
-                {/* Floating Elements */}
-                <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl border-2 border-gray-900 shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] animate-bounce hidden md:block">
-                     <span className="text-2xl">📦</span>
+                <div>
+                  <h2 className="text-2xl font-black text-white uppercase tracking-widest">
+                    Page Missing
+                  </h2>
+                  <p className="text-zinc-600 font-bold mt-1 uppercase text-[10px] tracking-[4px]">
+                    Verified Luxury Authenticity
+                  </p>
                 </div>
+
+                {/* Animated Progress Bar */}
+                <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#FF4955] w-1/3 animate-[shimmer_2s_infinite]"></div>
+                </div>
+
+                <p className="text-[10px] text-zinc-700 font-mono tracking-tighter">
+                  REF: BROZZO-ERR-0404X-LOST
+                </p>
+              </div>
             </div>
-        </div>
 
+            {/* Floating Tags */}
+            <div className="absolute -bottom-4 -left-4 bg-[#FF4955] p-5 rounded-3xl shadow-2xl rotate-[-12deg] hidden md:block">
+              <span className="text-white font-black text-sm uppercase tracking-tighter">
+                Collection 2026
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(300%); }
+        }
+      `,
+        }}
+      />
     </section>
   );
 };

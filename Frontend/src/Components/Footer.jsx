@@ -62,7 +62,7 @@ const Footer = () => {
               Company
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
-              {["Home", "Collection", "About Us", "Contact Us"].map((item) => (
+              {["Home", "Collection", "About Us", "Contact"].map((item) => (
                 <li key={item}>
                   <Link
                     to={

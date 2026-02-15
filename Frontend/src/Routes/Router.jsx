@@ -41,23 +41,23 @@ const router = createBrowserRouter([
       },
       {
         path: "/about-us",
-        // element: <AboutUs />
+        element: <AboutUs />,
       },
       {
         path: "/product/:id",
-        // element: <ProductDetails />
+        element: <ProductDetails />,
       },
       {
         path: "/login",
-        // element: <Login />
+        element: <Login />,
       },
       {
         path: "/cart",
-        // element: <Cart />
+        element: <Cart />,
       },
       {
         path: "/signup",
-        // element: <SignUp />
+        element: <SignUp />,
       },
       {
         path: "/forgot-password",
@@ -65,7 +65,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/profile",
-        // element: <Profile />
+        element: <Profile />,
       },
       {
         path: "/place-order",

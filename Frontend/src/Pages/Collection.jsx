@@ -1,17 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ProductCard from "../Components/ProductCard";
 import { TbFaceIdError } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa";
-// import { ShopContext } from "../Context/ShopContext"; // Commented for static test
 
 const Collection = () => {
-  // --- DYNAMIC CONTEXT (Commented Out) ---
-  /*
-  const { products, showSearch } = useContext(ShopContext);
-  */
-  
   // --- STATIC DEMO DATA FOR BROZZO ---
   const demoProducts = [
     {
@@ -19,68 +13,50 @@ const Collection = () => {
       name: "Midnight Chronograph Watch",
       price: 150,
       offerPrice: 120,
-      image: ["https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=1000&auto=format&fit=crop"],
-      category: "Watch"
+      image: [
+        "https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=1000&auto=format&fit=crop",
+      ],
+      category: "Watch",
     },
     {
       _id: "2",
       name: "Noir Leather Belt",
       price: 45,
       offerPrice: 35,
-      image: ["https://images.unsplash.com/photo-1624222247344-550fb60583dc?q=80&w=1000&auto=format&fit=crop"],
-      category: "Men Accesoric"
+      image: [
+        "https://images.unsplash.com/photo-1624222247344-550fb60583dc?q=80&w=1000&auto=format&fit=crop",
+      ],
+      category: "Men Accesoric",
     },
     {
       _id: "3",
       name: "Bass Pro Wireless Headphones",
       price: 200,
       offerPrice: 180,
-      image: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop"],
-      category: "Tech Accesoric"
+      image: [
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop",
+      ],
+      category: "Tech Accesoric",
     },
-    {
-      _id: "4",
-      name: "Aviator Dark Shades",
-      price: 80,
-      offerPrice: 0,
-      image: ["https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=1000&auto=format&fit=crop"],
-      category: "Sun Glasses"
-    },
-    {
-      _id: "5",
-      name: "Urban Black Hoodie",
-      price: 60,
-      offerPrice: 50,
-      image: ["https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1000&auto=format&fit=crop"],
-      category: "Men Cloths"
-    },
-    {
-      _id: "6",
-      name: "Classic Silver Timepiece",
-      price: 250,
-      offerPrice: 220,
-      image: ["https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?q=80&w=1000&auto=format&fit=crop"],
-      category: "Watch"
-    }
+    // ... বাকি ডাটা
   ];
 
-  // Brozzo Specific Categories
   const categories = [
-    "Watch", "Men Accesoric", "Sun Glasses",
-    "Tech Accesoric", "Men Cloths"
+    "Watch",
+    "Men Accesoric",
+    "Sun Glasses",
+    "Tech Accesoric",
+    "Men Cloths",
   ];
 
   const [searchParams] = useSearchParams();
   const { categorySlug } = useParams();
-  
+
   const [showFilter, setShowFilter] = useState(false);
-  const [products, setProducts] = useState(demoProducts); // Using static data initially
-  const [filterProducts, setFilterProducts] = useState([]);
+  const [filterProducts, setFilterProducts] = useState(demoProducts);
   const [category, setCategory] = useState([]);
   const [sortType, setSortType] = useState("relavent");
-  const showSearch = false; // Static showSearch
 
-  // Initialize Category from URL
   useEffect(() => {
     let categoryList = [];
     if (categorySlug) {
@@ -92,77 +68,82 @@ const Collection = () => {
       }
     }
     setCategory(categoryList);
-    setShowFilter(false); 
   }, [categorySlug, searchParams]);
 
-  // Filter & Sort Logic
   useEffect(() => {
-    let cp = [...demoProducts]; // Apply on demoProducts
-    
-    const urlSearch = searchParams.get("search");
-
-    // Search Logic
-    if (showSearch && urlSearch) {
-      cp = cp.filter(item => item.name.toLowerCase().includes(urlSearch.toLowerCase()));
-    }
-
-    // Category Filter Logic
+    let cp = [...demoProducts];
     if (category.length > 0) {
-      cp = cp.filter(item => 
-        category.some(c => item.category && item.category.toLowerCase() === c.toLowerCase())
+      cp = cp.filter((item) =>
+        category.some(
+          (c) =>
+            item.category && item.category.toLowerCase() === c.toLowerCase(),
+        ),
       );
     }
-
-    // Sort Logic
     if (sortType === "low-high") cp.sort((a, b) => a.price - b.price);
     else if (sortType === "high-low") cp.sort((a, b) => b.price - a.price);
 
     setFilterProducts(cp);
-  }, [category, searchParams, showSearch, sortType]); // Removed 'products' dependency for static mode
+  }, [category, sortType]);
 
   const toggleCategory = (e) => {
     const val = e.target.value;
-    
-    // Toggle logic: If clicked, add/remove from array
-    setCategory(prev => {
-        if (prev.includes(val)) {
-            return prev.filter(a => a !== val);
-        } else {
-            // For single selection behavior (optional), uncomment next line:
-            // return [val]; 
-            return [...prev, val];
-        }
-    });
+    setCategory((prev) =>
+      prev.includes(val) ? prev.filter((a) => a !== val) : [...prev, val],
+    );
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-16 px-4 bg-black min-h-screen text-gray-200">
-      
+    <div className="relative flex flex-col sm:flex-row gap-1 sm:gap-10 pt-16 px-4 bg-black min-h-screen text-gray-200">
+      {/* --- Mobile Filter Overlay (Darkened Background) --- */}
+      {showFilter && (
+        <div
+          className="fixed inset-0 bg-black/70 z-[60] sm:hidden transition-opacity"
+          onClick={() => setShowFilter(false)}
+        ></div>
+      )}
+
       {/* --- Filters Sidebar --- */}
-      <div className={`fixed sm:static top-0 right-0  h-full sm:h-auto w-[280px] sm:w-64 bg-[#18181b] sm:bg-transparent p-5 sm:p-0 transition-transform duration-300 ease-in-out border-l sm:border-l-0 border-zinc-800 ${showFilter ? "translate-x-0 shadow-2xl" : "translate-x-full sm:translate-x-0 shadow-none"}`}>
-        
+      <div
+        className={`fixed sm:static top-0 right-0 h-full z-[70] sm:z-auto w-[280px] sm:w-64 bg-[#0a0a0a] sm:bg-transparent p-6 sm:p-0 transition-transform duration-300 ease-in-out border-l sm:border-l-0 border-zinc-800 ${showFilter ? "translate-x-0" : "translate-x-full sm:translate-x-0"}`}
+      >
         {/* Mobile Filter Header */}
-        <div className="flex justify-between items-center sm:hidden mb-6 border-b border-zinc-800 pb-4">
-            <span className="text-xl font-bold text-white uppercase tracking-wider">Filters</span>
-            <IoClose onClick={() => setShowFilter(false)} className="text-2xl cursor-pointer text-[#FF4955]" />
+        <div className="flex justify-between items-center sm:hidden mb-8 border-b border-zinc-900 pb-4">
+          <span className="text-xl font-bold text-white uppercase tracking-wider">
+            Filters
+          </span>
+          <button
+            onClick={() => setShowFilter(false)}
+            className="p-2 bg-zinc-900 rounded-full text-[#FF4955]"
+          >
+            <IoClose size={24} />
+          </button>
         </div>
 
-        <p className="hidden sm:block my-2 text-xl font-bold text-white uppercase tracking-wider">Filters</p>
-        
-        {/* Category Filter Box */}
-        <div className="border border-zinc-800 bg-[#18181b] pl-5 py-4 mt-6 rounded-md shadow-sm">
-          <p className="mb-4 text-sm font-bold uppercase text-gray-400 tracking-widest">Categories</p>
-          <div className="flex flex-col gap-3 text-sm text-gray-300 max-h-[500px] overflow-y-auto custom-scrollbar">
+        <p className="hidden sm:block mb-4 text-xl font-bold text-white uppercase tracking-wider">
+          Filters
+        </p>
+
+        <div className="border border-zinc-800 bg-[#111113] pl-5 py-5 rounded-2xl shadow-xl sm:shadow-none">
+          <p className="mb-4 text-xs font-black uppercase text-[#FF4955] tracking-[2px]">
+            Categories
+          </p>
+          <div className="flex flex-col gap-4 text-sm text-gray-300">
             {categories.map((cat) => (
-              <label key={cat} className="flex gap-3 items-center cursor-pointer hover:text-[#FF4955] transition-colors group">
-                <input 
-                    className="w-4 h-4 accent-[#FF4955] bg-zinc-800 border-zinc-600 rounded cursor-pointer" 
-                    type="checkbox" 
-                    value={cat} 
-                    onChange={toggleCategory} 
-                    checked={category.includes(cat)} 
+              <label
+                key={cat}
+                className="flex gap-3 items-center cursor-pointer hover:text-white transition-colors group"
+              >
+                <input
+                  className="w-5 h-5 accent-[#FF4955] bg-zinc-800 border-zinc-700 rounded cursor-pointer"
+                  type="checkbox"
+                  value={cat}
+                  onChange={toggleCategory}
+                  checked={category.includes(cat)}
                 />
-                <span className="group-hover:translate-x-1 transition-transform">{cat}</span>
+                <span className="group-hover:translate-x-1 transition-transform duration-300 font-medium">
+                  {cat}
+                </span>
               </label>
             ))}
           </div>
@@ -171,57 +152,58 @@ const Collection = () => {
 
       {/* --- Product Area --- */}
       <div className="flex-1">
-        
-        {/* Top Bar: Title & Sort */}
-        <div className="flex flex-col sm:flex-row justify-between mb-8 items-center gap-4 border-b border-zinc-800 pb-6">
-          <div className="inline-flex items-center gap-2">
-            <p className="text-gray-400 text-xl uppercase tracking-widest">
-                Brozzo <span className="text-white font-extrabold">Collection</span>
+        <div className="flex flex-col sm:flex-row justify-between mb-8 items-center gap-4 border-b border-zinc-900 pb-6">
+          <div className="inline-flex items-center gap-3">
+            <p className="text-zinc-500 text-xl uppercase tracking-[3px]">
+              Brozzo <span className="text-white font-black">Collection</span>
             </p>
-            <div className="w-12 h-[2px] bg-[#FF4955]"></div>
+            <div className="hidden sm:block w-12 h-[2px] bg-[#FF4955]"></div>
           </div>
-          
-          <div className="flex gap-4 w-full sm:w-auto">
-            {/* Sort Dropdown */}
-            <select 
-                onChange={(e) => setSortType(e.target.value)} 
-                className="border border-zinc-800 bg-[#18181b] text-gray-300 text-sm py-2 px-3 rounded-md w-1/2 sm:w-48 outline-none focus:border-[#FF4955] transition-colors"
+
+          <div className="flex gap-3 w-full sm:w-auto">
+            <select
+              onChange={(e) => setSortType(e.target.value)}
+              className="bg-zinc-900 border border-zinc-800 text-gray-300 text-xs font-bold py-3 px-4 rounded-xl w-1/2 sm:w-56 outline-none focus:border-[#FF4955] transition-all cursor-pointer"
             >
-              <option value="relavent">Sort by: Relevant</option>
+              <option value="relavent tracking-widest">
+                Sort by: Relevant
+              </option>
               <option value="low-high">Sort by: Low to High</option>
               <option value="high-low">Sort by: High to Low</option>
             </select>
 
-            {/* Mobile Filter Trigger */}
-            <button 
-                onClick={() => setShowFilter(true)} 
-                className="sm:hidden flex items-center gap-2 border border-zinc-800 bg-[#18181b] px-4 py-2 text-sm font-bold rounded-md w-1/2 justify-center text-white hover:border-[#FF4955] transition-colors"
+            <button
+              onClick={() => setShowFilter(true)}
+              className="sm:hidden flex items-center gap-2 bg-[#FF4955] px-4 py-3 text-xs font-black rounded-xl w-1/2 justify-center text-white shadow-lg shadow-[#ff49551a] active:scale-95 transition-all"
             >
-                <FaFilter className="text-[#FF4955]" /> Filters
+              <FaFilter size={14} /> FILTERS
             </button>
           </div>
         </div>
 
         {/* Product Grid */}
         {filterProducts.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-10">
             {filterProducts.map((item) => (
-              <ProductCard 
-                key={item._id} 
-                id={item._id} 
-                image={item.image} 
-                name={item.name} 
-                price={item.price} 
-                offerPrice={item.offerPrice} 
+              <ProductCard
+                key={item._id}
+                id={item._id}
+                image={item.image}
+                name={item.name}
+                price={item.price}
+                offerPrice={item.offerPrice}
               />
             ))}
           </div>
         ) : (
-          /* Empty State */
-          <div className="text-center py-20 bg-[#18181b] rounded-xl border border-dashed border-zinc-800 mt-10">
-            <TbFaceIdError className="text-8xl text-zinc-700 mx-auto mb-4" />
-            <h1 className="text-white font-bold text-2xl uppercase tracking-widest">No Products Found</h1>
-            <p className="text-gray-500 mt-2">Try adjusting your filters or search.</p>
+          <div className="text-center py-24 bg-[#111113] rounded-[32px] border border-zinc-900 mt-5">
+            <TbFaceIdError className="text-7xl text-zinc-800 mx-auto mb-4" />
+            <h1 className="text-white font-black text-lg uppercase tracking-widest">
+              No Matches Found
+            </h1>
+            <p className="text-zinc-600 mt-2 text-sm font-medium">
+              Try different filters or keywords.
+            </p>
           </div>
         )}
       </div>
