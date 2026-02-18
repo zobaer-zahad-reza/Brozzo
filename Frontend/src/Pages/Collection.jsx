@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ProductCard from "../Components/ProductCard";
 import { TbFaceIdError } from "react-icons/tb";
@@ -22,7 +22,7 @@ const Collection = () => {
     { name: "Men Cloths", subCategories: ["T-Shirts", "Shirts", "Pants"] },
   ];
 
-  // --- STATIC DEMO DATA (Updated with SubCategories for testing) ---
+  // --- STATIC DEMO DATA ---
   const demoProducts = [
     {
       _id: "1",
@@ -75,15 +75,27 @@ const Collection = () => {
 
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState(demoProducts);
-
-  // State for selected categories and subcategories
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
-
-  const [sortType, setSortType] = useState("relavent");
-
-  // State to manage open/close of category accordion in sidebar
   const [expandedCategories, setExpandedCategories] = useState({});
+
+  // Custom Sort State
+  const [sortType, setSortType] = useState("relevant");
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const sortMenuRef = useRef(null);
+
+  // Close sort menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sortMenuRef.current && !sortMenuRef.current.contains(event.target)) {
+        setShowSortMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Initialize from URL
   useEffect(() => {
@@ -96,9 +108,7 @@ const Collection = () => {
         catList.push(categoryQuery);
       }
     }
-    // If URL param matches a main category, select it
     setSelectedCategories(catList);
-    // Expand the category if it has subcategories
     const newExpanded = {};
     catList.forEach((c) => {
       newExpanded[c] = true;
@@ -109,20 +119,15 @@ const Collection = () => {
   // Filtering Logic
   useEffect(() => {
     let cp = [...demoProducts];
-
-    // Filter by Main Category
     if (selectedCategories.length > 0) {
       cp = cp.filter((item) => selectedCategories.includes(item.category));
     }
-
-    // Filter by Sub Category (if any selected)
     if (selectedSubCategories.length > 0) {
       cp = cp.filter((item) =>
         selectedSubCategories.includes(item.subCategory),
       );
     }
 
-    // Sorting
     if (sortType === "low-high") cp.sort((a, b) => a.price - b.price);
     else if (sortType === "high-low") cp.sort((a, b) => b.price - a.price);
 
@@ -135,7 +140,6 @@ const Collection = () => {
       setSelectedSubCategories([]);
       return;
     }
-
     setSelectedCategories((prev) =>
       prev.includes(catName)
         ? prev.filter((c) => c !== catName)
@@ -152,14 +156,18 @@ const Collection = () => {
   };
 
   const toggleExpand = (catName) => {
-    setExpandedCategories((prev) => ({
-      ...prev,
-      [catName]: !prev[catName],
-    }));
+    setExpandedCategories((prev) => ({ ...prev, [catName]: !prev[catName] }));
   };
 
+  const sortOptions = [
+    { label: "Sort by: Relevant", value: "relevant" },
+    { label: "Sort by: Low to High", value: "low-high" },
+    { label: "Sort by: High to Low", value: "high-low" },
+  ];
+
   return (
-    <div className="relative flex flex-col sm:flex-row gap-1 sm:gap-10 pt-4 px-4 bg-black min-h-screen text-gray-200">
+    // Updated Padding Top
+    <div className="relative text-center flex flex-col sm:flex-row gap-1 sm:gap-10  sm:pt-4 px-4 bg-black min-h-screen text-gray-200">
       {/* --- Mobile Filter Overlay --- */}
       {showFilter && (
         <div
@@ -170,9 +178,10 @@ const Collection = () => {
 
       {/* --- Filters Sidebar --- */}
       <div
-        className={`fixed sm:static top-0 right-0 h-full z-[70] sm:z-auto w-[280px] sm:w-64 bg-[#0a0a0a] sm:bg-transparent p-6 sm:p-0 transition-transform duration-300 ease-in-out border-l sm:border-l-0 border-zinc-800 overflow-y-auto ${showFilter ? "translate-x-0" : "translate-x-full sm:translate-x-0"}`}
+        className={`fixed sm:static top-0 right-0 h-full z-[70] sm:z-auto w-[280px] sm:w-64 bg-[#0a0a0a] sm:bg-transparent p-6 sm:p-0 transition-transform duration-300 ease-in-out border-l sm:border-l-0 border-zinc-800 overflow-y-auto ${
+          showFilter ? "translate-x-0" : "translate-x-full sm:translate-x-0"
+        }`}
       >
-        {/* Mobile Header */}
         <div className="flex justify-between items-center sm:hidden mb-6 border-b border-zinc-900 pb-4">
           <span className="text-lg font-bold text-white uppercase tracking-wider">
             Filters
@@ -189,16 +198,13 @@ const Collection = () => {
           Filters
         </p>
 
-        {/* Category List */}
         <div className="border border-zinc-800 bg-[#111113] p-4 rounded-xl shadow-xl sm:shadow-none">
           <p className="mb-4 text-xs font-black uppercase text-[#FF4955] tracking-[2px]">
             Categories
           </p>
-
           <div className="flex flex-col gap-2 text-sm text-gray-300">
             {categories.map((cat) => {
-              if (cat.name === "All") return null; // Skip 'All' in checkbox list usually
-
+              if (cat.name === "All") return null;
               return (
                 <div key={cat.name} className="flex flex-col">
                   <div className="flex items-center justify-between group">
@@ -216,8 +222,6 @@ const Collection = () => {
                         {cat.name}
                       </span>
                     </label>
-
-                    {/* Expand Icon for Subcategories */}
                     {cat.subCategories.length > 0 && (
                       <button
                         onClick={() => toggleExpand(cat.name)}
@@ -231,8 +235,6 @@ const Collection = () => {
                       </button>
                     )}
                   </div>
-
-                  {/* Sub Categories */}
                   {cat.subCategories.length > 0 &&
                     expandedCategories[cat.name] && (
                       <div className="pl-7 flex flex-col gap-2 mt-1 mb-2 border-l border-zinc-800 ml-2">
@@ -266,27 +268,60 @@ const Collection = () => {
 
       {/* --- Product Area --- */}
       <div className="flex-1 pb-10">
+        {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between mb-6 items-center gap-4 border-b border-zinc-900 pb-4 mt-4">
-          <div className="inline-flex items-center gap-3">
+          {/* Title */}
+          <div className="inline-flex items-center gap-3 self-start sm:self-auto">
             <p className="text-zinc-500 text-lg md:text-xl uppercase tracking-[3px]">
               Brozzo <span className="text-white font-black">Collection</span>
             </p>
             <div className="hidden sm:block w-12 h-[2px] bg-[#FF4955]"></div>
           </div>
 
-          <div className="flex gap-3 w-full sm:w-auto">
-            <select
-              onChange={(e) => setSortType(e.target.value)}
-              className="bg-zinc-900 border border-zinc-800 text-gray-300 text-xs font-bold py-2.5 px-4 rounded-md w-1/2 sm:w-48 outline-none focus:border-[#FF4955] transition-all cursor-pointer"
-            >
-              <option value="relavent">Sort by: Relevant</option>
-              <option value="low-high">Sort by: Low to High</option>
-              <option value="high-low">Sort by: High to Low</option>
-            </select>
+          {/* Controls (Sort & Filter) */}
+          <div className="flex gap-3 w-full sm:w-auto z-40">
+            {/* Custom Sort Dropdown */}
+            <div className="relative w-1/2 sm:w-56" ref={sortMenuRef}>
+              <button
+                onClick={() => setShowSortMenu(!showSortMenu)}
+                className="w-full flex items-center justify-between bg-[#111113] border border-zinc-800 text-gray-300 text-xs font-bold py-3 px-4 rounded-md hover:border-zinc-600 transition-all shadow-sm"
+              >
+                <span>
+                  {sortOptions.find((opt) => opt.value === sortType)?.label}
+                </span>
+                <FaChevronDown
+                  size={10}
+                  className={`text-zinc-500 transition-transform duration-300 ${showSortMenu ? "rotate-180" : ""}`}
+                />
+              </button>
 
+              {/* Dropdown Menu */}
+              {showSortMenu && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#18181b] border border-zinc-800 rounded-md shadow-2xl py-1 z-50 overflow-hidden">
+                  {sortOptions.map((option) => (
+                    <div
+                      key={option.value}
+                      onClick={() => {
+                        setSortType(option.value);
+                        setShowSortMenu(false);
+                      }}
+                      className={`px-4 py-2.5 text-xs font-medium cursor-pointer transition-colors flex items-center justify-between
+                        ${sortType === option.value ? "bg-zinc-800 text-[#FF4955]" : "text-gray-400 hover:bg-zinc-800 hover:text-white"}`}
+                    >
+                      {option.label}
+                      {sortType === option.value && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#FF4955]"></div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Filter Button */}
             <button
               onClick={() => setShowFilter(true)}
-              className="sm:hidden flex items-center gap-2 bg-[#FF4955] px-4 py-2.5 text-xs font-black rounded-md w-1/2 justify-center text-white shadow-lg active:scale-95 transition-all"
+              className="sm:hidden flex items-center justify-center gap-2 bg-[#FF4955] px-4 py-2.5 text-xs font-black rounded-md w-1/2 text-white shadow-lg active:scale-95 transition-all"
             >
               <FaFilter size={12} /> FILTERS
             </button>

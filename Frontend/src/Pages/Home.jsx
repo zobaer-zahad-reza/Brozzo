@@ -3,7 +3,14 @@ import axios from "axios";
 import HeroMarquee from "../Components/HeroMarquee";
 import HeroSlider from "../Components/HeroSlider";
 import { useTranslation } from "react-i18next";
-import { FaGem, FaHeadset, FaHome, FaTruck, FaTshirt, FaArrowRight } from "react-icons/fa";
+import {
+  FaGem,
+  FaHeadset,
+  FaHome,
+  FaTruck,
+  FaTshirt,
+  FaArrowRight,
+} from "react-icons/fa";
 
 import CategoryCarousel from "../Components/CategoryCarousel";
 import PromoBentoGrid from "../Components/PromoBentoGrid";
@@ -64,8 +71,7 @@ const Home = () => {
   return (
     <>
       <style>{styles}</style>
-      <div className="w-[98%] mx-auto">
-
+      <div className="w-[98%] pt-16 mx-auto">
         {marqueeData?.isActive && (
           <HeroMarquee
             message={marqueeData.text}
@@ -116,7 +122,6 @@ const Home = () => {
             </div>
           </div>
         </div> */}
-
       </div>
     </>
   );

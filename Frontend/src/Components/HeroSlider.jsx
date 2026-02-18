@@ -31,25 +31,6 @@ const HeroSlider = () => {
   const carouselRef = useRef(null);
   const navigate = useNavigate();
 
-  // const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-  // --- DYNAMIC DATA FETCHING (Commented Out) ---
-  /*
-  useEffect(() => {
-    const fetchSlides = async () => {
-      try {
-        const response = await axios.get(`${backendUrl}/api/slider/list`);
-        if (response.data.success) {
-          setSlides(response.data.sliders);
-        }
-      } catch (error) {
-        console.error("Slider loading failed:", error);
-      }
-    };
-    fetchSlides();
-  }, [backendUrl]);
-  */
-
   useEffect(() => {
     if (slides.length > 1) {
       const interval = setInterval(() => {
@@ -80,7 +61,7 @@ const HeroSlider = () => {
   if (slides.length === 0) return null;
 
   return (
-    <div className="w-full mt-6 relative group overflow-hidden rounded-md">
+    <div className="w-full mt-6  relative group overflow-hidden rounded-md">
       {/* Slides Container */}
       <div
         className="carousel w-full h-[300px] sm:h-[450px] md:h-[600px] flex overflow-x-hidden scroll-smooth"
@@ -105,6 +86,7 @@ const HeroSlider = () => {
 
       {/* Navigation Arrows  */}
       <div className="absolute left-2 right-2 top-1/2 flex -translate-y-1/2 transform justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        {/* Left Arrow Button (Fixed) */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -112,8 +94,10 @@ const HeroSlider = () => {
           }}
           className="btn btn-circle btn-sm sm:btn-md bg-black/50 hover:bg-[#FF4955] text-white border-none transition-all"
         >
-          ❯
+          ❮
         </button>
+
+        {/* Right Arrow Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
