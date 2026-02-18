@@ -92,25 +92,23 @@ const Navbar = () => {
         `}</style>
 
         {/* MAIN HEADER */}
-        <div className="bg-black text-white flex flex-col md:flex-row items-center px-6 md:px-32 lg:px-32 py-2 relative z-[999] shadow-md border-b border-zinc-900 transition-all duration-300">
-          {/* Logo & Menu */}
-          <div className="flex justify-between items-center w-full md:w-auto">
-            <div className="flex items-center gap-2 md:gap-4">
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className="md:hidden text-gray-300 hover:text-white hover:bg-zinc-800 p-2 rounded-md transition-all"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
+        <div className="bg-black text-white flex flex-col md:flex-row items-center px-6 md:px-32 lg:px-32 py-4 relative z-999 shadow-md border-b border-zinc-900 transition-all duration-300">
+          {/* Logo & Menu Container */}
+          <div className="flex justify-between items-center w-full md:w-auto md:mr-4">
+            <Link to={"/"} className="flex-shrink-0 flex items-center">
+              <img
+                className="w-16 md:w-20 object-contain"
+                src={Logo}
+                alt="Logo"
+              />
+            </Link>
 
-              <Link to={"/"} className="flex-shrink-0 flex items-center">
-                <img
-                  className="w-16 md:w-20 object-contain"
-                  src={Logo}
-                  alt="Logo"
-                />
-              </Link>
-            </div>
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-gray-300 hover:text-white hover:bg-zinc-800 p-2 rounded-md transition-all"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
           </div>
 
           {/* Search Bar Section */}
