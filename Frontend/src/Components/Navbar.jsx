@@ -92,8 +92,6 @@ const Navbar = () => {
         `}</style>
 
         {/* MAIN HEADER */}
-        {/* CHANGED: px-4 -> px-6, md:px-20 -> md:px-32 lg:px-44 (More padding) */}
-        {/* CHANGED: py-2 md:py-3 -> py-2 (Reduced height) */}
         <div className="bg-black text-white flex flex-col md:flex-row items-center px-6 md:px-32 lg:px-32 py-2 relative z-[999] shadow-md border-b border-zinc-900 transition-all duration-300">
           {/* Logo & Menu */}
           <div className="flex justify-between items-center w-full md:w-auto">
@@ -105,7 +103,6 @@ const Navbar = () => {
                 <Menu className="w-6 h-6" />
               </button>
 
-              {/* CHANGED: Logo Alignment and Size (w-20 -> w-16 md:w-20) */}
               <Link to={"/"} className="flex-shrink-0 flex items-center">
                 <img
                   className="w-16 md:w-20 object-contain"
@@ -120,7 +117,6 @@ const Navbar = () => {
           <div className="w-full mt-2 md:mt-0 md:flex-1 flex justify-center md:px-6 lg:px-12">
             <form
               onSubmit={handleSearch}
-              // CHANGED: h-11 -> h-10 (Smaller height)
               className="flex h-10 rounded-md border border-zinc-800 focus-within:border-[#FF4955] focus-within:ring-1 focus-within:ring-[#FF4955] w-full md:max-w-[600px] relative bg-[#18181b] transition-all duration-300"
             >
               {/* Category Dropdown */}
@@ -140,7 +136,6 @@ const Navbar = () => {
                 />
 
                 {/* MAIN DROPDOWN MENU */}
-                {/* CHANGED: top-[42px] -> top-[40px] to match new height */}
                 {showCategoryMenu && (
                   <div className="absolute top-[40px] left-0 w-64 bg-[#18181b] border border-zinc-800 shadow-2xl rounded-b-md z-[100] py-2">
                     {categories.map((item) => (

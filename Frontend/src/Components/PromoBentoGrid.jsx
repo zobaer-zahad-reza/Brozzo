@@ -1,46 +1,24 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-// import axios from "axios";
 // import { ShopContext } from "../Context/ShopContext";
 
 const PromoBentoGrid = () => {
-  // --- DYNAMIC LOGIC (Commented Out) ---
-  /*
-  const { backendUrl } = useContext(ShopContext);
-  const [gridData, setGridData] = useState({});
-
-  const fetchGrid = async () => {
-    try {
-      const res = await axios.get(backendUrl + "/api/bento/list");
-      if (res.data.success) {
-        const dataMap = res.data.data.reduce((acc, item) => {
-          acc[item.position] = item;
-          return acc;
-        }, {});
-        setGridData(dataMap);
-      }
-    } catch (e) { console.log(e); }
-  };
-
-  useEffect(() => { fetchGrid(); }, []);
-  */
-
   const navigate = useNavigate();
 
-  // --- STATIC DATA FOR BROZZO THEME ---
+  // --- STATIC DATA UPDATED WITH MATCHING IMAGES ---
   const staticGridData = {
     1: {
-      title: "Urban <br/> Collection",
+      title: "Mens <br/> Collection",
       image:
-        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000&auto=format&fit=crop",
-      category: "Fashion",
+        "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=1000&auto=format&fit=crop",
+      category: "Men Cloths",
       bgColor: "#18181b",
       textColor: "text-white",
     },
     2: {
       title: "Luxury <br/> Timepiece",
       image:
-        "https://images.unsplash.com/photo-1619134778706-7015533a6150?q=80&w=1000&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=1000&auto=format&fit=crop",
       category: "Watch",
       bgColor: "#27272a",
       textColor: "text-gray-100",
@@ -48,30 +26,30 @@ const PromoBentoGrid = () => {
     3: {
       title: "Audio <br/> Gear",
       image:
-        "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?q=80&w=1000&auto=format&fit=crop", // Changed to a darker mood image
+        "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1000&auto=format&fit=crop",
       category: "Tech Accesoric",
       bgColor: "#18181b",
       textColor: "text-gray-200",
     },
     4: {
-      title: "Sneaker <br/> Heads",
+      title: "Sun <br/> Glasses",
       image:
-        "https://images.unsplash.com/photo-1607522370275-f14206abe5d3?q=80&w=1000&auto=format&fit=crop",
-      category: "Men Cloths",
+        "https://images.unsplash.com/photo-1577803645773-f96470509666?q=80&w=1000&auto=format&fit=crop",
+      category: "Sun Glasses",
       bgColor: "#27272a",
       textColor: "text-gray-200",
     },
     5: {
-      title: "Essential <br/> Grooming",
+      title: "Mens <br/> Accessories",
       image:
-        "https://images.unsplash.com/photo-1550525811-e5869dd03032?q=80&w=1000&auto=format&fit=crop",
-      category: "Beauty & Personal Care",
+        "https://i.pinimg.com/736x/fd/c3/77/fdc3779f15afc03322967e51c6f91098.jpg",
+      category: "Men Accessories",
       bgColor: "#18181b",
       textColor: "text-white",
     },
   };
 
-  // Use static data instead of state
+  // Use static data
   const gridData = staticGridData;
 
   const Box = ({ pos, className, titleClass = "text-2xl" }) => {
@@ -107,13 +85,13 @@ const PromoBentoGrid = () => {
         </div>
 
         {/* Gradient Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 pointer-events-none"></div>
 
         {/* Background Image */}
         <img
           src={item.image}
           alt={item.title.replace("<br/>", " ")}
-          className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-80  transition duration-700 ease-in-out group-hover:scale-105 z-0"
+          className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-60 transition duration-700 ease-in-out group-hover:scale-110 z-0"
         />
       </div>
     );
@@ -122,7 +100,7 @@ const PromoBentoGrid = () => {
   return (
     <div className="w-full my-6 px-4 md:px-0">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-auto lg:h-[520px]">
-        {/* Large Left - Featured Item */}
+        {/* Large Left - MENS COLLECTION */}
         <Box
           pos={1}
           className="lg:col-span-2 h-[350px] lg:h-full"
@@ -139,13 +117,13 @@ const PromoBentoGrid = () => {
           />
 
           <div className="flex-1 grid grid-cols-2 gap-4">
-            {/* TECH */}
+            {/* AUDIO */}
             <Box
               pos={3}
               className="min-h-[160px]"
               titleClass="text-lg font-bold uppercase"
             />
-            {/* SHOES */}
+            {/* SUNGLASSES */}
             <Box
               pos={4}
               className="min-h-[160px]"
@@ -154,7 +132,7 @@ const PromoBentoGrid = () => {
           </div>
         </div>
 
-        {/* Right Column (GROOMING) */}
+        {/* Right Column (ACCESSORIES) */}
         <Box
           pos={5}
           className="lg:col-span-1 h-[300px] lg:h-full"

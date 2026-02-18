@@ -17,11 +17,8 @@ const UnderNav = () => {
   );
 
   return (
-    // CHANGED: Reduced height (h-9 md:h-11)
     <div className="w-full bg-black border-b border-zinc-900 text-white shadow-md relative z-40">
-      {/* CHANGED: Padding matches Navbar (px-6 md:px-32 lg:px-44) for perfect alignment */}
       <div className="flex items-center justify-center md:justify-between h-9 md:h-11 px-6 md:px-32 lg:px-44 relative">
-        {/* Spacer to center the menu visually on desktop */}
         <div className="hidden md:block w-[120px]"></div>
 
         {/* Menu Items */}
@@ -51,13 +48,12 @@ const UnderNav = () => {
           </li>
         </ul>
 
-        {/* Social Icons with Animation */}
+        {/* Social Icons */}
         <div className="hidden md:flex items-center gap-3 w-[120px] justify-end">
           <a
             href="https://www.facebook.com/brozzo.bd?rdid=wfXu23nMoiwSI6m7&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F16d6LGkDpM%2F#"
             target="_blank"
             rel="noopener noreferrer"
-            // CHANGED: Added hover:scale, hover:shadow-glow, brighter bg
             className="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-gray-200 hover:bg-[#FF4955] hover:text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(255,73,85,0.6)]"
           >
             <Facebook size={14} />
