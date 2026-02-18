@@ -1,12 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
+import { ShoppingCart, Zap } from "lucide-react";
 
 const ProductCard = ({ id, image, name, price, offerPrice }) => {
-  // Use a default currency if context is not available (for static demo)
-  const context = useContext(ShopContext);
-  const currency = context?.currency || "$";
-
+  const { currency, addToCart } = useContext(ShopContext);
   const navigate = useNavigate();
 
   const handleBuyNow = (e) => {
@@ -14,7 +12,6 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
     e.stopPropagation();
 
     const finalPrice = offerPrice > 0 ? offerPrice : price;
-
     const productData = {
       _id: id,
       image: Array.isArray(image) ? image : [image],
@@ -22,76 +19,90 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
       price: finalPrice,
       quantity: 1,
     };
-
     navigate("/place-order", { state: { buyNowItem: productData } });
   };
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(id);
+  };
+
+  const hasDiscount = offerPrice > 0 && offerPrice < price;
+  const discountPercentage = hasDiscount
+    ? Math.round(((price - offerPrice) / price) * 100)
+    : 0;
 
   return (
     <Link
       to={`/product/${id}`}
       onClick={() => window.scrollTo(0, 0)}
-      className="group cursor-pointer flex flex-col gap-3 w-full border border-zinc-800 p-2 rounded-xl bg-[#18181b] hover:border-[#FF4955]/50 hover:shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-all duration-300"
+      className="group block w-full bg-[#18181b] border border-zinc-800/60 rounded-md overflow-hidden hover:border-[#FF4955]/50 hover:shadow-lg transition-all duration-300 relative"
     >
-      {/* Image Container */}
-      <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-zinc-900">
+      {/* IMAGE SECTION - Square Ratio to reduce height */}
+      <div className="relative w-full aspect-square overflow-hidden bg-zinc-900">
         <img
           src={Array.isArray(image) ? image[0] : image}
           alt={name}
-          className="h-full w-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-          onError={(e) => {
-            e.target.src =
-              "https://placehold.co/400x400/18181b/FFFFFF/png?text=No+Image";
-          }}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
 
         {/* Discount Badge */}
-        {offerPrice > 0 && offerPrice < price && (
-          <span className="absolute top-2 left-2 bg-[#FF4955] text-white text-[10px] font-bold px-2 py-1 rounded-sm shadow-sm z-10">
-            {Math.round(((price - offerPrice) / price) * 100)}% OFF
+        {hasDiscount && (
+          <span className="absolute top-2 right-2 bg-[#FF4955] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
+            -{discountPercentage}%
           </span>
         )}
       </div>
 
-      {/* Content Area */}
-      <div className="flex flex-col gap-2 p-1">
-        <h3 className="text-[14px] md:text-lg font-medium text-gray-200 leading-snug line-clamp-2 min-h-[42px] group-hover:text-[#FF4955] transition-colors">
+      {/* CONTENT SECTION - Compact Padding */}
+      <div className="p-3 flex flex-col gap-1.5">
+        {/* Title */}
+        <h3 className="text-gray-300 text-sm font-medium leading-tight truncate group-hover:text-white transition-colors">
           {name}
         </h3>
 
-        {/* Price Section */}
-        <div className="flex items-center justify-between mt-1">
-          <p className="text-sm text-gray-500 uppercase tracking-wider font-semibold">
-            Price
-          </p>
-
-          <div className="flex flex-col items-end">
-            {offerPrice > 0 && offerPrice < price ? (
-              <>
-                <p className="text-lg font-bold text-white leading-none">
-                  {currency}
-                  {offerPrice}
-                </p>
-                <p className="text-sm text-gray-500 line-through mt-0.5">
-                  {currency}
-                  {price}
-                </p>
-              </>
-            ) : (
-              <p className="text-lg font-bold text-white">
+        {/* Price Row */}
+        <div className="flex items-center gap-2 mb-1">
+          {hasDiscount ? (
+            <>
+              <span className="text-white font-bold text-base">
+                {currency}
+                {offerPrice}
+              </span>
+              <span className="text-gray-500 text-xs line-through">
                 {currency}
                 {price}
-              </p>
-            )}
-          </div>
+              </span>
+            </>
+          ) : (
+            <span className="text-white font-bold text-base">
+              {currency}
+              {price}
+            </span>
+          )}
         </div>
 
-        {/* Buy Now Button */}
-        <button
-          onClick={handleBuyNow}
-          className="w-full py-2 bg-zinc-800 hover:bg-[#FF4955] text-gray-300 hover:text-white font-semibold rounded-md transition-all duration-300 text-sm shadow-sm mt-2 border border-zinc-700 hover:border-[#FF4955] active:scale-95"
-        >
-          Buy Now
-        </button>
+        {/* Action Buttons Row */}
+        <div className="grid grid-cols-4 gap-2 mt-1">
+          {/* Add to Cart Button (Small Icon) */}
+          <button
+            onClick={handleAddToCart}
+            className="col-span-1 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 text-gray-300 hover:text-[#FF4955] border border-zinc-700 rounded h-8 transition-colors"
+            title="Add to Cart"
+          >
+            <ShoppingCart size={16} />
+          </button>
+
+          {/* Buy Now Button (Wide) */}
+          <button
+            onClick={handleBuyNow}
+            className="col-span-3 flex items-center justify-center gap-1.5 bg-[#FF4955] hover:bg-[#e03e49] text-white text-xs font-semibold rounded h-8 transition-all active:scale-95"
+          >
+            <Zap size={14} fill="currentColor" />
+            Buy Now
+          </button>
+        </div>
       </div>
     </Link>
   );

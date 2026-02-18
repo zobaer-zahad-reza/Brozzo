@@ -26,7 +26,7 @@ const PromoBentoGrid = () => {
     3: {
       title: "Audio <br/> Gear",
       image:
-        "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1000&auto=format&fit=crop",
+        "https://i.pinimg.com/1200x/96/26/9f/96269fd0bf319760dac98ecda5b6de06.jpg",
       category: "Tech Accesoric",
       bgColor: "#18181b",
       textColor: "text-gray-200",
