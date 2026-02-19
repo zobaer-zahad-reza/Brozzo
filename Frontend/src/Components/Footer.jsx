@@ -13,10 +13,11 @@ import { BsTiktok } from "react-icons/bs";
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-gray-400 border-t border-zinc-900 mt-20 font-sans">
-      {/* Footer Content */}
-      <div className="container mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+    <footer className="bg-black text-gray-400 border-t border-zinc-900 mt-20 font-sans w-full">
+      {/* Footer Content Container - Centered and max-width added */}
+      <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
+        {/* Added lg:gap-16 to spread columns evenly on large screens */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Brand Info */}
           <div className="flex flex-col gap-4">
             <img
@@ -24,7 +25,7 @@ const Footer = () => {
               alt="Brozzo Logo"
               className="w-32 mb-2 object-contain"
             />
-            <p className="text-sm leading-relaxed text-gray-500">
+            <p className="text-sm leading-relaxed text-gray-500 pr-4">
               Brozzo is your ultimate destination for premium fashion and
               lifestyle accessories. We define style with elegance and quality.
             </p>
@@ -56,8 +57,8 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
+          {/* Quick Links - Added mx-auto on large screens to center it in its column */}
+          <div className="lg:mx-auto">
             <h4 className="text-white font-bold text-lg mb-6 uppercase tracking-wider">
               Company
             </h4>
@@ -70,7 +71,7 @@ const Footer = () => {
                         ? "/"
                         : `/${item.toLowerCase().replace(" ", "-")}`
                     }
-                    className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group"
+                    className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group w-fit"
                   >
                     <ArrowRight
                       size={14}
@@ -83,8 +84,8 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Policies */}
-          <div>
+          {/* Policies - Added mx-auto on large screens */}
+          <div className="lg:mx-auto">
             <h4 className="text-white font-bold text-lg mb-6 uppercase tracking-wider">
               Policies
             </h4>
@@ -96,7 +97,7 @@ const Footer = () => {
                 <li key={policy.name}>
                   <Link
                     to={policy.link}
-                    className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group"
+                    className="hover:text-[#FF4955] transition-colors flex items-center gap-2 group w-fit"
                   >
                     <ArrowRight
                       size={14}
@@ -109,8 +110,8 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact Info */}
-          <div>
+          {/* Contact Info - Aligned to the right on large screens */}
+          <div className="lg:ml-auto">
             <h4 className="text-white font-bold text-lg mb-6 uppercase tracking-wider">
               Get In Touch
             </h4>
@@ -118,7 +119,7 @@ const Footer = () => {
               <li className="flex items-start gap-3 group">
                 <MapPin className="text-[#FF4955] mt-1 shrink-0" size={18} />
                 <a
-                  href="https://www.google.com/maps/search/?api=1&query=Pagla+Fatullah+Narayanganj+1421"
+                  href="https://maps.google.com/?q=Pagla,Fatullah,Narayanganj"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-[#FF4955] transition-colors"
@@ -154,9 +155,9 @@ const Footer = () => {
 
       {/* Bottom Copyright */}
       <div className="bg-[#0a0a0a] border-t border-zinc-900 py-6">
-        <div className="text-center mx-auto px-4 text-xs text-gray-600">
+        <div className="max-w-7xl text-center mx-auto px-4 text-xs text-gray-600">
           <p>
-            &copy; {new Date().getFullYear()}{" "}
+            © {new Date().getFullYear()}{" "}
             <a
               href="https://startedge.net/"
               target="_blank"
