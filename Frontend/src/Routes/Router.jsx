@@ -61,7 +61,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/forgot-password",
-        // element: <ForgotPassword />
+        element: <ForgotPassword />,
       },
       {
         path: "/profile",
@@ -69,7 +69,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/place-order",
-        // element: <PlaceOrder />
+        element: <PlaceOrder />,
       },
       {
         path: "/orders",

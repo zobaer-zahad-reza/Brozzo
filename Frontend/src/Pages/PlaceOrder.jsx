@@ -2,13 +2,12 @@ import React, { useContext, useState, useEffect } from "react";
 import { ShopContext } from "../Context/ShopContext";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
-  CreditCard,
-  Banknote,
   ArrowLeft,
-  Minus,
-  Plus,
   Trash2,
   Truck,
+  Smartphone,
+  Plus,
+  Minus,
 } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -24,12 +23,11 @@ const PlaceOrder = () => {
     firstName: "",
     lastName: "",
     email: "",
-    street: "",
-    city: "",
-    state: "",
-    zipcode: "",
-    country: "",
     phone: "",
+    street: "", // House/Road No.
+    area: "", // Local Area (e.g. Jatrabari)
+    city: "", // City/District (e.g. Dhaka)
+    division: "", // Division (e.g. Dhaka)
   });
 
   const isBuyNow = location.state && location.state.buyNowItem;
@@ -38,7 +36,12 @@ const PlaceOrder = () => {
   );
 
   const finalOrderList = isBuyNow ? buyNowList : cart;
-  const delivery_fee = 15;
+
+  // Custom Delivery Fee Logic for BD based on Division
+  const isDhaka = formData.division === "Dhaka";
+  // If division is selected, check if it's Dhaka (80) or others (120). If empty, 0.
+  const delivery_fee = formData.division ? (isDhaka ? 80 : 120) : 0;
+  const currency = "৳";
 
   // Fetch User Data to Auto-fill Address
   useEffect(() => {
@@ -51,7 +54,6 @@ const PlaceOrder = () => {
           if (response.data.success) {
             const user = response.data.userData;
             const nameParts = user.name.split(" ");
-
             const savedAddr =
               user.address && user.address.length > 0 ? user.address[0] : {};
 
@@ -62,10 +64,9 @@ const PlaceOrder = () => {
               email: user.email || "",
               phone: user.phone || "",
               street: savedAddr.street || "",
+              area: savedAddr.area || "",
               city: savedAddr.city || "",
-              state: savedAddr.state || "",
-              zipcode: savedAddr.zip || "",
-              country: savedAddr.country || "",
+              division: savedAddr.division || "",
             }));
           }
         } catch (error) {
@@ -85,6 +86,11 @@ const PlaceOrder = () => {
 
   const currentTotalAmount = calculateTotal();
 
+  const removeLocalItem = () => {
+    setBuyNowList([]);
+    navigate("/");
+  };
+
   const updateLocalQuantity = (id, newQty) => {
     if (newQty < 1) return;
     setBuyNowList((prev) =>
@@ -94,9 +100,15 @@ const PlaceOrder = () => {
     );
   };
 
-  const removeLocalItem = () => {
-    setBuyNowList([]);
-    navigate("/");
+  // Quantity Handler
+  const handleQuantityChange = (item, newQuantity) => {
+    if (newQuantity < 1) return;
+
+    if (isBuyNow) {
+      updateLocalQuantity(item._id, newQuantity);
+    } else {
+      updateQuantity(item._id, newQuantity);
+    }
   };
 
   const onChangeHandler = (event) => {
@@ -116,6 +128,11 @@ const PlaceOrder = () => {
       let orderItems = finalOrderList;
       if (orderItems.length === 0) {
         toast.error("No items in the order!");
+        return;
+      }
+
+      if (!formData.division) {
+        toast.error("Please select a division for delivery!");
         return;
       }
 
@@ -142,24 +159,11 @@ const PlaceOrder = () => {
           }
           break;
 
-        case "stripe":
-          const responseStripe = await axios.post(
-            backendUrl + "/api/order/stripe",
-            orderData,
-            { headers: { token } },
-          );
-          if (responseStripe.data.success) {
-            const { session_url } = responseStripe.data;
-            window.location.replace(session_url);
-          } else {
-            toast.error(responseStripe.data.message);
-          }
-          break;
-
-        case "mobile":
+        case "bkash":
           toast.info(
-            "Mobile banking (bKash/Nagad) coming soon. Please use COD.",
+            "bKash/Nagad integration coming soon. Placing as COD for now.",
           );
+          // Add your gateway redirect logic here
           break;
 
         default:
@@ -172,258 +176,299 @@ const PlaceOrder = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-10 px-4 md:px-8 font-sans">
+    <div className="bg-black min-h-screen pt-28 pb-20 px-4 md:px-8 font-sans text-gray-200">
       <form
         onSubmit={handlePlaceOrder}
         className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 min-h-[80vh]"
       >
-        {/* Delivery Information */}
-        <div className="flex flex-col gap-6 lg:w-1/2">
-          <div className="flex items-center gap-2 mb-2">
+        {/* Delivery Information (Left Side) */}
+        <div className="flex flex-col gap-6 lg:w-[60%]">
+          <div className="flex items-center gap-3 mb-2 border-b border-zinc-900 pb-4">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="text-gray-500 hover:text-[#FFA24C] transition"
+              className="text-gray-500 hover:text-[#FF4955] transition"
             >
               <ArrowLeft size={24} />
             </button>
-            <h2 className="text-2xl font-bold text-gray-900">
-              Delivery Information
+            <h2 className="text-xl md:text-2xl font-bold text-white uppercase tracking-widest">
+              Delivery Details
             </h2>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">
-                  First name
-                </label>
-                <input
-                  required
-                  name="firstName"
-                  onChange={onChangeHandler}
-                  value={formData.firstName}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#FFA24C] outline-none"
-                  type="text"
-                  placeholder="First Name"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Last name
-                </label>
-                <input
-                  required
-                  name="lastName"
-                  onChange={onChangeHandler}
-                  value={formData.lastName}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#FFA24C] outline-none"
-                  type="text"
-                  placeholder="Last Name"
-                />
-              </div>
+          <div className="bg-[#121215] p-6 md:p-8 rounded-xl border border-zinc-800 space-y-5">
+            <h3 className="text-[#FF4955] text-xs font-bold uppercase tracking-[2px] mb-2">
+              Personal Info
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                required
+                name="firstName"
+                onChange={onChangeHandler}
+                value={formData.firstName}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] outline-none text-white placeholder-zinc-600 transition-all"
+                type="text"
+                placeholder="First Name"
+              />
+              <input
+                required
+                name="lastName"
+                onChange={onChangeHandler}
+                value={formData.lastName}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] outline-none text-white placeholder-zinc-600 transition-all"
+                type="text"
+                placeholder="Last Name"
+              />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
-                Email address
-              </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
                 required
                 name="email"
                 onChange={onChangeHandler}
                 value={formData.email}
-                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#FFA24C] outline-none"
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] outline-none text-white placeholder-zinc-600 transition-all"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="Email Address"
               />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
-                Street
-              </label>
-              <input
-                required
-                name="street"
-                onChange={onChangeHandler}
-                value={formData.street}
-                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#FFA24C] outline-none"
-                type="text"
-                placeholder="123 Main St"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">
-                  City
-                </label>
-                <input
-                  required
-                  name="city"
-                  onChange={onChangeHandler}
-                  value={formData.city}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#FFA24C] outline-none"
-                  type="text"
-                  placeholder="New York"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">
-                  State
-                </label>
-                <input
-                  required
-                  name="state"
-                  onChange={onChangeHandler}
-                  value={formData.state}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#FFA24C] outline-none"
-                  type="text"
-                  placeholder="NY"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Zipcode
-                </label>
-                <input
-                  required
-                  name="zipcode"
-                  onChange={onChangeHandler}
-                  value={formData.zipcode}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#FFA24C] outline-none"
-                  type="text"
-                  placeholder="10001"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Country
-                </label>
-                <input
-                  required
-                  name="country"
-                  onChange={onChangeHandler}
-                  value={formData.country}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#FFA24C] outline-none"
-                  type="text"
-                  placeholder="United States"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Phone</label>
               <input
                 required
                 name="phone"
                 onChange={onChangeHandler}
                 value={formData.phone}
-                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#FFA24C] outline-none"
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] outline-none text-white placeholder-zinc-600 transition-all"
                 type="tel"
-                placeholder="+1 234 567 890"
+                placeholder="Phone Number (e.g. 017...)"
               />
+            </div>
+
+            <div className="w-full h-[1px] bg-zinc-800 my-4"></div>
+            <h3 className="text-[#FF4955] text-xs font-bold uppercase tracking-[2px] mb-2">
+              Shipping Address
+            </h3>
+
+            <input
+              required
+              name="street"
+              onChange={onChangeHandler}
+              value={formData.street}
+              className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] outline-none text-white placeholder-zinc-600 transition-all"
+              type="text"
+              placeholder="House/Road No., Building Name"
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input
+                required
+                name="area"
+                onChange={onChangeHandler}
+                value={formData.area}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] outline-none text-white placeholder-zinc-600 transition-all"
+                type="text"
+                placeholder="Area (e.g. Dhanmondi)"
+              />
+              <input
+                required
+                name="city"
+                onChange={onChangeHandler}
+                value={formData.city}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] outline-none text-white placeholder-zinc-600 transition-all"
+                type="text"
+                placeholder="City/District"
+              />
+
+              {/* Custom styled select for Brozzo Theme */}
+              <div className="relative">
+                <select
+                  required
+                  name="division"
+                  onChange={onChangeHandler}
+                  value={formData.division}
+                  className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] outline-none text-white appearance-none cursor-pointer transition-all"
+                >
+                  <option value="" disabled className="text-zinc-500">
+                    Select Division
+                  </option>
+                  <option value="Dhaka">Dhaka</option>
+                  <option value="Chittagong">Chittagong</option>
+                  <option value="Sylhet">Sylhet</option>
+                  <option value="Rajshahi">Rajshahi</option>
+                  <option value="Khulna">Khulna</option>
+                  <option value="Barisal">Barisal</option>
+                  <option value="Rangpur">Rangpur</option>
+                  <option value="Mymensingh">Mymensingh</option>
+                </select>
+                {/* Custom Dropdown Arrow */}
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-400">
+                  <svg
+                    className="fill-current h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Order Summary */}
-        <div className="flex flex-col gap-6 lg:w-1/2">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 uppercase">
-              Items
+        {/* Order Summary & Payment (Right Side) */}
+        <div className="flex flex-col gap-6 lg:w-[40%]">
+          {/* Items List */}
+          <div className="bg-[#121215] p-6 rounded-xl border border-zinc-800">
+            <h2 className="text-[#FF4955] text-xs font-bold mb-4 uppercase tracking-[2px]">
+              Order Items
             </h2>
-            <div className="flex flex-col gap-4 max-h-[300px] overflow-y-auto pr-2">
+            <div className="flex flex-col gap-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
               {finalOrderList.map((item, index) => (
                 <div
                   key={index}
-                  className="flex gap-4 items-center border-b pb-4 last:border-0"
+                  className="flex gap-4 items-center border-b border-zinc-800 pb-4 last:border-0 last:pb-0"
                 >
                   <img
                     src={Array.isArray(item.image) ? item.image[0] : item.image}
                     alt=""
-                    className="w-14 h-14 object-cover rounded bg-gray-50"
+                    className="w-20 h-20 object-cover rounded bg-zinc-900 border border-zinc-800"
                   />
                   <div className="flex-1">
-                    <h4 className="text-sm font-bold line-clamp-1">
+                    <h4 className="text-sm font-medium text-white line-clamp-1">
                       {item.name}
                     </h4>
-                    <p className="text-xs text-gray-400">
-                      ${item.price} x {item.quantity}
+                    <p className="text-sm font-bold text-gray-300 mt-1">
+                      {currency}
+                      {item.price}
                     </p>
+
+                    {/* Quantity Controller */}
+                    <div className="flex items-center gap-3 mt-2 bg-zinc-900 border border-zinc-800 rounded-md w-max px-2 py-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleQuantityChange(item, item.quantity - 1)
+                        }
+                        className="text-zinc-500 hover:text-white transition-colors p-1"
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="text-xs font-bold text-white w-4 text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleQuantityChange(item, item.quantity + 1)
+                        }
+                        className="text-zinc-500 hover:text-[#FF4955] transition-colors p-1"
+                      >
+                        <Plus size={12} />
+                      </button>
+                    </div>
                   </div>
                   <button
                     type="button"
                     onClick={() =>
                       isBuyNow ? removeLocalItem() : removeFromCart(item._id)
                     }
-                    className="text-gray-300 hover:text-red-500"
+                    className="text-zinc-600 hover:text-red-500 p-2 transition-colors self-start"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={18} />
                   </button>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border shadow-sm">
-            <div className="space-y-3">
-              <div className="flex justify-between text-gray-600">
-                <span>Subtotal</span>
-                <span>${currentTotalAmount.toFixed(2)}</span>
+          {/* Payment Method */}
+          <div className="bg-[#121215] p-6 rounded-xl border border-zinc-800 space-y-4">
+            <h2 className="text-[#FF4955] text-xs font-bold uppercase tracking-[2px]">
+              Payment Method
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div
+                onClick={() => setMethod("cod")}
+                className={`flex items-center gap-3 border p-4 cursor-pointer rounded-lg transition-all ${
+                  method === "cod"
+                    ? "border-[#FF4955] bg-[#FF4955]/10 text-white"
+                    : "border-zinc-800 text-gray-400 hover:bg-zinc-900"
+                }`}
+              >
+                <Truck
+                  size={20}
+                  className={method === "cod" ? "text-[#FF4955]" : ""}
+                />
+                <span className="font-semibold text-sm">Cash on Delivery</span>
               </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Shipping</span>
-                <span>${delivery_fee.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-xl font-bold border-t pt-3">
-                <span>Total</span>
-                <span>${(currentTotalAmount + delivery_fee).toFixed(2)}</span>
+
+              <div
+                onClick={() => setMethod("bkash")}
+                className={`flex items-center gap-3 border p-4 cursor-pointer rounded-lg transition-all ${
+                  method === "bkash"
+                    ? "border-[#FF4955] bg-[#FF4955]/10 text-white"
+                    : "border-zinc-800 text-gray-400 hover:bg-zinc-900"
+                }`}
+              >
+                <Smartphone
+                  size={20}
+                  className={method === "bkash" ? "text-[#FF4955]" : ""}
+                />
+                <span className="font-semibold text-sm">bKash / Nagad</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border shadow-sm space-y-3">
-            <h2 className="text-lg font-bold mb-4">Payment Method</h2>
-            <div
-              onClick={() => setMethod("stripe")}
-              className={`flex items-center gap-3 border p-4 cursor-pointer rounded-xl transition ${method === "stripe" ? "border-[#FFA24C] bg-orange-50" : "hover:bg-gray-50"}`}
-            >
-              <CreditCard
-                size={20}
-                className={
-                  method === "stripe" ? "text-[#FFA24C]" : "text-gray-400"
-                }
-              />
-              <span className="font-semibold flex-1">
-                Online Payment (Stripe)
-              </span>
+          {/* Total Calculation */}
+          <div className="bg-[#121215] p-6 rounded-xl border border-zinc-800">
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between text-zinc-400">
+                <span>Subtotal</span>
+                <span className="text-white font-medium">
+                  {currency}
+                  {currentTotalAmount.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between text-zinc-400">
+                <span>
+                  Delivery Fee
+                  {formData.division
+                    ? isDhaka
+                      ? " (Inside Dhaka)"
+                      : " (Outside Dhaka)"
+                    : ""}
+                </span>
+                <span className="text-white font-medium">
+                  {currency}
+                  {delivery_fee.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between text-lg font-bold border-t border-zinc-800 pt-4 mt-2 text-white">
+                <span>Total</span>
+                <span className="text-[#FF4955]">
+                  {currency}
+                  {(currentTotalAmount + delivery_fee).toFixed(2)}
+                </span>
+              </div>
             </div>
-            <div
-              onClick={() => setMethod("cod")}
-              className={`flex items-center gap-3 border p-4 cursor-pointer rounded-xl transition ${method === "cod" ? "border-[#FFA24C] bg-orange-50" : "hover:bg-gray-50"}`}
-            >
-              <Truck
-                size={20}
-                className={
-                  method === "cod" ? "text-[#FFA24C]" : "text-gray-400"
-                }
-              />
-              <span className="font-semibold flex-1">Cash on Delivery</span>
-            </div>
+
             <button
               type="submit"
-              className="w-full bg-black text-white py-4 rounded-xl font-bold mt-4 hover:bg-gray-800 transition shadow-lg"
+              className="w-full bg-[#FF4955] hover:bg-[#e03e49] text-white py-4 rounded-md font-bold mt-6 transition-all shadow-lg shadow-[#FF4955]/20 uppercase tracking-widest text-sm active:scale-[0.98]"
             >
-              PLACE ORDER
+              Confirm Order
             </button>
           </div>
         </div>
       </form>
+
+      {/* Styles for scrollbar */}
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #FF4955; }
+      `}</style>
     </div>
   );
 };
