@@ -27,7 +27,6 @@ const ShopContextProvider = (props) => {
             }
         } catch (error) {
             console.error("API Error:", error);
-            toast.error("Failed to load products.");
         }
     };
 
@@ -42,27 +41,36 @@ const ShopContextProvider = (props) => {
         }
     };
 
-    const addToCart = async (itemId, size) => {
+    // FIXED: Add to cart with strict number handling
+    const addToCart = async (itemId, size, quantity = 1) => {
         if (!size) {
             toast.error("Select Product Size");
             return;
         }
-        let cartData = structuredClone(cartItems);
-        if (cartData[itemId]) {
-            if (cartData[itemId][size]) cartData[itemId][size] += 1;
-            else cartData[itemId][size] = 1;
-        } else {
-            cartData[itemId] = {};
-            cartData[itemId][size] = 1;
-        }
-        setCartItems(cartData);
+
+        setCartItems((prev) => {
+            let cartData = structuredClone(prev);
+            const qty = Number(quantity); // Ensure quantity is a number
+
+            if (cartData[itemId]) {
+                if (cartData[itemId][size]) {
+                    cartData[itemId][size] += qty;
+                } else {
+                    cartData[itemId][size] = qty;
+                }
+            } else {
+                cartData[itemId] = {};
+                cartData[itemId][size] = qty;
+            }
+            return cartData;
+        });
 
         if (token) {
             try {
-                await axios.post(backendUrl + '/api/cart/add', { itemId, size }, { headers: { token } });
-                toast.success("Item added to cart");
+                await axios.post(backendUrl + '/api/cart/add', { itemId, size, quantity: Number(quantity) }, { headers: { token } });
+                toast.success("Added to Bag");
             } catch (error) {
-                toast.error(error.message);
+                console.error("Cart Add Error:", error);
             }
         }
     };
@@ -71,21 +79,34 @@ const ShopContextProvider = (props) => {
         let totalCount = 0;
         for (const items in cartItems) {
             for (const item in cartItems[items]) {
-                if (cartItems[items][item] > 0) totalCount += cartItems[items][item];
+                if (cartItems[items][item] > 0) totalCount += Number(cartItems[items][item]);
             }
         }
         return totalCount;
     };
 
+    // FIXED: Update quantity handler
     const updateQuantity = async (itemId, size, quantity) => {
-        let cartData = structuredClone(cartItems);
-        cartData[itemId][size] = quantity;
-        setCartItems(cartData);
+        const qty = Number(quantity);
+        
+        setCartItems((prev) => {
+            let cartData = structuredClone(prev);
+            if (cartData[itemId]) {
+                if (qty === 0) {
+                    delete cartData[itemId][size];
+                    if (Object.keys(cartData[itemId]).length === 0) delete cartData[itemId];
+                } else {
+                    cartData[itemId][size] = qty;
+                }
+            }
+            return cartData;
+        });
+
         if (token) {
             try {
-                await axios.post(backendUrl + '/api/cart/update', { itemId, size, quantity }, { headers: { token } });
+                await axios.post(backendUrl + '/api/cart/update', { itemId, size, quantity: qty }, { headers: { token } });
             } catch (error) {
-                toast.error(error.message);
+                console.error("Cart Update Error:", error);
             }
         }
     };
@@ -96,7 +117,8 @@ const ShopContextProvider = (props) => {
             let itemInfo = products.find((product) => product._id === items);
             for (const item in cartItems[items]) {
                 if (cartItems[items][item] > 0 && itemInfo) {
-                    totalAmount += itemInfo.price * cartItems[items][item];
+                    const price = itemInfo.offerPrice > 0 ? itemInfo.offerPrice : itemInfo.price;
+                    totalAmount += Number(price) * Number(cartItems[items][item]);
                 }
             }
         }
@@ -106,13 +128,7 @@ const ShopContextProvider = (props) => {
     useEffect(() => { getProductsData(); }, []);
 
     useEffect(() => {
-        if (!token && localStorage.getItem('token')) {
-            const savedToken = localStorage.getItem('token');
-            setToken(savedToken);
-            getUserCart(savedToken);
-        } else if (token) {
-            getUserCart(token);
-        }
+        if (token) getUserCart(token);
     }, [token]);
 
     const value = {
@@ -120,8 +136,7 @@ const ShopContextProvider = (props) => {
         search, setSearch, showSearch, setShowSearch,
         cartItems, setCartItems,
         addToCart, getCartCount, updateQuantity, getCartTotal,
-        navigate, token, setToken, getUserCart,
-        removeFromCart: updateQuantity
+        navigate, token, setToken, getUserCart
     };
 
     return (

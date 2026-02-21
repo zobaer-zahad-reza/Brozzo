@@ -8,154 +8,153 @@ import {
   Minus,
   Plus,
   ArrowLeft,
-  Star,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { ShopContext } from "../Context/ShopContext";
 import { toast } from "react-toastify";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currency, addToCart } = useContext(ShopContext);
+  
+  // Context থেকে ফাংশনগুলো আনা হলো
+  const { products, currency, addToCart } = useContext(ShopContext);
 
-  // --- STATIC DEMO DATA FOR BROZZO ---
-  const demoProduct = {
-    _id: "1",
-    name: "Midnight Chronograph XL",
-    category: "Watches",
-    price: 150,
-    offerPrice: 120,
-    description:
-      "<p>The Midnight Chronograph XL is a masterpiece of dark elegance. Featuring a matte black finish, sapphire crystal glass, and a premium leather strap, it's designed for those who command the night.</p><ul><li>Matte Black Stainless Steel</li><li>Genuine Italian Leather</li><li>Quartz Movement</li></ul>",
-    image: [
-      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1000&auto=format&fit=crop",
-    ],
-    sizes: ["S", "M", "L", "XL"],
-  };
-
-  const [product, setProduct] = useState(demoProduct);
-  const [mainImage, setMainImage] = useState(demoProduct.image[0]);
+  const [product, setProduct] = useState(null);
+  const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [size, setSize] = useState("");
 
+  // প্রোডাক্ট খুঁজে বের করার লজিক
+  useEffect(() => {
+    if (products && products.length > 0) {
+      const foundProduct = products.find((item) => item._id === id);
+      if (foundProduct) {
+        setProduct(foundProduct);
+        setMainImage(foundProduct.image[0]);
+        
+        // যদি প্রোডাক্টের সাইজ থাকে, তবে ডিফল্টভাবে প্রথম সাইজটি সিলেক্ট করে রাখা (অপশনাল)
+        if (foundProduct.sizes && foundProduct.sizes.length > 0) {
+            // setSize(foundProduct.sizes[0]); 
+        } else {
+            setSize("Free Size"); // সাইজ না থাকলে ডিফল্ট সাইজ
+        }
+      }
+    }
+  }, [id, products]);
+
+  if (!product) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center text-gray-400 font-bold uppercase tracking-widest text-sm animate-pulse">
+        Loading Product...
+      </div>
+    );
+  }
+
+  // --- FIXED Add to Cart Function ---
   const handleAddToCart = () => {
-    if (!product) return;
+    // সাইজ সিলেক্ট করা আছে কিনা চেক
     if (product.sizes && product.sizes.length > 0 && !size) {
-      toast.error("Please select a size");
+      toast.error("Please select a size or variation");
       return;
     }
-    toast.success("Added to Cart!");
+    
+    const selectedSize = size || "Free Size";
+    
+    // Context এর addToCart কল করা হলো
+    addToCart(product._id, selectedSize, quantity);
+    
+    // ইউজার ফিডব্যাক
+    toast.success(`${product.name} added to bag!`);
   };
 
   const handleBuyNow = () => {
     if (product.sizes && product.sizes.length > 0 && !size) {
-      toast.error("Please select a size");
+      toast.error("Please select a size or variation");
       return;
     }
-    navigate("/place-order");
+    
+    const selectedSize = size || "Free Size";
+    const buyNowItem = {
+        ...product,
+        size: selectedSize,
+        quantity: quantity
+    };
+    navigate("/place-order", { state: { buyNowItem } });
+  };
+
+  const handleWhatsAppOrder = () => {
+    const phoneNumber = "8801737912273"; 
+    const productUrl = window.location.href;
+    let message = `Hello Brozzo,\n\nI would like to order this product:\n*${product.name}*\n`;
+    
+    if (size) message += `Size: ${size}\n`;
+    message += `Quantity: ${quantity}\nPrice: ${product.offerPrice > 0 ? product.offerPrice : product.price} Tk\n\nLink: ${productUrl}`;
+    
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   return (
     <div className="bg-black min-h-screen py-8 md:py-12 px-4 md:px-8 font-sans text-gray-200">
-      <div className="max-w-7xl mx-auto">
-        {/* Back Button */}
+      <div className="max-w-7xl mx-auto pt-20">
         <button
           onClick={() => navigate(-1)}
           className="text-gray-400 hover:text-[#FF4955] mb-8 flex items-center gap-2 transition-all group font-medium"
         >
-          <ArrowLeft
-            size={20}
-            className="group-hover:-translate-x-1 transition-transform"
-          />
-          Back to Collection
+          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          Back
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-          {/* Image Section */}
+          {/* Images */}
           <div className="flex flex-col gap-5">
-            <div className="w-full aspect-[4/5] rounded-3xl overflow-hidden bg-[#111113] border border-zinc-800 relative shadow-2xl">
-              <img
-                src={mainImage}
-                alt={product.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
+            <div className="w-full aspect-[4/5] rounded-xl overflow-hidden bg-[#111113] border border-zinc-800 relative shadow-2xl">
+              <img src={mainImage} alt={product.name} className="w-full h-full object-cover" />
             </div>
-
-            {/* Thumbnails */}
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
               {product.image.map((imgSrc, index) => (
                 <div
                   key={index}
                   onClick={() => setMainImage(imgSrc)}
-                  className={`w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-2xl overflow-hidden border-2 cursor-pointer transition-all ${
-                    mainImage === imgSrc
-                      ? "border-[#FF4955] scale-95 shadow-[0_0_15px_rgba(255,73,85,0.3)]"
-                      : "border-zinc-800 opacity-50 hover:opacity-100 hover:border-zinc-600"
+                  className={`w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-xl overflow-hidden border cursor-pointer transition-all ${
+                    mainImage === imgSrc ? "border-[#FF4955] scale-95 shadow-[0_0_15px_rgba(255,73,85,0.2)]" : "border-zinc-800 opacity-50 hover:opacity-100"
                   }`}
                 >
-                  <img
-                    src={imgSrc}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={imgSrc} alt="" className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Product Info Section */}
+          {/* Details */}
           <div className="flex flex-col gap-8">
             <div>
-              <span className="bg-[#FF4955]/10 text-[#FF4955] px-4 py-1.5 rounded-full text-xs font-black tracking-[2px] uppercase border border-[#FF4955]/20">
+              <span className="bg-[#FF4955]/10 text-[#FF4955] px-4 py-1.5 rounded-full text-[10px] font-black tracking-[2px] uppercase border border-[#FF4955]/20">
                 {product.category}
               </span>
-              <h1 className="text-3xl md:text-5xl font-bold text-white mt-5 leading-tight tracking-tight uppercase">
-                {product.name}
-              </h1>
+              <h1 className="text-2xl md:text-4xl font-bold text-white mt-5 uppercase">{product.name}</h1>
             </div>
 
-            {/* Price */}
             <div className="flex items-center gap-5">
-              <h2 className="text-4xl font-black text-white uppercase">
-                {currency || "$"}
-                {product.offerPrice || product.price}
-              </h2>
-              {product.offerPrice && (
-                <div className="flex items-center gap-3">
-                  <span className="text-xl text-zinc-600 line-through decoration-zinc-700">
-                    {currency || "$"}
-                    {product.price}
-                  </span>
-                  <span className="bg-white text-black text-[10px] font-black px-2 py-1 rounded-sm uppercase">
-                    -
-                    {Math.round(
-                      ((product.price - product.offerPrice) / product.price) *
-                        100,
-                    )}
-                    %
-                  </span>
-                </div>
+              <h2 className="text-3xl font-black text-white">{currency}{product.offerPrice > 0 ? product.offerPrice : product.price}</h2>
+              {product.offerPrice > 0 && (
+                <span className="text-lg text-zinc-600 line-through">{currency}{product.price}</span>
               )}
             </div>
 
-            {/* Size Selection */}
-            {product.sizes && (
+            {/* Size */}
+            {product.sizes && product.sizes.length > 0 && (
               <div className="space-y-4">
-                <p className="font-bold text-white uppercase text-xs tracking-widest">
-                  Select Size
-                </p>
+                <p className="font-bold text-zinc-400 uppercase text-xs tracking-widest">Select Size</p>
                 <div className="flex flex-wrap gap-3">
                   {product.sizes.map((item, index) => (
                     <button
                       key={index}
                       onClick={() => setSize(item)}
-                      className={`h-12 w-16 border-2 rounded-xl font-black transition-all duration-300 active:scale-90 ${
-                        item === size
-                          ? "border-[#FF4955] bg-[#FF4955] text-white"
-                          : "border-zinc-800 text-zinc-400 hover:border-zinc-600"
+                      className={`px-5 py-2.5 border rounded-md font-bold text-sm transition-all ${
+                        item === size ? "border-[#FF4955] bg-[#FF4955]/10 text-[#FF4955]" : "border-zinc-800 text-zinc-400"
                       }`}
                     >
                       {item}
@@ -165,101 +164,72 @@ const ProductDetails = () => {
               </div>
             )}
 
-            <div className="h-[1px] bg-zinc-900 w-full" />
-
-            {/* Action Section (Updated Button Container) */}
             <div className="flex flex-col gap-5 w-full">
-              {/* Quantity Selector */}
-              <div className="flex items-center justify-between border-2 border-zinc-800 rounded-2xl bg-[#111113] p-1 h-14 w-full sm:w-40">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-12 h-full flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
-                >
-                  <Minus size={20} />
-                </button>
-                <span className="text-center font-black text-xl text-white select-none">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="w-12 h-full flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
-                >
-                  <Plus size={20} />
-                </button>
+              {/* Quantity */}
+              <div className="flex items-center justify-between border border-zinc-800 rounded-md bg-[#18181b] p-1 h-12 w-32">
+                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-10 text-zinc-500 hover:text-white"><Minus size={16} /></button>
+                <span className="font-bold text-white">{quantity}</span>
+                <button onClick={() => setQuantity(q => q + 1)} className="w-10 text-zinc-500 hover:text-white"><Plus size={16} /></button>
               </div>
 
-              {/* Main Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 w-full h-auto sm:h-14">
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 flex items-center justify-center gap-2 bg-transparent border-2 border-zinc-800 text-white px-6 py-4 sm:py-0 rounded-2xl font-bold hover:bg-zinc-800 transition-all active:scale-[0.98] uppercase text-xs tracking-widest"
-                >
-                  <ShoppingCart size={18} /> Add to Cart
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  className="flex-1 bg-[#FF4955] text-white px-6 py-4 sm:py-0 rounded-2xl font-bold hover:bg-[#e63e49] transition-all active:scale-[0.98] uppercase text-xs tracking-widest shadow-lg shadow-[#ff49551c]"
-                >
-                  Buy Now
-                </button>
+              <div className="flex flex-col gap-3 w-full mt-2">
+                  <div className="flex flex-col sm:flex-row gap-4 w-full">
+                    <button
+                      onClick={handleAddToCart}
+                      className="flex-1 flex items-center justify-center gap-2 bg-[#18181b] border border-zinc-800 text-white px-6 py-3 rounded-md font-bold hover:bg-zinc-800 transition-all uppercase text-xs tracking-widest"
+                    >
+                      <ShoppingCart size={16} /> Add to Bag
+                    </button>
+                    <button
+                      onClick={handleBuyNow}
+                      className="flex-1 bg-[#FF4955] text-white px-6 py-3 rounded-md font-bold hover:bg-[#e63e49] transition-all uppercase text-xs tracking-widest"
+                    >
+                      Buy Now
+                    </button>
+                  </div>
+                  <button
+                      onClick={handleWhatsAppOrder}
+                      className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-3.5 rounded-md font-bold hover:bg-[#20bd5a] transition-all uppercase text-xs tracking-widest"
+                  >
+                      <FaWhatsapp size={20} /> Order via WhatsApp
+                  </button>
               </div>
             </div>
 
-            {/* Badges */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-              <Badge
-                icon={<Truck size={20} />}
-                title="Fast Delivery"
-                desc="2-3 Days"
-              />
-              <Badge
-                icon={<ShieldCheck size={20} />}
-                title="Secure Pay"
-                desc="100% SSL"
-              />
-              <Badge
-                icon={<RefreshCw size={20} />}
-                title="Easy Return"
-                desc="7 Days"
-              />
+              <Badge icon={<Truck size={20} />} title="Fast Delivery" desc="BD Wide" />
+              <Badge icon={<ShieldCheck size={20} />} title="Secure Pay" desc="COD Available" />
+              <Badge icon={<RefreshCw size={20} />} title="Easy Return" desc="7 Days Policy" />
             </div>
           </div>
         </div>
 
-        {/* Description Tabs */}
-        <div className="mt-20 border border-zinc-900 rounded-[32px] overflow-hidden bg-[#111113]">
-          <div className="flex border-b border-zinc-900 overflow-x-auto scrollbar-hide">
-            <button
-              onClick={() => setActiveTab("description")}
-              className={`px-10 py-5 text-xs font-black uppercase tracking-[3px] transition-all whitespace-nowrap ${
-                activeTab === "description"
-                  ? "bg-black text-[#FF4955]"
-                  : "text-zinc-600 hover:text-zinc-300"
-              }`}
-            >
-              Description
-            </button>
+        {/* Description */}
+        <div className="mt-20 border border-zinc-900 rounded-2xl overflow-hidden bg-[#121215]">
+          <div className="flex border-b border-zinc-900 px-8 py-4">
+            <span className="text-[#FF4955] font-bold uppercase tracking-widest text-xs">Description</span>
           </div>
-          <div className="p-8 md:p-12">
-            <div
-              className="max-w-4xl mx-auto text-zinc-400 leading-relaxed prose prose-invert prose-red"
-              dangerouslySetInnerHTML={{ __html: product.description }}
-            />
+          <div className="p-8 quill-content">
+            <div className="max-w-4xl mx-auto break-words" dangerouslySetInnerHTML={{ __html: product.description }} />
           </div>
         </div>
       </div>
+
+      <style>{`
+        .quill-content { color: #a1a1aa; line-height: 1.8; font-size: 15px; }
+        .quill-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .quill-content strong { color: #fff; }
+      `}</style>
     </div>
   );
 };
 
 const Badge = ({ icon, title, desc }) => (
-  <div className="flex items-center gap-4 p-4 bg-[#111113] rounded-2xl border border-zinc-900">
+  <div className="flex items-center gap-4 p-4 bg-[#18181b] rounded-xl border border-zinc-800">
     <div className="text-[#FF4955] shrink-0">{icon}</div>
     <div>
-      <p className="text-[10px] font-black text-white uppercase tracking-wider">
-        {title}
-      </p>
-      <p className="text-[10px] text-zinc-600 mt-1">{desc}</p>
+      <p className="text-[10px] font-bold text-white uppercase">{title}</p>
+      <p className="text-[10px] text-zinc-500">{desc}</p>
     </div>
   </div>
 );

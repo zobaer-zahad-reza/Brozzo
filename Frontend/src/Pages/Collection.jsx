@@ -1,11 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ProductCard from "../Components/ProductCard";
 import { TbFaceIdError } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
 import { FaFilter, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { ShopContext } from "../Context/ShopContext"; // Context import করা হলো
 
 const Collection = () => {
+  // Context থেকে ডাইনামিক products নিয়ে আসা হলো
+  const { products } = useContext(ShopContext);
+
   // --- UPDATED CATEGORY STRUCTURE ---
   const categories = [
     { name: "All", subCategories: [] },
@@ -22,59 +26,11 @@ const Collection = () => {
     { name: "Men Cloths", subCategories: ["T-Shirts", "Shirts", "Pants"] },
   ];
 
-  // --- STATIC DEMO DATA ---
-  const demoProducts = [
-    {
-      _id: "1",
-      name: "Midnight Chronograph Watch",
-      price: 150,
-      offerPrice: 120,
-      image: [
-        "https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=1000&auto=format&fit=crop",
-      ],
-      category: "Watch",
-      subCategory: "",
-    },
-    {
-      _id: "2",
-      name: "Noir Leather Belt",
-      price: 45,
-      offerPrice: 35,
-      image: [
-        "https://images.unsplash.com/photo-1624222247344-550fb60583dc?q=80&w=1000&auto=format&fit=crop",
-      ],
-      category: "Men Accesoric",
-      subCategory: "Belts",
-    },
-    {
-      _id: "3",
-      name: "Bass Pro Wireless Headphones",
-      price: 200,
-      offerPrice: 180,
-      image: [
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop",
-      ],
-      category: "Tech Accesoric",
-      subCategory: "Headphones",
-    },
-    {
-      _id: "4",
-      name: "Silver Chain",
-      price: 80,
-      offerPrice: 60,
-      image: [
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1000&auto=format&fit=crop",
-      ],
-      category: "Men Accesoric",
-      subCategory: "Chain",
-    },
-  ];
-
   const [searchParams] = useSearchParams();
   const { categorySlug } = useParams();
 
   const [showFilter, setShowFilter] = useState(false);
-  const [filterProducts, setFilterProducts] = useState(demoProducts);
+  const [filterProducts, setFilterProducts] = useState([]); // Initial state empty
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
@@ -116,23 +72,42 @@ const Collection = () => {
     setExpandedCategories((prev) => ({ ...prev, ...newExpanded }));
   }, [categorySlug, searchParams]);
 
-  // Filtering Logic
+  // Dynamic Filtering & Sorting Logic
   useEffect(() => {
-    let cp = [...demoProducts];
+    // products ডাটা না আসা পর্যন্ত অপেক্ষা করবে
+    if (!products || products.length === 0) return;
+
+    let cp = [...products]; // ডাইনামিক products থেকে কপি করা হচ্ছে
+
+    // Category filter
     if (selectedCategories.length > 0) {
       cp = cp.filter((item) => selectedCategories.includes(item.category));
     }
+
+    // SubCategory filter
     if (selectedSubCategories.length > 0) {
       cp = cp.filter((item) =>
         selectedSubCategories.includes(item.subCategory),
       );
     }
 
-    if (sortType === "low-high") cp.sort((a, b) => a.price - b.price);
-    else if (sortType === "high-low") cp.sort((a, b) => b.price - a.price);
+    // Sort logic
+    if (sortType === "low-high") {
+      cp.sort((a, b) => {
+        const priceA = a.offerPrice > 0 ? a.offerPrice : a.price;
+        const priceB = b.offerPrice > 0 ? b.offerPrice : b.price;
+        return priceA - priceB;
+      });
+    } else if (sortType === "high-low") {
+      cp.sort((a, b) => {
+        const priceA = a.offerPrice > 0 ? a.offerPrice : a.price;
+        const priceB = b.offerPrice > 0 ? b.offerPrice : b.price;
+        return priceB - priceA;
+      });
+    }
 
     setFilterProducts(cp);
-  }, [selectedCategories, selectedSubCategories, sortType]);
+  }, [products, selectedCategories, selectedSubCategories, sortType]); // products ডিপেন্ডেন্সি লিস্টে অ্যাড করা হলো
 
   const toggleCategory = (catName) => {
     if (catName === "All") {
@@ -166,8 +141,7 @@ const Collection = () => {
   ];
 
   return (
-    // Updated Padding Top
-    <div className="relative text-center flex flex-col sm:flex-row gap-1 sm:gap-10  sm:pt-4 px-4 bg-black min-h-screen text-gray-200">
+    <div className="relative text-center flex flex-col sm:flex-row gap-1 sm:gap-10 sm:pt-4 px-4 bg-black min-h-screen text-gray-200 pt-28">
       {/* --- Mobile Filter Overlay --- */}
       {showFilter && (
         <div
@@ -198,7 +172,7 @@ const Collection = () => {
           Filters
         </p>
 
-        <div className="border border-zinc-800 bg-[#111113] p-4 rounded-xl shadow-xl sm:shadow-none">
+        <div className="border border-zinc-800 bg-[#111113] p-4 rounded-xl shadow-xl sm:shadow-none text-left">
           <p className="mb-4 text-xs font-black uppercase text-[#FF4955] tracking-[2px]">
             Categories
           </p>
@@ -279,7 +253,7 @@ const Collection = () => {
           </div>
 
           {/* Controls (Sort & Filter) */}
-          <div className="flex gap-3 w-full sm:w-auto z-40">
+          <div className="flex gap-3 w-full sm:w-auto z-40 relative">
             {/* Custom Sort Dropdown */}
             <div className="relative w-1/2 sm:w-56" ref={sortMenuRef}>
               <button
@@ -305,7 +279,7 @@ const Collection = () => {
                         setSortType(option.value);
                         setShowSortMenu(false);
                       }}
-                      className={`px-4 py-2.5 text-xs font-medium cursor-pointer transition-colors flex items-center justify-between
+                      className={`px-4 py-2.5 text-xs font-medium cursor-pointer transition-colors flex items-center justify-between text-left
                         ${sortType === option.value ? "bg-zinc-800 text-[#FF4955]" : "text-gray-400 hover:bg-zinc-800 hover:text-white"}`}
                     >
                       {option.label}
@@ -329,8 +303,12 @@ const Collection = () => {
         </div>
 
         {/* Product Grid */}
-        {filterProducts.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 gap-y-6 md:gap-y-8">
+        {!products || products.length === 0 ? (
+           <div className="w-full h-40 flex items-center justify-center text-gray-500 text-sm tracking-widest animate-pulse mt-10">
+              LOADING COLLECTION...
+           </div>
+        ) : filterProducts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 gap-y-6 md:gap-y-8 text-left">
             {filterProducts.map((item) => (
               <ProductCard
                 key={item._id}

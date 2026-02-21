@@ -1,8 +1,8 @@
 import React from "react";
 import MarqueeAdmin from "../../Components/MarqueeAdmin";
 import SliderAdmin from "../../Components/SliderAdmin";
-import CategoryCarouselAdmin from "../../Components/CategoryCarouselAdmin";
-import PromoBentoGridAdmin from "../../Components/PromoBentoGridAdmin";
+// import CategoryCarouselAdmin from "../../Components/CategoryCarouselAdmin";
+// import PromoBentoGridAdmin from "../../Components/PromoBentoGridAdmin";
 
 const HomePageE = ({ token, backendUrl }) => {
   return (

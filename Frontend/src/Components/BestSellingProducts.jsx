@@ -1,12 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import { ShopContext } from "../Context/ShopContext"; // Commented for static
+import { ShopContext } from "../Context/ShopContext"; 
 import ProductCard from "./ProductCard";
 
 const BestSellingProducts = () => {
-  
-  // --- DYNAMIC LOGIC (Commented Out) ---
-  /*
   const { products } = useContext(ShopContext);
   const [bestSeller, setBestSeller] = useState([]);
 
@@ -16,49 +13,6 @@ const BestSellingProducts = () => {
         setBestSeller(bestProduct.slice(0, 5)); 
     }
   }, [products]);
-  */
-
-  // --- STATIC DEMO DATA FOR BROZZO ---
-  const demoProducts = [
-    {
-        _id: "1",
-        name: "Midnight Chronograph",
-        image: ["https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=1000&auto=format&fit=crop"],
-        price: 120,
-        offerPrice: 99
-    },
-    {
-        _id: "2",
-        name: "Noir Leather Sneakers",
-        image: ["https://images.unsplash.com/photo-1607522370275-f14206abe5d3?q=80&w=1000&auto=format&fit=crop"],
-        price: 85,
-        offerPrice: 70
-    },
-    {
-        _id: "3",
-        name: "Bass Pro Wireless",
-        image: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop"],
-        price: 150,
-        offerPrice: 120
-    },
-    {
-        _id: "4",
-        name: "Obsidian Essence Perfume",
-        image: ["https://images.unsplash.com/photo-1594913780356-e8d1a1b4119c?q=80&w=1000&auto=format&fit=crop"],
-        price: 60,
-        offerPrice: 45
-    },
-    {
-        _id: "5",
-        name: "Aviator Dark Shades",
-        image: ["https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=1000&auto=format&fit=crop"],
-        price: 40,
-        offerPrice: 35
-    }
-  ];
-
-  // Use static data
-  const bestSeller = demoProducts;
 
   return (
     <section className="mt-16 mx-auto px-4 md:px-0">

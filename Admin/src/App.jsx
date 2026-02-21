@@ -9,8 +9,7 @@ import Sidebar from "./Components/Sidebar";
 import Login from "./Components/Login";
 import ListProduct from "./Pages/ListProduct";
 import HomePageE from "./Pages/SubPages/HomePageE";
-import OurTeamPageE from "./Pages/SubPages/OurTeamPageE";
-import FooterInfo from "./Pages/SubPages/FooterInfo";
+// import FooterInfo from "./Pages/SubPages/FooterInfo";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const currency = "$";
@@ -51,7 +50,6 @@ const App = () => {
                   path="/edit-home-page"
                   element={<HomePageE token={token} backendUrl={backendUrl} />}
                 />
-                <Route path="/edit-team" element={<OurTeamPageE token={token} backendUrl={backendUrl} />} />
                 {/* <Route path="/edit-footer" element={<FooterInfo token={token} backendUrl={backendUrl} />} /> */}
                 <Route path="*" element={<div>Page Not Found</div>} />
               </Routes>

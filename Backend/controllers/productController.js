@@ -4,7 +4,8 @@ import productModel from "../models/productModel.js";
 // Add product
 const addProduct = async (req, res) => {
     try {
-        const { name, description, price, category, subCategory, sizes, bestseller, offerPrice } = req.body;
+        // req.body থেকে quantity রিসিভ করা হলো
+        const { name, description, price, category, subCategory, sizes, bestseller, offerPrice, quantity, watchGrade } = req.body;
 
         const image1 = req.files.image1 && req.files.image1[0];
         const image2 = req.files.image2 && req.files.image2[0];
@@ -29,6 +30,8 @@ const addProduct = async (req, res) => {
             bestseller: bestseller === "true" ? true : false,
             sizes: JSON.parse(sizes),
             offerPrice: offerPrice ? Number(offerPrice) : 0,
+            quantity: quantity ? Number(quantity) : 0, // এখানে quantity ডাটাবেসে যাবে
+            watchGrade: watchGrade || "",
             image: imagesUrl,
             date: Date.now()
         };
@@ -36,7 +39,7 @@ const addProduct = async (req, res) => {
         const product = new productModel(productData);
         await product.save();
 
-        res.json({ success: true, message: "Product Added" });
+        res.json({ success: true, message: "Product Added Successfully" });
 
     } catch (error) {
         console.log(error);
@@ -81,18 +84,11 @@ const singleProduct = async (req, res) => {
 // Update Product Function
 const updateProduct = async (req, res) => {
     try {
-        const { id, name, description, price, category, subCategory, sizes, bestseller, offerPrice, quantity, imageIndexes } = req.body;
+        const { id, name, description, price, category, subCategory, sizes, bestseller, offerPrice, quantity, watchGrade } = req.body;
 
         const product = await productModel.findById(id);
         if (!product) {
             return res.json({ success: false, message: "Product not found" });
-        }
-
-        let updatedImages = [...product.image];
-        const indexes = JSON.parse(imageIndexes || "[]");
-
-        if (req.files && req.files.length > 0) {
-            
         }
 
         const updateData = {
@@ -104,12 +100,9 @@ const updateProduct = async (req, res) => {
             bestseller: bestseller === "true",
             sizes: JSON.parse(sizes),
             offerPrice: offerPrice ? Number(offerPrice) : 0,
-            quantity: Number(quantity)
+            quantity: Number(quantity),
+            watchGrade: watchGrade || ""
         };
-
-        if (req.body.watchGrade) {
-            updateData.watchGrade = req.body.watchGrade;
-        }
 
         await productModel.findByIdAndUpdate(id, updateData);
 

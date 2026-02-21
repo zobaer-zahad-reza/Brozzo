@@ -2,10 +2,17 @@ import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
 import { ShoppingCart, Zap } from "lucide-react";
+import { toast } from "react-toastify";
 
 const ProductCard = ({ id, image, name, price, offerPrice }) => {
   const { currency, addToCart } = useContext(ShopContext);
   const navigate = useNavigate();
+
+  // Create an SEO-friendly URL slug from the product name
+  const nameSlug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') 
+    .replace(/(^-|-$)+/g, '');   
 
   const handleBuyNow = (e) => {
     e.preventDefault();
@@ -18,6 +25,7 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
       name,
       price: finalPrice,
       quantity: 1,
+      size: "Free Size" // Buy Now e-o default size pass kora bhalo
     };
     navigate("/place-order", { state: { buyNowItem: productData } });
   };
@@ -25,7 +33,10 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(id);
+    
+    // Add to cart with default size and quantity
+    addToCart(id, "Free Size", 1);
+    toast.success("Added to Cart!"); // Option Toast message
   };
 
   const hasDiscount = offerPrice > 0 && offerPrice < price;
@@ -35,7 +46,7 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
 
   return (
     <Link
-      to={`/product/${id}`}
+      to={`/product/${nameSlug}/${id}`}
       onClick={() => window.scrollTo(0, 0)}
       className="group block w-full bg-[#18181b] border border-zinc-800/60 rounded-md overflow-hidden hover:border-[#FF4955]/50 hover:shadow-lg transition-all duration-300 relative"
     >
