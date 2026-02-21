@@ -34,25 +34,29 @@ const Countdown = ({ targetDate }) => {
   const { hours, minutes, seconds } = getFormattedTime(timeRemaining);
 
   return (
-    <div className="flex flex-col text-gray-700 items-center justify-center p-1 md:p-2 bg-[#E2F8AF] rounded-lg">
-      <h3 className="text-gray-700 font-bold mb-0.5 text-[10px] md:text-xs tracking-wide uppercase">
+    <div className="flex flex-col items-center justify-center px-3 py-1.5 md:py-2  border border-zinc-800 rounded-md shadow-inner">
+      <h3 className="text-[#FF4955] font-bold mb-1 text-[8px] md:text-[10px] tracking-[0.2em] uppercase">
         Offer Ends In
       </h3>
 
-      <div className="flex items-center gap-1 md:gap-2">
-        <div className="flex flex-col items-center">
-          <span className="text-sm md:text-xl font-black text-gray-800 leading-none">{hours}</span>
-          <span className="text-[8px] font-bold text-gray-500 uppercase">Hrs</span>
+      <div className="flex items-center gap-1.5 md:gap-3">
+        <div className="flex flex-col items-center min-w-[20px] md:min-w-[28px]">
+          <span className="text-sm md:text-xl font-black text-white leading-none tracking-wider">{hours}</span>
+          <span className="text-[8px] font-bold text-zinc-500 uppercase mt-0.5 tracking-widest">Hrs</span>
         </div>
-        <div className="text-lg font-bold text-gray-400">:</div>
-        <div className="flex flex-col items-center">
-          <span className="text-sm md:text-xl font-black text-gray-800 leading-none">{minutes}</span>
-          <span className="text-[8px] font-bold text-gray-500 uppercase">Min</span>
+        
+        <div className="text-sm md:text-lg font-bold text-zinc-600 mb-3 animate-pulse">:</div>
+        
+        <div className="flex flex-col items-center min-w-[20px] md:min-w-[28px]">
+          <span className="text-sm md:text-xl font-black text-white leading-none tracking-wider">{minutes}</span>
+          <span className="text-[8px] font-bold text-zinc-500 uppercase mt-0.5 tracking-widest">Min</span>
         </div>
-        <div className="text-lg font-bold text-gray-400">:</div>
-        <div className="flex flex-col items-center">
-          <span className="text-sm md:text-xl font-black text-gray-800 leading-none">{seconds}</span>
-          <span className="text-[8px] font-bold text-gray-500 uppercase">Sec</span>
+        
+        <div className="text-sm md:text-lg font-bold text-zinc-600 mb-3 animate-pulse">:</div>
+        
+        <div className="flex flex-col items-center min-w-[20px] md:min-w-[28px]">
+          <span className="text-sm md:text-xl font-black text-white leading-none tracking-wider">{seconds}</span>
+          <span className="text-[8px] font-bold text-zinc-500 uppercase mt-0.5 tracking-widest">Sec</span>
         </div>
       </div>
     </div>

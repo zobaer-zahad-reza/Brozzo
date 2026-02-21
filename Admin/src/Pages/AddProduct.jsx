@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Upload } from "lucide-react";
 import axios from "axios";
 import { backendUrl } from "../App";
 import { toast } from "react-toastify";
-import DescriptionEditor from "../Components/DescriptionEditor"; 
+import DescriptionEditor from "../Components/DescriptionEditor";
 
 const AddProduct = ({ token }) => {
   const [image1, setImage1] = useState(false);
@@ -15,11 +15,37 @@ const AddProduct = ({ token }) => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
+
+  const [category, setCategory] = useState("Watch"); 
   
-  const [category, setCategory] = useState("Fashion"); 
-  const [subCategory, setSubCategory] = useState("Men");
+  const [subCategory, setSubCategory] = useState("");
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
+
+  const categoryData = [
+    { name: "Watch", subCategories: [] },
+    {
+      name: "Men Accesoric",
+      subCategories: ["Wallets", "Belts", "Caps", "Chain", "Ring"],
+    },
+    { name: "Sun Glasses", subCategories: [] },
+    {
+      name: "Tech Accesoric",
+      subCategories: ["Headphones", "Chargers", "Cases"],
+    },
+    { name: "Men Cloths", subCategories: ["T-Shirts", "Shirts", "Pants"] },
+  ];
+
+  const selectedCategoryObj = categoryData.find((cat) => cat.name === category);
+  const availableSubCategories = selectedCategoryObj ? selectedCategoryObj.subCategories : [];
+
+  useEffect(() => {
+    if (availableSubCategories.length > 0) {
+      setSubCategory(availableSubCategories[0]);
+    } else {
+      setSubCategory("");
+    }
+  }, [category]);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -31,7 +57,7 @@ const AddProduct = ({ token }) => {
       formData.append("price", price);
       formData.append("offerPrice", offerPrice);
       formData.append("category", category);
-      formData.append("subCategory", subCategory);
+      formData.append("subCategory", subCategory); 
       formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
 
@@ -67,100 +93,152 @@ const AddProduct = ({ token }) => {
   };
 
   return (
-    <form onSubmit={onSubmitHandler} className="flex flex-col w-full items-start gap-3">
+    <form onSubmit={onSubmitHandler} className="flex flex-col w-full items-start gap-4 text-gray-200">
       
+      {/* Header */}
+      <div className="w-full pb-3 border-b border-zinc-800 mb-2">
+         <h2 className="text-xl font-bold text-white uppercase tracking-widest">Add New Product</h2>
+      </div>
+
       {/* Image Upload Section */}
       <div>
-        <p className="mb-2 font-medium text-gray-700">Upload Image</p>
-        <div className="flex gap-2">
-          <label htmlFor="image1">
-            <div className="w-20 h-20 border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer bg-gray-50 rounded hover:bg-gray-100 transition">
-              {image1 ? <img className="w-full h-full object-cover rounded" src={URL.createObjectURL(image1)} alt="" /> : <Upload className="text-gray-400" />}
-            </div>
-            <input onChange={(e) => setImage1(e.target.files[0])} type="file" id="image1" hidden />
-          </label>
-          <label htmlFor="image2">
-            <div className="w-20 h-20 border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer bg-gray-50 rounded hover:bg-gray-100 transition">
-              {image2 ? <img className="w-full h-full object-cover rounded" src={URL.createObjectURL(image2)} alt="" /> : <Upload className="text-gray-400" />}
-            </div>
-            <input onChange={(e) => setImage2(e.target.files[0])} type="file" id="image2" hidden />
-          </label>
-          <label htmlFor="image3">
-            <div className="w-20 h-20 border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer bg-gray-50 rounded hover:bg-gray-100 transition">
-              {image3 ? <img className="w-full h-full object-cover rounded" src={URL.createObjectURL(image3)} alt="" /> : <Upload className="text-gray-400" />}
-            </div>
-            <input onChange={(e) => setImage3(e.target.files[0])} type="file" id="image3" hidden />
-          </label>
-          <label htmlFor="image4">
-            <div className="w-20 h-20 border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer bg-gray-50 rounded hover:bg-gray-100 transition">
-              {image4 ? <img className="w-full h-full object-cover rounded" src={URL.createObjectURL(image4)} alt="" /> : <Upload className="text-gray-400" />}
-            </div>
-            <input onChange={(e) => setImage4(e.target.files[0])} type="file" id="image4" hidden />
-          </label>
+        <p className="mb-2 font-medium text-gray-400 text-sm">Upload Image</p>
+        <div className="flex gap-3">
+          {[
+            { id: "image1", state: image1, setter: setImage1 },
+            { id: "image2", state: image2, setter: setImage2 },
+            { id: "image3", state: image3, setter: setImage3 },
+            { id: "image4", state: image4, setter: setImage4 },
+          ].map((imgData) => (
+            <label key={imgData.id} htmlFor={imgData.id}>
+              <div className="w-20 h-20 border border-dashed border-zinc-700 flex items-center justify-center cursor-pointer bg-[#18181b] rounded-md hover:border-[#FF4955] transition-colors">
+                {imgData.state ? (
+                  <img
+                    className="w-full h-full object-cover rounded-md"
+                    src={URL.createObjectURL(imgData.state)}
+                    alt=""
+                  />
+                ) : (
+                  <Upload className="text-zinc-500" size={24} />
+                )}
+              </div>
+              <input
+                onChange={(e) => imgData.setter(e.target.files[0])}
+                type="file"
+                id={imgData.id}
+                hidden
+              />
+            </label>
+          ))}
         </div>
       </div>
 
       {/* Product Name */}
-      <div className="w-full">
-        <p className="mb-2 font-medium text-gray-700">Product Name</p>
-        <input onChange={(e) => setName(e.target.value)} value={name} className="w-full max-w-[500px] px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-orange-400" type="text" placeholder="Type product name" required />
+      <div className="w-full max-w-[500px]">
+        <p className="mb-2 font-medium text-gray-400 text-sm">Product Name</p>
+        <input
+          onChange={(e) => setName(e.target.value)}
+          value={name}
+          className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] text-white placeholder-zinc-600 transition-all"
+          type="text"
+          placeholder="Type product name"
+          required
+        />
       </div>
 
       {/* Product Description Editor */}
       <div className="w-full max-w-[500px]">
-        <p className="mb-2 font-medium text-gray-700">Product Description</p>
-        <DescriptionEditor value={description} onChange={setDescription} />
+        <p className="mb-2 font-medium text-gray-400 text-sm">Product Description</p>
+        <div className="border border-zinc-800 rounded-md overflow-hidden bg-[#18181b]">
+           <DescriptionEditor value={description} onChange={setDescription} />
+        </div>
       </div>
 
       {/* Category, SubCategory & Prices */}
-      <div className="flex flex-col sm:flex-row gap-2 w-full sm:gap-8 pt-4 sm:pt-0">
-        <div>
-          <p className="mb-2 font-medium text-gray-700">Category</p>
-          <select onChange={(e) => setCategory(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded">
-            <option value="Fashion">Fashion</option>
-            <option value="Watch">Watch</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Beauty & Personal Care">Beauty & Personal Care</option>
-            <option value="Health & Household">Health & Household</option>
-            <option value="Home & Kitchen">Home & Kitchen</option>
-            <option value="Toys & Games">Toys & Games</option>
-            <option value="Baby Products">Baby Products</option>
-            <option value="Pet Supplies">Pet Supplies</option>
-            <option value="Arts, Crafts & Sewing">Arts, Crafts & Sewing</option>
-            <option value="Office Products">Office Products</option>
-            <option value="Sports & Outdoors">Sports & Outdoors</option>
-            <option value="Automotive Accessories">Automotive Accessories</option>
+      <div className="flex flex-col sm:flex-row gap-4 w-full pt-2">
+        
+        {/* Category */}
+        <div className="flex-1 max-w-[240px]">
+          <p className="mb-2 font-medium text-gray-400 text-sm">Category</p>
+          <select
+            onChange={(e) => setCategory(e.target.value)}
+            value={category}
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white cursor-pointer transition-all"
+          >
+            {categoryData.map((cat) => (
+              <option key={cat.name} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
           </select>
         </div>
 
-        <div>
-          <p className="mb-2 font-medium text-gray-700">Sub Category</p>
-          <select onChange={(e) => setSubCategory(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded">
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-            <option value="Kids">Kids</option>
-            <option value="Men & Women">Men & Women</option>
-            <option value="Everyone">Everyone</option>
+        {/* Sub Category */}
+        <div className="flex-1 max-w-[240px]">
+          <p className="mb-2 font-medium text-gray-400 text-sm">Sub Category</p>
+          <select
+            onChange={(e) => setSubCategory(e.target.value)}
+            value={subCategory}
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={availableSubCategories.length === 0}
+          >
+            {availableSubCategories.length > 0 ? (
+              availableSubCategories.map((sub) => (
+                <option key={sub} value={sub}>
+                  {sub}
+                </option>
+              ))
+            ) : (
+              <option value="">No Subcategory</option>
+            )}
           </select>
         </div>
 
-        <div>
-          <p className="mb-2 font-medium text-gray-700">Regular Price</p>
-          <input onChange={(e) => setPrice(e.target.value)} value={price} className="w-full px-3 py-2 border border-gray-300 rounded" type="number" placeholder="100" required />
+        {/* Prices */}
+        <div className="flex-1 max-w-[150px]">
+          <p className="mb-2 font-medium text-gray-400 text-sm">Regular Price (৳)</p>
+          <input
+            onChange={(e) => setPrice(e.target.value)}
+            value={price}
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white placeholder-zinc-600 transition-all"
+            type="number"
+            placeholder="1000"
+            required
+          />
         </div>
 
-        <div>
-          <p className="mb-2 font-medium text-gray-700">Offer Price</p>
-          <input onChange={(e) => setOfferPrice(e.target.value)} value={offerPrice} className="w-full px-3 py-2 border border-gray-300 rounded" type="number" placeholder="80" />
+        <div className="flex-1 max-w-[150px]">
+          <p className="mb-2 font-medium text-gray-400 text-sm">Offer Price (৳)</p>
+          <input
+            onChange={(e) => setOfferPrice(e.target.value)}
+            value={offerPrice}
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white placeholder-zinc-600 transition-all"
+            type="number"
+            placeholder="800"
+          />
         </div>
       </div>
 
       {/* Product Sizes */}
-      <div>
-        <p className="mb-2 font-medium text-gray-700">Product Sizes</p>
-        <div className="flex gap-3">
-          {["S", "M", "L", "XL", "XXL"].map((size) => (
-            <div key={size} onClick={() => setSizes((prev) => prev.includes(size) ? prev.filter((item) => item !== size) : [...prev, size])} className={`px-3 py-1 cursor-pointer bg-gray-100 border rounded transition-colors ${sizes.includes(size) ? "bg-orange-200 border-orange-500 font-bold" : ""}`}>
+      <div className="pt-2">
+        <p className="mb-2 font-medium text-gray-400 text-sm">Product Sizes / Variations</p>
+        <div className="flex gap-3 flex-wrap">
+          {["S", "M", "L", "XL", "XXL", "Free Size"].map((size) => (
+            <div
+              key={size}
+              onClick={() =>
+                setSizes((prev) =>
+                  prev.includes(size)
+                    ? prev.filter((item) => item !== size)
+                    : [...prev, size]
+                )
+              }
+              className={`px-4 py-1.5 cursor-pointer border rounded-md transition-all text-sm ${
+                sizes.includes(size)
+                  ? "bg-[#FF4955]/10 border-[#FF4955] text-[#FF4955] font-bold shadow-sm shadow-[#FF4955]/20"
+                  : "bg-[#18181b] border-zinc-800 text-gray-400 hover:border-zinc-500"
+              }`}
+            >
               {size}
             </div>
           ))}
@@ -168,13 +246,26 @@ const AddProduct = ({ token }) => {
       </div>
 
       {/* Bestseller Checkbox */}
-      <div className="flex gap-2 mt-2">
-        <input onChange={() => setBestseller((prev) => !prev)} checked={bestseller} type="checkbox" id="bestseller" className="cursor-pointer" />
-        <label className="cursor-pointer text-gray-700" htmlFor="bestseller">Add to Bestseller</label>
+      <div className="flex gap-3 items-center mt-4">
+        <input
+          onChange={() => setBestseller((prev) => !prev)}
+          checked={bestseller}
+          type="checkbox"
+          id="bestseller"
+          className="w-5 h-5 cursor-pointer accent-[#FF4955] bg-[#18181b] border-zinc-800 rounded"
+        />
+        <label className="cursor-pointer text-gray-300 font-medium select-none" htmlFor="bestseller">
+          Add to Bestseller List
+        </label>
       </div>
 
       {/* Submit Button */}
-      <button type="submit" className="w-28 py-3 mt-4 bg-[#FFA24C] text-white font-bold rounded hover:bg-orange-500 active:bg-orange-600 transition">ADD</button>
+      <button
+        type="submit"
+        className="w-40 py-3 mt-6 bg-[#FF4955] text-white font-bold rounded-md hover:bg-[#e03e49] active:scale-95 transition-all uppercase tracking-widest text-sm shadow-lg shadow-[#FF4955]/20"
+      >
+        Add Product
+      </button>
     </form>
   );
 };

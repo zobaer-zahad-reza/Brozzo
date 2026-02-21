@@ -58,9 +58,13 @@ const Orders = ({ token, backendUrl }) => {
   });
 
   return (
-    <div className="p-2 sm:p-4">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <h3 className="font-bold text-xl text-gray-800">Order Management</h3>
+    <div className="w-full text-gray-200">
+      
+      {/* Header & Search */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-zinc-800 pb-4">
+        <h2 className="text-xl font-bold text-white uppercase tracking-widest">
+          Order Management
+        </h2>
 
         {/* Search Bar Section */}
         <div className="relative w-full md:w-96">
@@ -69,108 +73,116 @@ const Orders = ({ token, backendUrl }) => {
             placeholder="Search by Order ID, Name or Phone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#FFA24C] outline-none transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:ring-1 focus:ring-[#FF4955] focus:border-[#FF4955] outline-none transition-all text-white placeholder-zinc-600 text-sm"
           />
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-3 text-zinc-500" size={16} />
         </div>
       </div>
 
+      {/* Orders List */}
       <div className="space-y-4">
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order, index) => (
             <div
               key={index}
-              className="grid grid-cols-1 sm:grid-cols-[0.5fr_2fr_1fr] lg:grid-cols-[0.5fr_2.5fr_1.5fr_1fr_1fr] gap-4 items-start border border-gray-200 p-5 md:p-6 text-xs sm:text-sm text-gray-700 bg-white rounded-2xl shadow-sm hover:border-[#FFA24C]/50 transition-colors"
+              className="grid grid-cols-1 sm:grid-cols-[0.5fr_2fr_1fr] lg:grid-cols-[0.5fr_2.5fr_1.5fr_1fr_1fr] gap-5 items-start border border-zinc-800 bg-[#121215] p-5 md:p-6 text-sm text-gray-300 rounded-lg hover:border-[#FF4955]/50 transition-colors shadow-md"
             >
-              <div className="bg-orange-50 p-3 rounded-2xl w-fit">
-                <Package className="text-[#FFA24C]" size={35} />
+              {/* Icon */}
+              <div className="bg-[#18181b] border border-zinc-800 p-3 rounded-md w-fit">
+                <Package className="text-[#FF4955]" size={30} />
               </div>
 
+              {/* Order Details */}
               <div>
                 {/* ID Badge */}
                 <div className="mb-3">
-                  <span className="bg-gray-800 text-white px-2 py-1 rounded text-[10px] font-mono font-bold uppercase tracking-wider">
+                  <span className="bg-[#FF4955]/10 border border-[#FF4955]/30 text-[#FF4955] px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">
                     ID: {order._id.toUpperCase()}
                   </span>
                 </div>
 
-                <div className="space-y-1">
+                {/* Items */}
+                <div className="space-y-1.5 mb-4">
                   {order.items.map((item, idx) => (
-                    <p className="font-semibold text-gray-800" key={idx}>
-                      • {item.name} x {item.quantity}
-                      <span className="text-gray-500 ml-2">[{item.size}]</span>
+                    <p className="font-medium text-white" key={idx}>
+                      • {item.name} <span className="text-zinc-500">x {item.quantity}</span>
+                      {item.size && item.size !== "Free Size" && <span className="text-[#FF4955] ml-2">[{item.size}]</span>}
                     </p>
                   ))}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-50">
-                  <p className="font-bold text-gray-900 text-base mb-1">
+                {/* Address */}
+                <div className="pt-4 border-t border-zinc-800">
+                  <p className="font-bold text-white text-base mb-1">
                     {order.address.firstName + " " + order.address.lastName}
                   </p>
-                  <p className="text-gray-500 leading-relaxed">
-                    {order.address.street}, {order.address.city},{" "}
-                    {order.address.state}, {order.address.country} -{" "}
-                    {order.address.zipcode}
+                  <p className="text-zinc-400 leading-relaxed text-xs">
+                    {order.address.street}, {order.address.area ? order.address.area + ", " : ""}
+                    {order.address.city}, {order.address.division}
                   </p>
-                  <div className="flex items-center gap-2 mt-2 text-[#FFA24C] font-bold">
+                  <div className="flex items-center gap-2 mt-2 text-[#FF4955] font-bold text-xs">
                     <Phone size={14} /> {order.address.phone}
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-3 bg-gray-50 p-4 rounded-xl">
-                <p className="flex items-center gap-2 font-medium">
-                  <Package size={16} className="text-gray-400" /> Items:{" "}
-                  {order.items.length}
+              {/* Order Meta Info */}
+              <div className="space-y-2.5 bg-[#18181b] border border-zinc-800 p-4 rounded-md text-xs">
+                <p className="flex items-center gap-2 font-medium text-gray-300">
+                  <Package size={14} className="text-zinc-500" /> Items:{" "}
+                  <span className="text-white">{order.items.length}</span>
                 </p>
-                <p className="flex items-center gap-2 font-medium">
-                  <CreditCard size={16} className="text-gray-400" />{" "}
-                  {order.paymentMethod}
+                <p className="flex items-center gap-2 font-medium text-gray-300">
+                  <CreditCard size={14} className="text-zinc-500" /> Method:{" "}
+                  <span className="text-white uppercase">{order.paymentMethod}</span>
                 </p>
-                <p className="flex items-center gap-2 font-medium">
+                <p className="flex items-center gap-2 font-medium text-gray-300">
                   <span
-                    className={`w-2 h-2 rounded-full ${order.payment ? "bg-green-500" : "bg-red-500"}`}
+                    className={`w-2 h-2 rounded-full shadow-sm ${order.payment ? "bg-green-500 shadow-green-500/50" : "bg-red-500 shadow-red-500/50"}`}
                   ></span>
-                  Payment: {order.payment ? "Done" : "Pending"}
+                  Payment: <span className="text-white">{order.payment ? "Done" : "Pending"}</span>
                 </p>
-                <p className="flex items-center gap-2 font-medium text-gray-500">
-                  <Calendar size={16} />{" "}
+                <p className="flex items-center gap-2 font-medium text-zinc-500">
+                  <Calendar size={14} />{" "}
                   {new Date(order.date).toLocaleDateString()}
                 </p>
               </div>
 
-              <div className="flex flex-col justify-center">
-                <p className="text-lg font-black text-gray-900 mb-2">
-                  ${order.amount}
+              {/* Amount */}
+              <div className="flex flex-col justify-center lg:items-center">
+                <p className="text-sm text-zinc-500 mb-1">Total Amount</p>
+                <p className="text-lg font-black text-[#FF4955]">
+                  ৳{order.amount}
                 </p>
               </div>
 
+              {/* Status Selector */}
               <div className="flex items-center h-full">
                 <select
                   onChange={(event) => statusHandler(event, order._id)}
                   value={order.status}
-                  className={`w-full p-2.5 font-bold border rounded-xl outline-none shadow-sm transition-all cursor-pointer 
+                  className={`w-full p-2.5 font-bold border rounded-md outline-none transition-all cursor-pointer text-xs uppercase tracking-wider
                     ${
                       order.status === "Delivered"
-                        ? "bg-green-50 border-green-200 text-green-700"
-                        : order.status === "Cancelled"
-                          ? "bg-red-50 border-red-200 text-red-700"
-                          : "bg-orange-50 border-orange-200 text-[#FFA24C]"
+                        ? "bg-green-900/20 border-green-800 text-green-500"
+                        : order.status === "Order Canceled"
+                          ? "bg-red-900/20 border-red-800 text-red-500"
+                          : "bg-zinc-900 border-zinc-700 text-[#FF4955]"
                     }`}
                 >
-                  <option value="Order Placed">Order Placed</option>
-                  <option value="Packing">Packing</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Out for delivery">Out for delivery</option>
-                  <option value="Delivered">Delivered</option>
-                  <option value="Order Canceled">Order Canceled</option>
+                  <option value="Order Placed" className="bg-[#18181b] text-gray-300">Order Placed</option>
+                  <option value="Packing" className="bg-[#18181b] text-gray-300">Packing</option>
+                  <option value="Shipped" className="bg-[#18181b] text-gray-300">Shipped</option>
+                  <option value="Out for delivery" className="bg-[#18181b] text-gray-300">Out for delivery</option>
+                  <option value="Delivered" className="bg-[#18181b] text-green-500">Delivered</option>
+                  <option value="Order Canceled" className="bg-[#18181b] text-red-500">Order Canceled</option>
                 </select>
               </div>
             </div>
           ))
         ) : (
-          <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-100">
-            <p className="text-gray-400 font-medium">
+          <div className="text-center py-20 bg-[#121215] rounded-lg border border-zinc-800">
+            <p className="text-zinc-500 font-medium">
               No orders matched your search.
             </p>
           </div>

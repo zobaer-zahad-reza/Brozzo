@@ -23,7 +23,7 @@ const App = () => {
   }, [token]);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-black min-h-screen">
       <ToastContainer position="top-right" autoClose={3000} />
 
       {token === "" ? (

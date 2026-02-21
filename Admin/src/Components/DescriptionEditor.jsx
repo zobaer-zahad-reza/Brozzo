@@ -32,15 +32,93 @@ const DescriptionEditor = ({ value, onChange }) => {
   ];
 
   return (
-    <div className="h-64 mb-12 sm:mb-0">
+    <div className="mb-12 sm:mb-8 brozzo-quill-container w-full rounded-md overflow-hidden">
       <ReactQuill
         theme="snow"
         value={value}
         onChange={onChange}
         modules={modules}
         formats={formats}
-        className="h-48 bg-white"
+        className="h-48 sm:h-56 text-gray-200"
       />
+
+      {/* Custom CSS */}
+      <style>{`
+        /* Toolbar Background & Border */
+        .brozzo-quill-container .ql-toolbar.ql-snow {
+          background-color: #121215;
+          border: 1px solid #27272a; /* zinc-800 */
+          border-top-left-radius: 0.375rem;
+          border-top-right-radius: 0.375rem;
+        }
+
+        /* Editor Container Background & Border */
+        .brozzo-quill-container .ql-container.ql-snow {
+          background-color: #18181b;
+          border: 1px solid #27272a; /* zinc-800 */
+          border-top: none;
+          border-bottom-left-radius: 0.375rem;
+          border-bottom-right-radius: 0.375rem;
+        }
+
+        /* Editor Text Color & Placeholder */
+        .brozzo-quill-container .ql-editor {
+          color: #e5e7eb; /* text-gray-200 */
+          font-size: 14px;
+        }
+        .brozzo-quill-container .ql-editor.ql-blank::before {
+          color: #52525b; /* text-zinc-500 placeholder */
+        }
+
+        /* Toolbar Icons Default Color (Gray) */
+        .brozzo-quill-container .ql-snow .ql-stroke {
+          stroke: #9ca3af;
+        }
+        .brozzo-quill-container .ql-snow .ql-fill, 
+        .brozzo-quill-container .ql-snow .ql-stroke.ql-fill {
+          fill: #9ca3af;
+        }
+        .brozzo-quill-container .ql-snow .ql-picker {
+          color: #9ca3af;
+        }
+
+        /* Toolbar Icons Hover & Active Color (Brozzo Accent: #FF4955) */
+        .brozzo-quill-container .ql-snow.ql-toolbar button:hover .ql-stroke,
+        .brozzo-quill-container .ql-snow .ql-toolbar button:hover .ql-stroke,
+        .brozzo-quill-container .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+        .brozzo-quill-container .ql-snow .ql-toolbar button.ql-active .ql-stroke,
+        .brozzo-quill-container .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
+        .brozzo-quill-container .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
+        .brozzo-quill-container .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+        .brozzo-quill-container .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke {
+          stroke: #FF4955;
+        }
+
+        .brozzo-quill-container .ql-snow.ql-toolbar button:hover .ql-fill,
+        .brozzo-quill-container .ql-snow .ql-toolbar button:hover .ql-fill,
+        .brozzo-quill-container .ql-snow.ql-toolbar button.ql-active .ql-fill,
+        .brozzo-quill-container .ql-snow .ql-toolbar button.ql-active .ql-fill,
+        .brozzo-quill-container .ql-snow.ql-toolbar .ql-picker-label:hover .ql-fill,
+        .brozzo-quill-container .ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill,
+        .brozzo-quill-container .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-fill,
+        .brozzo-quill-container .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-fill {
+          fill: #FF4955;
+        }
+
+        /* Dropdown options text color */
+        .brozzo-quill-container .ql-snow.ql-toolbar .ql-picker-item:hover,
+        .brozzo-quill-container .ql-snow .ql-toolbar .ql-picker-item:hover,
+        .brozzo-quill-container .ql-snow.ql-toolbar .ql-picker-item.ql-selected,
+        .brozzo-quill-container .ql-snow .ql-toolbar .ql-picker-item.ql-selected {
+          color: #FF4955;
+        }
+
+        /* Dropdown menu background */
+        .brozzo-quill-container .ql-snow .ql-picker-options {
+          background-color: #121215;
+          border: 1px solid #27272a;
+        }
+      `}</style>
     </div>
   );
 };
