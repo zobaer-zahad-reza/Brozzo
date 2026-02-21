@@ -12,9 +12,9 @@ const HomePageE = ({ token, backendUrl }) => {
       
       <SliderAdmin token={token} backendUrl={backendUrl} />
 
-      <CategoryCarouselAdmin token={token} backendUrl={backendUrl} />
+      {/* <CategoryCarouselAdmin token={token} backendUrl={backendUrl} /> */}
 
-      <PromoBentoGridAdmin token={token} backendUrl={backendUrl} />
+      {/* <PromoBentoGridAdmin token={token} backendUrl={backendUrl} /> */}
 
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import logo from "../assets/logo.png"; // Make sure to import the Brozzo logo
 
 const Login = ({ setToken, backendUrl }) => {
     const [email, setEmail] = useState('');
@@ -22,7 +23,6 @@ const Login = ({ setToken, backendUrl }) => {
                 localStorage.setItem('token', token);
                 toast.success("Welcome Back, Admin!");
             } else {
-                // Jodi response success false hoy (unlikely with try-catch but safe)
                 toast.error(response.data.message || "Login failed.");
             }
 
@@ -31,13 +31,10 @@ const Login = ({ setToken, backendUrl }) => {
             
             // Backend error message handle kora
             if (error.response) {
-                // Server response diyeche (e.g., 401, 400, 500)
                 toast.error(error.response.data.message || "Invalid Email or Password");
             } else if (error.request) {
-                // Request pathano hoyeche kintu server theke response asheni
                 toast.error("Server is not responding. Please check your backend.");
             } else {
-                // Onno kono error
                 toast.error("An unexpected error occurred.");
             }
         } finally {
@@ -46,29 +43,41 @@ const Login = ({ setToken, backendUrl }) => {
     }
 
     return (
-        <div className='min-h-screen flex items-center justify-center w-full bg-gray-50'>
-            <div className='bg-white shadow-xl rounded-lg px-8 py-10 max-w-md w-full border border-gray-100'>
-                <h1 className='text-2xl font-bold mb-6 text-center text-gray-800'>Vivid Valley Admin</h1>
+        <div className='min-h-screen flex items-center justify-center w-full bg-[#0a0a0a] px-4'>
+            
+            <div className='bg-[#121215] shadow-2xl rounded-xl px-8 py-10 max-w-md w-full border border-zinc-800 relative overflow-hidden'>
+                
+                {/* Decorative element */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FF4955] to-transparent opacity-50"></div>
+
+                {/* Logo Section */}
+                <div className="flex justify-center mb-8">
+                    <img src={logo} alt="Brozzo Admin" className="w-32 object-contain" />
+                </div>
+
+                <h1 className='text-xl font-bold mb-8 text-center text-white uppercase tracking-widest'>
+                    Admin Control
+                </h1>
 
                 <form onSubmit={onSubmitHandler}>
-                    <div className='mb-4'>
-                        <p className='text-sm font-semibold text-gray-600 mb-2'>Admin Email</p>
+                    <div className='mb-5'>
+                        <p className='text-xs font-bold text-zinc-400 mb-2 uppercase tracking-wider'>Admin Email</p>
                         <input
                             onChange={(e) => setEmail(e.target.value)}
                             value={email}
-                            className='rounded-md w-full px-4 py-2 border border-gray-300 outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all'
+                            className='rounded-md w-full px-4 py-3 bg-[#18181b] text-white border border-zinc-700 outline-none focus:ring-1 focus:ring-[#FF4955] focus:border-[#FF4955] transition-all placeholder-zinc-600 text-sm'
                             type="email"
-                            placeholder='admin@vividvalley.com'
+                            placeholder='admin@brozzo.com'
                             required
                         />
                     </div>
 
-                    <div className='mb-6'>
-                        <p className='text-sm font-semibold text-gray-600 mb-2'>Password</p>
+                    <div className='mb-8'>
+                        <p className='text-xs font-bold text-zinc-400 mb-2 uppercase tracking-wider'>Password</p>
                         <input
                             onChange={(e) => setPassword(e.target.value)}
                             value={password}
-                            className='rounded-md w-full px-4 py-2 border border-gray-300 outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all'
+                            className='rounded-md w-full px-4 py-3 bg-[#18181b] text-white border border-zinc-700 outline-none focus:ring-1 focus:ring-[#FF4955] focus:border-[#FF4955] transition-all placeholder-zinc-600 text-sm'
                             type="password"
                             placeholder='••••••••'
                             required
@@ -76,8 +85,10 @@ const Login = ({ setToken, backendUrl }) => {
                     </div>
 
                     <button
-                        className={`w-full py-3 px-4 rounded-md text-white transition-all duration-300 font-bold uppercase tracking-wider ${
-                            loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800 shadow-lg'
+                        className={`w-full py-3.5 px-4 rounded-md text-white transition-all duration-300 font-bold uppercase tracking-widest text-sm shadow-lg ${
+                            loading 
+                            ? 'bg-zinc-600 cursor-not-allowed' 
+                            : 'bg-[#FF4955] hover:bg-[#e03e49] shadow-[#FF4955]/20 active:scale-[0.98]'
                         }`}
                         type="submit"
                         disabled={loading}
@@ -87,9 +98,10 @@ const Login = ({ setToken, backendUrl }) => {
                                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                                 Verifying...
                             </div>
-                        ) : 'Login'}
+                        ) : 'Login to Dashboard'}
                     </button>
                 </form>
+
             </div>
         </div>
     );

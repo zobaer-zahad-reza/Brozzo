@@ -8,11 +8,7 @@ const Sidebar = () => {
 
   const contentMenuParams = [
     { name: 'Home Page', path: '/edit-home-page' },
-    // { name: 'Contact Us', path: '/edit-contact' },
-    // { name: 'About Us', path: '/edit-about' },
-    { name: 'Our Team', path: '/edit-team' },
-    { name: 'Blog Page', path: '/edit-blog-page' },
-    { name: 'Footer Info', path: '/edit-footer' },
+    // { name: 'Footer Info', path: '/edit-footer' },
   ];
 
   return (
