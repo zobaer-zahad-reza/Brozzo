@@ -16,6 +16,7 @@ import ForgotPassword from "../Pages/ForgotPass";
 import Profile from "../Pages/Profile";
 import PlaceOrder from "../Pages/PlaceOrder";
 import Orders from "../Pages/Orders";
+import ResetPassword from "../Pages/ResetPassword";
 
 const router = createBrowserRouter([
   {
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
       {
         path: "/orders",
         element: <Orders />
+      },
+      {
+        path: "/reset-password/:token",
+        element: <ResetPassword />,
       },
     ],
   },

@@ -33,9 +33,7 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // শুধু id এবং ডিফল্ট সাইজ পাঠানো হচ্ছে
     addToCart(id, "Free Size");
-    // toast.success এখানে না দিয়ে addToCart ফাংশনের ভেতরে দেওয়াই ভালো
   };
 
   const hasDiscount = offerPrice > 0 && offerPrice < price;

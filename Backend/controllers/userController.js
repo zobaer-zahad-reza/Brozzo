@@ -3,9 +3,93 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
+import nodemailer from "nodemailer"; // Nodemailer import
 
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET);
+};
+
+// --- Nodemailer Setup for Email ---
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER, // Your Gmail address in .env
+        pass: process.env.EMAIL_PASS  // Your Gmail App Password in .env
+    }
+});
+
+// --- Forgot Password Logic ---
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            return res.json({ success: false, message: "User not found with this email" });
+        }
+
+        // Generate a temporary token valid for 15 minutes
+        const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+        
+        // Link points to your frontend route (Make sure FRONTEND_URL is in .env like http://localhost:5173)
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Password Reset Request - Brozzo',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb; border-radius: 10px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h1 style="color: #18181b; margin: 0;">BROZZO</h1>
+                    </div>
+                    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h2 style="color: #18181b; margin-top: 0;">Password Reset Request</h2>
+                        <p style="color: #4b5563; line-height: 1.6;">Hello,</p>
+                        <p style="color: #4b5563; line-height: 1.6;">We received a request to reset your password. Click the button below to choose a new one. This link is valid for 15 minutes.</p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${resetLink}" style="background-color: #FF4955; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Reset Password</a>
+                        </div>
+                        <p style="color: #6b7280; font-size: 14px;">If you didn't make this request, you can safely ignore this email.</p>
+                    </div>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: "Password reset link sent to your email." });
+
+    } catch (error) {
+        console.error("Forgot Password Error:", error);
+        res.json({ success: false, message: "Failed to send email. Please try again later." });
+    }
+};
+
+// --- Reset Password Logic ---
+const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (newPassword.length < 8) {
+            return res.json({ success: false, message: "Password must be at least 8 characters long." });
+        }
+
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update the user's password in the database
+        await userModel.findByIdAndUpdate(decoded.id, { password: hashedPassword });
+
+        res.json({ success: true, message: "Password reset successfully. You can now login." });
+
+    } catch (error) {
+        console.error("Reset Password Error:", error);
+        res.json({ success: false, message: "Invalid or expired reset link." });
+    }
 };
 
 // Route for User Login
@@ -145,4 +229,6 @@ export {
     addAddress,
     removeAddress,
     updateUserImage,
+    forgotPassword, 
+    resetPassword  
 };

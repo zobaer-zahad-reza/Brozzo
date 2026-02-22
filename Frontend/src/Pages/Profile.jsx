@@ -14,7 +14,7 @@ import {
 import { ShopContext } from "../Context/ShopContext";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { toast } from "react-toastify"; // FIXED: Import toast
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const { navigate, token, backendUrl, setToken, setCartItems } =
@@ -140,7 +140,7 @@ const Profile = () => {
     }
   };
 
-  // --- FIXED handleAddAddress ---
+  //  handleAddAddress
   const handleAddAddress = async (e) => {
     e.preventDefault();
     try {
@@ -179,7 +179,7 @@ const Profile = () => {
         });
       }
     } catch (error) {
-      Swal.close(); // এরর আসলে লোডিং বন্ধ করা
+      Swal.close();
       const errorMsg = error.response?.status === 404 
         ? "API Route not found (404). Check backend!" 
         : error.message;

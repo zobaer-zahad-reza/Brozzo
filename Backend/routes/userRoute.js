@@ -8,6 +8,8 @@ import {
     addAddress,       
     removeAddress,    
     updateUserImage,
+    forgotPassword, // Imported
+    resetPassword   // Imported
 } from "../controllers/userController.js";
 import authUser from "../middleware/auth.js";
 import upload from "../middleware/multer.js";
@@ -17,6 +19,10 @@ const userRouter = express.Router();
 userRouter.post("/admin", loginAdmin);
 userRouter.post("/register", registerUser);
 userRouter.post("/login", loginUser);
+
+// Password Reset Routes
+userRouter.post("/forgot-password", forgotPassword);
+userRouter.post("/reset-password", resetPassword);
 
 userRouter.get("/profile", authUser, getUserProfile);
 userRouter.post("/update-profile", authUser, updateUserProfile);
