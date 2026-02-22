@@ -41,34 +41,34 @@ const ShopContextProvider = (props) => {
         }
     };
 
-    // FIXED: Add to cart with strict number handling
+    // FIXED: addToCart - ১ এর জায়গায় ২ হওয়া বন্ধ করবে
     const addToCart = async (itemId, size, quantity = 1) => {
         if (!size) {
             toast.error("Select Product Size");
             return;
         }
 
-        setCartItems((prev) => {
-            let cartData = structuredClone(prev);
-            const qty = Number(quantity); // Ensure quantity is a number
+        let cartData = structuredClone(cartItems);
+        const qty = Number(quantity);
 
-            if (cartData[itemId]) {
-                if (cartData[itemId][size]) {
-                    cartData[itemId][size] += qty;
-                } else {
-                    cartData[itemId][size] = qty;
-                }
+        if (cartData[itemId]) {
+            if (cartData[itemId][size]) {
+                cartData[itemId][size] += qty;
             } else {
-                cartData[itemId] = {};
                 cartData[itemId][size] = qty;
             }
-            return cartData;
-        });
+        } else {
+            cartData[itemId] = {};
+            cartData[itemId][size] = qty;
+        }
+        
+        setCartItems(cartData);
+        toast.success("Added to Bag");
 
         if (token) {
             try {
-                await axios.post(backendUrl + '/api/cart/add', { itemId, size, quantity: Number(quantity) }, { headers: { token } });
-                toast.success("Added to Bag");
+                // ব্যাকএন্ডে রিকোয়েস্ট পাঠানোর সময় ব্যাকএন্ড লজিক অনুযায়ী quantity ঠিক রাখুন
+                await axios.post(backendUrl + '/api/cart/add', { itemId, size, quantity: qty }, { headers: { token } });
             } catch (error) {
                 console.error("Cart Add Error:", error);
             }
@@ -85,22 +85,24 @@ const ShopContextProvider = (props) => {
         return totalCount;
     };
 
-    // FIXED: Update quantity handler
+    // FIXED: updateQuantity - প্লাস/মাইনাস বাটন কাজ করাবে
     const updateQuantity = async (itemId, size, quantity) => {
+        let cartData = structuredClone(cartItems);
         const qty = Number(quantity);
-        
-        setCartItems((prev) => {
-            let cartData = structuredClone(prev);
-            if (cartData[itemId]) {
-                if (qty === 0) {
-                    delete cartData[itemId][size];
-                    if (Object.keys(cartData[itemId]).length === 0) delete cartData[itemId];
-                } else {
-                    cartData[itemId][size] = qty;
-                }
-            }
-            return cartData;
-        });
+
+        // যদি আইটেমটি না থাকে তবে তৈরি করবে, আর থাকলে আপডেট করবে
+        if (!cartData[itemId]) {
+            cartData[itemId] = {};
+        }
+
+        if (qty === 0) {
+            delete cartData[itemId][size];
+            if (Object.keys(cartData[itemId]).length === 0) delete cartData[itemId];
+        } else {
+            cartData[itemId][size] = qty;
+        }
+
+        setCartItems(cartData);
 
         if (token) {
             try {
@@ -136,7 +138,8 @@ const ShopContextProvider = (props) => {
         search, setSearch, showSearch, setShowSearch,
         cartItems, setCartItems,
         addToCart, getCartCount, updateQuantity, getCartTotal,
-        navigate, token, setToken, getUserCart
+        navigate, token, setToken, getUserCart,
+        removeFromCart: (id, size) => updateQuantity(id, size, 0)
     };
 
     return (

@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { FaArrowRight, FaBoxOpen, FaTruck, FaHashtag } from 'react-icons/fa';
+import { FaHashtag } from 'react-icons/fa';
+import { Box, Truck, ArrowLeft, RefreshCw } from 'lucide-react';
 
 const Orders = () => {
     const { backendUrl, token, currency } = useContext(ShopContext);
@@ -20,7 +21,6 @@ const Orders = () => {
 
                 response.data.orders.map((order) => {
                     order.items.map((item) => {
-                        // প্রতিটি আইটেমের সাথে অর্ডারের মেইন আইডি এবং অন্যান্য তথ্য যোগ করা হচ্ছে
                         item['orderId'] = order._id; 
                         item['status'] = order.status;
                         item['payment'] = order.payment;
@@ -43,111 +43,118 @@ const Orders = () => {
     }, [token]);
 
     return (
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-[70vh]'>
-            {/* Header Section */}
-            <div className='flex items-center gap-3 mb-8 border-l-4 border-[#FFA24C] pl-4'>
-                <h2 className='text-2xl md:text-3xl font-bold text-gray-800 uppercase tracking-tight'>
-                    My <span className='text-[#FFA24C]'>Orders</span>
-                </h2>
-            </div>
-
-            <div className='flex flex-col gap-6'>
-                {loading ? (
-                    <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFA24C]"></div>
+        <div className="bg-black min-h-screen pt-28 pb-20 px-4 md:px-8 font-sans text-gray-200">
+            <div className="max-w-6xl mx-auto">
+                
+                {/* Header Section */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10 border-b border-zinc-900 pb-6">
+                    <div className="inline-flex items-center gap-3">
+                        <p className="text-zinc-500 text-lg md:text-2xl uppercase tracking-[3px]">
+                            My <span className="text-white font-black">Orders</span>
+                        </p>
+                        <div className="hidden sm:block w-12 h-[2px] bg-[#FF4955]"></div>
                     </div>
-                ) : orderData.length > 0 ? (
-                    orderData.map((item, index) => (
-                        <div key={index} className='bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow duration-300'>
-                            
-                            {/* Product Info Left Side */}
-                            <div className='flex items-center gap-4 sm:gap-6'>
-                                <div className="relative group">
-                                    <img 
-                                        className='w-20 h-20 sm:w-28 sm:h-28 object-cover rounded-xl bg-gray-50 border border-gray-100' 
-                                        src={item.image[0]} 
-                                        alt={item.name} 
-                                    />
-                                    <div className="absolute -top-2 -left-2 bg-black text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">
-                                        QTY: {item.quantity}
-                                    </div>
-                                </div>
+                    
+                </div>
 
-                                <div className="flex-1">
-                                    {/* Order ID Badge */}
-                                    <div className='flex items-center gap-2 mb-2'>
-                                        <div className='flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-1 rounded-md border border-gray-200'>
-                                            <FaHashtag size={10} className='text-gray-400'/>
-                                            <span className='text-[10px] font-bold uppercase tracking-wider'>
-                                                ID: {item.orderId.slice(-8).toUpperCase()}
-                                            </span>
+                <div className="flex flex-col gap-5">
+                    {loading ? (
+                        <div className="flex flex-col justify-center items-center py-24 gap-4">
+                            <div className="w-10 h-10 border-2 border-[#FF4955] border-t-transparent rounded-full animate-spin"></div>
+                            <p className="text-[10px] font-black uppercase tracking-[3px] text-zinc-600">Retrieving History...</p>
+                        </div>
+                    ) : orderData.length > 0 ? (
+                        orderData.map((item, index) => (
+                            <div key={index} className="bg-[#111113] rounded-2xl p-5 border border-zinc-900 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-zinc-700 transition-all duration-300 group">
+                                
+                                {/* Image & Product Info */}
+                                <div className="flex items-center gap-5 sm:gap-8">
+                                    <div className="relative shrink-0">
+                                        <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
+                                            <img 
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                                src={item.image[0]} 
+                                                alt={item.name} 
+                                            />
+                                        </div>
+                                        <div className="absolute -top-2 -left-2 bg-[#FF4955] text-white text-[9px] font-black px-2 py-0.5 rounded shadow-xl uppercase tracking-tighter">
+                                            x{item.quantity}
                                         </div>
                                     </div>
 
-                                    <p className='text-sm md:text-lg font-bold text-gray-800 line-clamp-1'>{item.name}</p>
-                                    
-                                    <div className='flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-600'>
-                                        <p className="font-bold text-[#FFA24C] text-base">{currency}{item.price}</p>
-                                        
-                                        {item.size && (
-                                            <span className="bg-gray-50 px-2 py-0.5 rounded text-xs font-medium border border-gray-200">
-                                                Size: {item.size}
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-[#FF4955] bg-[#FF4955]/10 px-2 py-0.5 rounded border border-[#FF4955]/20">
+                                                ID: {item.orderId.slice(-8).toUpperCase()}
                                             </span>
-                                        )}
+                                        </div>
+
+                                        <h3 className="text-sm md:text-base font-bold text-white uppercase tracking-tight line-clamp-1 group-hover:text-[#FF4955] transition-colors">
+                                            {item.name}
+                                        </h3>
                                         
-                                        <span className="hidden sm:inline text-gray-300">|</span>
-                                        <p className="text-gray-500 text-xs">{new Date(item.date).toDateString()}</p>
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs">
+                                            <p className="font-black text-white">{currency}{item.price}</p>
+                                            
+                                            {item.size && (
+                                                <p className="text-zinc-500 font-bold uppercase">Size: <span className="text-zinc-300">{item.size}</span></p>
+                                            )}
+                                            
+                                            <span className="hidden sm:inline text-zinc-800">|</span>
+                                            <p className="text-zinc-500">{new Date(item.date).toDateString()}</p>
+                                        </div>
+
+                                        <div className="mt-3 flex items-center gap-2">
+                                            <span className="text-[9px] uppercase font-black text-zinc-600 tracking-widest">Payment:</span>
+                                            <span className="text-[9px] font-black px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800 uppercase tracking-tighter">
+                                                {item.paymentMethod}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Status & Action */}
+                                <div className="flex items-center justify-between md:justify-end md:gap-10 border-t md:border-t-0 border-zinc-900 pt-4 md:pt-0">
+                                    
+                                    {/* Order Status */}
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-2 h-2 rounded-full ${item.status === 'Delivered' ? 'bg-green-500' : 'bg-[#FF4955] animate-pulse'}`}></div>
+                                        <p className="text-xs font-black uppercase tracking-[1px] text-white">
+                                            {item.status}
+                                        </p>
                                     </div>
 
-                                    <div className="mt-3 flex items-center gap-2">
-                                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Payment:</span>
-                                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-[#FFA24C] border border-orange-100 uppercase">
-                                            {item.paymentMethod}
-                                        </span>
-                                    </div>
+                                    {/* Track Button */}
+                                    <button 
+                                        onClick={loadOrderData} 
+                                        className="flex items-center gap-2 bg-[#18181b] border border-zinc-800 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-zinc-700 transition-all active:scale-95 shadow-lg shadow-black/20"
+                                    >
+                                        <Truck size={14} className="text-[#FF4955]" />
+                                        Track Order
+                                    </button>
                                 </div>
                             </div>
+                        ))
+                    ) : (
+                        /* Empty State */
+                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                            <div className="w-24 h-24 bg-[#111113] border border-zinc-800 rounded-full flex items-center justify-center mb-8 shadow-2xl">
+                                <Box size={40} className="text-zinc-700" />
+                            </div>
+                            <h3 className="text-xl font-black text-white uppercase tracking-widest">No Orders Yet</h3>
+                            <p className="text-zinc-500 mt-3 max-w-xs mx-auto text-sm">
+                                Your order history is currently empty. Explore our collection to find your next favorite piece.
+                            </p>
 
-                            {/* Status & Action Right Side */}
-                            <div className='flex items-center justify-between md:justify-end md:gap-12 border-t md:border-t-0 pt-4 md:pt-0'>
-                                
-                                {/* Order Status */}
-                                <div className='flex items-center gap-2'>
-                                    <div className={`w-2.5 h-2.5 rounded-full animate-pulse ${item.status === 'Delivered' ? 'bg-green-500' : 'bg-[#FFA24C]'}`}></div>
-                                    <p className='text-sm font-semibold text-gray-700'>{item.status}</p>
-                                </div>
-
-                                {/* Track Button */}
-                                <button 
-                                    onClick={loadOrderData} 
-                                    className='flex items-center gap-2 bg-white border border-gray-200 px-5 py-2.5 text-xs font-bold rounded-xl hover:bg-black hover:text-white hover:border-black transition-all duration-300 shadow-sm active:scale-95'
-                                >
-                                    <FaTruck size={14} />
-                                    Track Order
+                            <Link to="/collection" className="mt-10">
+                                <button className="px-10 py-4 bg-[#FF4955] text-white font-black uppercase text-xs tracking-[3px] rounded-xl hover:bg-[#e63e49] transition-all shadow-xl shadow-[#ff49552a] flex items-center gap-3 active:scale-95">
+                                    Browse Collection
+                                    <ArrowLeft className="rotate-180" size={16} />
                                 </button>
-                            </div>
+                            </Link>
                         </div>
-                    ))
-                ) : (
-                    /* Empty State */
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="bg-gray-100 p-8 rounded-full mb-6">
-                            <FaBoxOpen size={60} className="text-gray-300" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-800">No Orders Found</h3>
-                        <p className="text-gray-500 mt-2 max-w-xs mx-auto">Looks like you haven't made your first order yet. Explore our latest collection!</p>
-
-                        <Link to={'/collection'} className="mt-10">
-                            <button className="group relative px-8 py-4 bg-black rounded-2xl text-white font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-3 overflow-hidden cursor-pointer">
-                                <span className="relative z-10 flex items-center gap-3">
-                                    Start Shopping
-                                    <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                                </span>
-                                <div className="absolute inset-0 bg-gradient-to-r from-[#FFA24C] to-[#ff7b00] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            </button>
-                        </Link>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

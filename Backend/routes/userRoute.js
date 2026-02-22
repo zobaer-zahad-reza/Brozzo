@@ -1,12 +1,13 @@
 import express from "express";
 import {
-  loginAdmin,
-  loginUser,
-  registerUser,
-  getUserProfile,
-  updateUserProfile,
-  updateUserAddress,
-  updateUserImage,
+    loginAdmin,
+    loginUser,
+    registerUser,
+    getUserProfile,
+    updateUserProfile,
+    addAddress,       
+    removeAddress,    
+    updateUserImage,
 } from "../controllers/userController.js";
 import authUser from "../middleware/auth.js";
 import upload from "../middleware/multer.js";
@@ -19,13 +20,15 @@ userRouter.post("/login", loginUser);
 
 userRouter.get("/profile", authUser, getUserProfile);
 userRouter.post("/update-profile", authUser, updateUserProfile);
-userRouter.post("/update-address", authUser, updateUserAddress);
+
+userRouter.post("/add-address", authUser, addAddress);
+userRouter.post("/remove-address", authUser, removeAddress);
 
 userRouter.post(
-  "/update-image",
-  authUser,
-  upload.single("image"),
-  updateUserImage,
+    "/update-image",
+    authUser,
+    upload.single("image"),
+    updateUserImage,
 );
 
 export default userRouter;
