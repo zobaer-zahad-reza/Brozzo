@@ -17,14 +17,13 @@ import { useTranslation } from "react-i18next";
 import { ShopContext } from "../Context/ShopContext";
 
 const Navbar = () => {
-  const { getCartCount, navigate, token, setToken, setCartItems } =
+  const { getCartCount, navigate, token, setToken, setCartItems, setSearch } =
     useContext(ShopContext);
 
   const [category, setCategory] = useState("All");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
   const { t } = useTranslation();
@@ -51,10 +50,12 @@ const Navbar = () => {
     setCartItems({});
   };
 
+  // Added global setSearch update
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/collection?search=${searchTerm}`);
+      setSearch(searchTerm); // Update global search state
+      navigate(`/collection?search=${encodeURIComponent(searchTerm)}`); // Navigate to collection
     }
   };
 
@@ -76,33 +77,20 @@ const Navbar = () => {
       <div className="fixed top-0 left-0 w-full z-50">
         <style>{`
             /* Smooth Scrollbar for Dropdown */
-            .custom-scrollbar::-webkit-scrollbar {
-                width: 6px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-track {
-                background: #18181b; 
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb {
-                background: #3f3f46;
-                border-radius: 10px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                background: #FF4955;
-            }
+            .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+            .custom-scrollbar::-webkit-scrollbar-track { background: #18181b; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #FF4955; }
         `}</style>
 
         {/* MAIN HEADER */}
-        <div className="bg-black text-white flex flex-col md:flex-row items-center px-6 md:px-32 lg:px-32 py-4 relative z-999 shadow-md border-b border-zinc-900 transition-all duration-300">
+        <div className="bg-black text-white flex flex-col md:flex-row items-center px-6 md:px-32 lg:px-32 py-4 relative shadow-md border-b border-zinc-900 transition-all duration-300">
+          
           {/* Logo & Menu Container */}
           <div className="flex justify-between items-center w-full md:w-auto md:mr-4">
             <Link to={"/"} className="flex-shrink-0 flex items-center">
-              <img
-                className="w-16 md:w-20 object-contain"
-                src={Logo}
-                alt="Logo"
-              />
+              <img className="w-16 md:w-20 object-contain" src={Logo} alt="Logo" />
             </Link>
-
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="md:hidden text-gray-300 hover:text-white hover:bg-zinc-800 p-2 rounded-md transition-all"
@@ -129,9 +117,7 @@ const Navbar = () => {
                 <span className="text-gray-300 text-xs md:text-sm font-medium whitespace-nowrap group-hover:text-white transition-colors">
                   {category}
                 </span>
-                <ChevronDown
-                  className={`w-3 h-3 md:w-4 md:h-4 text-gray-400 ml-2 transition-transform duration-200 group-hover:text-white ${showCategoryMenu ? "rotate-180" : ""}`}
-                />
+                <ChevronDown className={`w-3 h-3 md:w-4 md:h-4 text-gray-400 ml-2 transition-transform duration-200 group-hover:text-white ${showCategoryMenu ? "rotate-180" : ""}`} />
 
                 {/* MAIN DROPDOWN MENU */}
                 {showCategoryMenu && (
@@ -146,36 +132,29 @@ const Navbar = () => {
                         <div
                           onClick={() => handleCategoryClick(item.name)}
                           className={`px-4 py-2.5 text-sm transition-all duration-150 cursor-pointer flex items-center justify-between
-                            ${
-                              category === item.name
-                                ? "bg-zinc-800 text-[#FF4955] font-bold border-l-2 border-[#FF4955]"
-                                : "text-gray-300 hover:bg-zinc-800 hover:text-white hover:pl-5"
-                            }`}
+                            ${category === item.name ? "bg-zinc-800 text-[#FF4955] font-bold border-l-2 border-[#FF4955]" : "text-gray-300 hover:bg-zinc-800 hover:text-white hover:pl-5"}`}
                         >
                           {item.name}
-                          {item.subCategories.length > 0 && (
-                            <ChevronRight size={14} className="text-gray-500" />
-                          )}
+                          {item.subCategories.length > 0 && <ChevronRight size={14} className="text-gray-500" />}
                         </div>
 
                         {/* SUB-MENU */}
-                        {item.subCategories.length > 0 &&
-                          hoveredCategory === item.name && (
-                            <div className="absolute left-full top-0 w-48 bg-[#18181b] border border-zinc-800 shadow-xl rounded-r-md -ml-[1px] z-[101]">
-                              {item.subCategories.map((sub) => (
-                                <p
-                                  key={sub}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleCategoryClick(item.name, sub);
-                                  }}
-                                  className="px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-zinc-800 cursor-pointer transition-colors block"
-                                >
-                                  {sub}
-                                </p>
-                              ))}
-                            </div>
-                          )}
+                        {item.subCategories.length > 0 && hoveredCategory === item.name && (
+                          <div className="absolute left-full top-0 w-48 bg-[#18181b] border border-zinc-800 shadow-xl rounded-r-md -ml-[1px] z-[101]">
+                            {item.subCategories.map((sub) => (
+                              <p
+                                key={sub}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCategoryClick(item.name, sub);
+                                }}
+                                className="px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-zinc-800 cursor-pointer transition-colors block"
+                              >
+                                {sub}
+                              </p>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -188,7 +167,7 @@ const Navbar = () => {
                 value={searchTerm}
                 className="grow px-3 bg-transparent text-gray-200 text-sm outline-none placeholder-gray-500 w-full"
                 type="text"
-                placeholder="Search..."
+                placeholder="Search products..."
               />
 
               {/* Search Button */}
@@ -213,42 +192,27 @@ const Navbar = () => {
                 </div>
                 <div className="group-hover:block hidden absolute right-0 pt-2 z-50 w-48">
                   <div className="flex flex-col py-2 px-1 bg-[#18181b] shadow-xl rounded-md border border-zinc-800 text-gray-300">
-                    <p
-                      onClick={() => navigate("/profile")}
-                      className="cursor-pointer hover:bg-zinc-800 hover:text-[#FF4955] px-4 py-2 rounded-sm flex items-center gap-3 font-medium transition-all text-sm"
-                    >
+                    <p onClick={() => navigate("/profile")} className="cursor-pointer hover:bg-zinc-800 hover:text-[#FF4955] px-4 py-2 rounded-sm flex items-center gap-3 font-medium transition-all text-sm">
                       <User size={14} /> My Profile
                     </p>
-                    <p
-                      onClick={() => navigate("/orders")}
-                      className="cursor-pointer hover:bg-zinc-800 hover:text-[#FF4955] px-4 py-2 rounded-sm flex items-center gap-3 font-medium transition-all text-sm"
-                    >
+                    <p onClick={() => navigate("/orders")} className="cursor-pointer hover:bg-zinc-800 hover:text-[#FF4955] px-4 py-2 rounded-sm flex items-center gap-3 font-medium transition-all text-sm">
                       <Package size={14} /> Orders
                     </p>
                     <div className="my-1 border-t border-zinc-700 mx-2"></div>
-                    <p
-                      onClick={logout}
-                      className="cursor-pointer hover:bg-red-900/20 hover:text-red-500 px-4 py-2 rounded-sm flex items-center gap-3 font-medium transition-all text-sm"
-                    >
+                    <p onClick={logout} className="cursor-pointer hover:bg-red-900/20 hover:text-red-500 px-4 py-2 rounded-sm flex items-center gap-3 font-medium transition-all text-sm">
                       <LogOut size={14} /> Logout
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <Link
-                to={"/login"}
-                className="px-5 py-1.5 rounded-full bg-[#FF4955] font-semibold text-xs text-white hover:bg-[#e03e49] shadow-[0_0_10px_rgba(255,73,85,0.3)] transition-all active:scale-95"
-              >
+              <Link to={"/login"} className="px-5 py-1.5 rounded-full bg-[#FF4955] font-semibold text-xs text-white hover:bg-[#e03e49] shadow-[0_0_10px_rgba(255,73,85,0.3)] transition-all active:scale-95">
                 {t("login")}
               </Link>
             )}
 
             {/* Cart Icon */}
-            <Link
-              to={"/cart"}
-              className="relative flex items-center p-1.5 hover:bg-zinc-800 rounded-full transition-colors group"
-            >
+            <Link to={"/cart"} className="relative flex items-center p-1.5 hover:bg-zinc-800 rounded-full transition-colors group">
               <ShoppingCart className="w-5 h-5 text-gray-300 group-hover:text-[#FF4955] transition-colors" />
               <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-[16px] text-white font-bold text-[9px] bg-[#FF4955] rounded-full border-2 border-black">
                 {getCartCount()}

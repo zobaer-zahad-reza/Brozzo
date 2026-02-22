@@ -8,8 +8,8 @@ import {
     addAddress,       
     removeAddress,    
     updateUserImage,
-    forgotPassword, // Imported
-    resetPassword   // Imported
+    forgotPassword, 
+    resetPassword  
 } from "../controllers/userController.js";
 import authUser from "../middleware/auth.js";
 import upload from "../middleware/multer.js";

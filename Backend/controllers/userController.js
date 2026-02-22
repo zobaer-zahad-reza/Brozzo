@@ -3,7 +3,7 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
-import nodemailer from "nodemailer"; // Nodemailer import
+import nodemailer from "nodemailer"; 
 
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET);
@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// --- Forgot Password Logic ---
+// Forgot Password Logic 
 const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
@@ -31,7 +31,7 @@ const forgotPassword = async (req, res) => {
         // Generate a temporary token valid for 15 minutes
         const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
         
-        // Link points to your frontend route (Make sure FRONTEND_URL is in .env like http://localhost:5173)
+
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
         const mailOptions = {
@@ -65,7 +65,7 @@ const forgotPassword = async (req, res) => {
     }
 };
 
-// --- Reset Password Logic ---
+// Reset Password Logic
 const resetPassword = async (req, res) => {
     try {
         const { token, newPassword } = req.body;

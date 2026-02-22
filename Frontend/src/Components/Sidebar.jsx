@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   X,
   UserCircle,
@@ -9,14 +9,41 @@ import {
   User,
   PhoneCall,
   Info,
+  ShoppingCart
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
+import axios from "axios";
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { token, setToken, navigate, setCartItems } = useContext(ShopContext);
+  const { token, setToken, navigate, setCartItems, backendUrl, getCartCount } = useContext(ShopContext);
 
   const [expandedCategory, setExpandedCategory] = useState(null);
+  const [userData, setUserData] = useState(null); // ইউজারের ডেটা রাখার জন্য স্টেট
+
+  // ইউজারের প্রোফাইল ডেটা ফেচ করার ফাংশন
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (token) {
+        try {
+          const response = await axios.get(backendUrl + "/api/user/profile", {
+            headers: { token },
+          });
+          if (response.data.success) {
+            setUserData(response.data.userData);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      } else {
+        setUserData(null); // টোকেন না থাকলে ডেটা মুছে ফেলা হবে
+      }
+    };
+
+    if (isOpen) { // সাইডবার ওপেন হলেই শুধু ডেটা ফেচ করবে (পারফরম্যান্সের জন্য ভালো)
+        fetchUserProfile();
+    }
+  }, [token, backendUrl, isOpen]);
 
   const categories = [
     { name: "All", subCategories: [] },
@@ -47,6 +74,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     localStorage.removeItem("token");
     setToken("");
     setCartItems({});
+    setUserData(null);
   };
 
   return (
@@ -61,13 +89,22 @@ const Sidebar = ({ isOpen, onClose }) => {
       <div
         className={`fixed top-0 left-0 h-full w-[85%] max-w-[320px] bg-black border-r border-zinc-800 z-[1200] transform transition-transform duration-300 ease-in-out shadow-2xl flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        {/* Header */}
+        {/* Header - Update with User Profile */}
         <div className="bg-[#18181b] border-b border-zinc-800 text-white p-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <UserCircle className="w-10 h-10 text-[#FF4955]" />
+            {token && userData?.image ? (
+              <img 
+                src={userData.image} 
+                alt="Profile" 
+                className="w-10 h-10 rounded-full object-cover border-2 border-[#FF4955]" 
+              />
+            ) : (
+              <UserCircle className="w-10 h-10 text-[#FF4955]" />
+            )}
+            
             <div className="flex flex-col">
               <span className="text-xs text-gray-400">
-                Welcome, {token ? "User" : "Guest"}
+                Welcome, {token && userData?.name ? userData.name.split(' ')[0] : "Guest"}
               </span>
               <span className="font-bold text-lg leading-tight tracking-wide">
                 {token ? "My Account" : "Sign In"}
@@ -93,7 +130,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               {categories.map((cat) => (
                 <li key={cat.name} className="flex flex-col">
                   <div className="flex justify-between items-center px-3 py-3 text-gray-300 hover:bg-zinc-900 hover:text-white rounded-md transition-all cursor-pointer group">
-                    {/* Link Logic */}
                     {cat.subCategories.length > 0 ? (
                       <div
                         className="flex-1 flex justify-between items-center"
@@ -124,7 +160,6 @@ const Sidebar = ({ isOpen, onClose }) => {
                     )}
                   </div>
 
-                  {/* Sub-categories Dropdown */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedCategory === cat.name ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}
                   >
@@ -173,6 +208,25 @@ const Sidebar = ({ isOpen, onClose }) => {
                     >
                       <Package size={18} className="text-[#FF4955]" />{" "}
                       <span>My Orders</span>
+                    </Link>
+                  </li>
+                  {/* NEW: My Cart Button */}
+                  <li>
+                    <Link
+                      to="/cart"
+                      className="flex items-center justify-between px-3 py-3 text-gray-300 hover:bg-zinc-900 hover:text-white rounded-md transition-colors group"
+                      onClick={onClose}
+                    >
+                      <div className="flex items-center gap-3">
+                        <ShoppingCart size={18} className="text-[#FF4955]" /> 
+                        <span>My Cart</span>
+                      </div>
+                      {/* Optional: Show cart count badge */}
+                      {getCartCount && getCartCount() > 0 && (
+                          <span className="bg-[#FF4955] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                              {getCartCount()}
+                          </span>
+                      )}
                     </Link>
                   </li>
                 </>
@@ -229,7 +283,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Footer Branding */}
         <div className="p-4 bg-black border-t border-zinc-900 text-center">
           <p className="text-[10px] text-gray-600 uppercase font-bold tracking-widest">
-            © 2026 <Link to={"startedge.net"}>Startedge</Link>
+            © 2026 <Link to={"startedge.net"} className="hover:text-gray-300 transition-colors">Startedge</Link>
           </p>
         </div>
       </div>
