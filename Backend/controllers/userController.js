@@ -9,7 +9,7 @@ const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
 };
 
-//  Nodemailer Setup for Email
+// Nodemailer Setup for Email
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -229,23 +229,33 @@ const removeAddress = async (req, res) => {
   }
 };
 
-// API to update user image
+// FIXED: API to update user image (No req.body dependency)
 const updateUserImage = async (req, res) => {
   try {
-    const { userId } = req.body;
+    // Multer clears req.body for form-data, so we extract user ID directly from the header token
+    const token = req.headers.token;
+    if (!token) return res.json({ success: false, message: "No token provided" });
+
+    const decoded_token = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded_token.id;
+
     const imageFile = req.file;
-
-    if (!imageFile)
+    if (!imageFile) {
       return res.json({ success: false, message: "Image Not Provided" });
+    }
 
+    // Upload to Cloudinary
     const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
       resource_type: "image",
     });
     const imageUrl = imageUpload.secure_url;
 
+    // Update database
     await userModel.findByIdAndUpdate(userId, { image: imageUrl });
+
     res.json({ success: true, message: "Profile Image Updated Successfully" });
   } catch (error) {
+    console.log("Image Upload Error:", error);
     res.json({ success: false, message: error.message });
   }
 };

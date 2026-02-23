@@ -140,7 +140,49 @@ const Profile = () => {
     }
   };
 
-  //  handleAddAddress
+  // FIXED: Add Handle Image Upload Function
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      Swal.fire({
+        title: "Uploading Image...",
+        background: "#18181b",
+        color: "#fff",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      // API call to backend route defined in userRoute.js
+      const response = await axios.post(
+        backendUrl + "/api/user/update-image",
+        formData,
+        { headers: { token, "Content-Type": "multipart/form-data" } }
+      );
+
+      if (response.data.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Image Updated!",
+          background: "#18181b",
+          color: "#fff",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        fetchUserProfile(); // Refresh avatar
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      Swal.close();
+      toast.error(error.message);
+    }
+  };
+
   const handleAddAddress = async (e) => {
     e.preventDefault();
     try {
@@ -246,10 +288,20 @@ const Profile = () => {
           <div className="relative group">
             <div className="absolute inset-0 bg-[#FF4955] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
             <img src={userData.avatar} alt="Profile" className="relative w-32 h-32 rounded-full object-cover border-4 border-zinc-800 shadow-2xl" />
+            
             <button onClick={() => fileInputRef.current.click()} className="absolute bottom-1 right-1 bg-[#FF4955] text-white p-2.5 rounded-full border-4 border-[#111113] shadow-lg hover:scale-110 transition-transform">
               <Camera size={18} />
             </button>
-            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" />
+            
+            {/* FIXED: Added onChange handler here */}
+            <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleImageUpload} 
+                className="hidden" 
+                accept="image/*" 
+            />
+
           </div>
           <div className="text-center md:text-left flex-1">
             <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">{userData.name || "User"}</h1>
