@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FaTrash, FaUpload } from "react-icons/fa";
+import { FaTrash, FaUpload, FaSpinner } from "react-icons/fa";
 
 const SliderAdmin = ({ token, backendUrl }) => {
     const [images, setImages] = useState([]);
     const [imageFile, setImageFile] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState("");
+    const [isUploading, setIsUploading] = useState(false); // FIXED: Added uploading state
 
     // Updated Brozzo Categories
     const categories = [
@@ -36,6 +37,8 @@ const SliderAdmin = ({ token, backendUrl }) => {
         e.preventDefault();
         if (!imageFile) return toast.error("Please select an image");
 
+        setIsUploading(true); // FIXED: Start loading
+
         const formData = new FormData();
         formData.append("image", imageFile);
         
@@ -52,9 +55,13 @@ const SliderAdmin = ({ token, backendUrl }) => {
                 setImageFile(null);
                 setSelectedCategory("");
                 fetchSliders();
+            } else {
+                toast.error(response.data.message);
             }
         } catch (error) {
             toast.error(error.message);
+        } finally {
+            setIsUploading(false); // FIXED: Stop loading regardless of success or failure
         }
     };
 
@@ -129,9 +136,20 @@ const SliderAdmin = ({ token, backendUrl }) => {
                 {/* Submit Button */}
                 <button 
                     type="submit" 
-                    className="mt-8 flex items-center justify-center gap-2 bg-[#FF4955] text-white px-8 py-3 rounded-md font-bold hover:bg-[#e03e49] active:scale-95 transition-all shadow-lg shadow-[#FF4955]/20 uppercase tracking-widest text-sm w-full md:w-auto"
+                    disabled={isUploading}
+                    className={`mt-8 flex items-center justify-center gap-2 bg-[#FF4955] text-white px-8 py-3 rounded-md font-bold uppercase tracking-widest text-sm w-full md:w-auto transition-all shadow-lg shadow-[#FF4955]/20 ${
+                        isUploading ? "opacity-70 cursor-not-allowed" : "hover:bg-[#e03e49] active:scale-95"
+                    }`}
                 >
-                    <FaUpload size={14} /> Add New Slide
+                    {isUploading ? (
+                        <>
+                            <FaSpinner className="animate-spin" size={16} /> Uploading...
+                        </>
+                    ) : (
+                        <>
+                            <FaUpload size={14} /> Add New Slide
+                        </>
+                    )}
                 </button>
             </form>
 

@@ -1,22 +1,26 @@
 import { createBrowserRouter } from "react-router-dom";
+import { lazy } from "react";
+
 import App from "../App";
-import Home from "../Pages/Home";
-import PrivacyNotice from "../Components/PrivacyNotice";
-import Contact from "../Pages/Contact";
-import Blog from "../Pages/Blog";
-import Collection from "../Pages/Collection";
-import AboutUs from "../Pages/AboutUs";
-import OurTeam from "../Pages/OurTeam";
 import ErrorPage from "../Pages/ErrorPage";
-import ProductDetails from "../Pages/ProductDetails";
-import Login from "../Pages/Login";
-import Cart from "../Pages/Cart";
-import SignUp from "../Pages/SignUp";
-import ForgotPassword from "../Pages/ForgotPass";
-import Profile from "../Pages/Profile";
-import PlaceOrder from "../Pages/PlaceOrder";
-import Orders from "../Pages/Orders";
-import ResetPassword from "../Pages/ResetPassword";
+// import PrivacyNotice from "../Components/PrivacyNotice";
+
+
+const Home = lazy(() => import("../Pages/Home"));
+const Contact = lazy(() => import("../Pages/Contact"));
+const Blog = lazy(() => import("../Pages/Blog"));
+const Collection = lazy(() => import("../Pages/Collection"));
+const AboutUs = lazy(() => import("../Pages/AboutUs"));
+const OurTeam = lazy(() => import("../Pages/OurTeam"));
+const ProductDetails = lazy(() => import("../Pages/ProductDetails"));
+const Login = lazy(() => import("../Pages/Login"));
+const Cart = lazy(() => import("../Pages/Cart"));
+const SignUp = lazy(() => import("../Pages/SignUp"));
+const ForgotPassword = lazy(() => import("../Pages/ForgotPass"));
+const Profile = lazy(() => import("../Pages/Profile"));
+const PlaceOrder = lazy(() => import("../Pages/PlaceOrder"));
+const Orders = lazy(() => import("../Pages/Orders"));
+const ResetPassword = lazy(() => import("../Pages/ResetPassword"));
 
 const router = createBrowserRouter([
   {
@@ -74,7 +78,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/orders",
-        element: <Orders />
+        element: <Orders />,
       },
       {
         path: "/reset-password/:token",
