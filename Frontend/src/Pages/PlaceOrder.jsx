@@ -15,10 +15,15 @@ import { toast } from "react-toastify";
 const PlaceOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // FIXED: Destructured cartItems instead of cart
-  const { products, cartItems, updateQuantity, backendUrl, token, setCartItems } =
-    useContext(ShopContext);
+
+  const {
+    products,
+    cartItems,
+    updateQuantity,
+    backendUrl,
+    token,
+    setCartItems,
+  } = useContext(ShopContext);
 
   const [method, setMethod] = useState("cod");
   const [formData, setFormData] = useState({
@@ -32,7 +37,6 @@ const PlaceOrder = () => {
     division: "",
   });
 
-  // --- Process Cart Data to Array ---
   const [orderList, setOrderList] = useState([]);
   const isBuyNow = location.state && location.state.buyNowItem;
 
@@ -44,13 +48,15 @@ const PlaceOrder = () => {
       for (const items in cartItems) {
         for (const item in cartItems[items]) {
           if (cartItems[items][item] > 0) {
-            const productInfo = products.find((product) => product._id === items);
+            const productInfo = products.find(
+              (product) => product._id === items,
+            );
             if (productInfo) {
               tempData.push({
+                ...productInfo,
                 _id: items,
                 size: item,
                 quantity: cartItems[items][item],
-                ...productInfo,
               });
             }
           }
@@ -60,12 +66,10 @@ const PlaceOrder = () => {
     }
   }, [cartItems, products, isBuyNow, location.state]);
 
-  // Delivery Fee Logic
   const isDhaka = formData.division === "Dhaka";
   const delivery_fee = formData.division ? (isDhaka ? 80 : 120) : 0;
   const currency = "৳";
 
-  // Auto-fill Address logic
   useEffect(() => {
     const fetchUserData = async () => {
       if (token) {
@@ -76,7 +80,8 @@ const PlaceOrder = () => {
           if (response.data.success) {
             const user = response.data.userData;
             const nameParts = user.name.split(" ");
-            const savedAddr = user.address && user.address.length > 0 ? user.address[0] : {};
+            const savedAddr =
+              user.address && user.address.length > 0 ? user.address[0] : {};
 
             setFormData((prev) => ({
               ...prev,
@@ -98,7 +103,6 @@ const PlaceOrder = () => {
     fetchUserData();
   }, [token, backendUrl]);
 
-  // FIXED: Total Calculation logic to handle undefined safely
   const calculateTotal = () => {
     if (!orderList || orderList.length === 0) return 0;
     return orderList.reduce((total, item) => {
@@ -109,7 +113,6 @@ const PlaceOrder = () => {
 
   const currentTotalAmount = calculateTotal();
 
-  // Quantity Handler for PlaceOrder Page
   const handleQuantityChange = (item, newQuantity) => {
     if (newQuantity < 1) return;
 
@@ -153,11 +156,11 @@ const PlaceOrder = () => {
         const response = await axios.post(
           backendUrl + "/api/order/place",
           orderData,
-          { headers: { token } }
+          { headers: { token } },
         );
         if (response.data.success) {
           toast.success("Order Placed Successfully!");
-          if (!isBuyNow) setCartItems({}); // Clear cart if it's a regular order
+          if (!isBuyNow) setCartItems({});
           navigate("/orders");
         } else {
           toast.error(response.data.message);
@@ -172,33 +175,105 @@ const PlaceOrder = () => {
 
   return (
     <div className="bg-black min-h-screen pt-28 pb-20 px-4 md:px-8 font-sans text-gray-200">
-      <form onSubmit={handlePlaceOrder} className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 min-h-[80vh]">
-        
-        {/* Left Side: Delivery Info */}
+      <form
+        onSubmit={handlePlaceOrder}
+        className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 min-h-[80vh]"
+      >
+        {/* Delivery Info */}
         <div className="flex flex-col gap-6 lg:w-[60%]">
           <div className="flex items-center gap-3 mb-2 border-b border-zinc-900 pb-4">
-            <button type="button" onClick={() => navigate(-1)} className="text-gray-500 hover:text-[#FF4955] transition">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="text-gray-500 hover:text-[#FF4955] transition"
+            >
               <ArrowLeft size={24} />
             </button>
-            <h2 className="text-xl md:text-2xl font-bold text-white uppercase tracking-widest">Delivery Details</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-white uppercase tracking-widest">
+              Delivery Details
+            </h2>
           </div>
 
           <div className="bg-[#121215] p-6 md:p-8 rounded-xl border border-zinc-800 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input required name="firstName" onChange={onChangeHandler} value={formData.firstName} className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none" type="text" placeholder="First Name" />
-              <input required name="lastName" onChange={onChangeHandler} value={formData.lastName} className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none" type="text" placeholder="Last Name" />
+              <input
+                required
+                name="firstName"
+                onChange={onChangeHandler}
+                value={formData.firstName}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
+                type="text"
+                placeholder="First Name"
+              />
+              <input
+                required
+                name="lastName"
+                onChange={onChangeHandler}
+                value={formData.lastName}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
+                type="text"
+                placeholder="Last Name"
+              />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input required name="email" onChange={onChangeHandler} value={formData.email} className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none" type="email" placeholder="Email Address" />
-              <input required name="phone" onChange={onChangeHandler} value={formData.phone} className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none" type="tel" placeholder="Phone Number" />
+              <input
+                required
+                name="email"
+                onChange={onChangeHandler}
+                value={formData.email}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
+                type="email"
+                placeholder="Email Address"
+              />
+              <input
+                required
+                name="phone"
+                onChange={onChangeHandler}
+                value={formData.phone}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
+                type="tel"
+                placeholder="Phone Number"
+              />
             </div>
-            <input required name="street" onChange={onChangeHandler} value={formData.street} className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none" type="text" placeholder="House/Road No." />
+            <input
+              required
+              name="street"
+              onChange={onChangeHandler}
+              value={formData.street}
+              className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
+              type="text"
+              placeholder="House/Road No."
+            />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input required name="area" onChange={onChangeHandler} value={formData.area} className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none" type="text" placeholder="Area" />
-              <input required name="city" onChange={onChangeHandler} value={formData.city} className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none" type="text" placeholder="City/District" />
+              <input
+                required
+                name="area"
+                onChange={onChangeHandler}
+                value={formData.area}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
+                type="text"
+                placeholder="Area"
+              />
+              <input
+                required
+                name="city"
+                onChange={onChangeHandler}
+                value={formData.city}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
+                type="text"
+                placeholder="City/District"
+              />
               <div className="relative">
-                <select required name="division" onChange={onChangeHandler} value={formData.division} className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none appearance-none cursor-pointer">
-                  <option value="" disabled>Division</option>
+                <select
+                  required
+                  name="division"
+                  onChange={onChangeHandler}
+                  value={formData.division}
+                  className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none appearance-none cursor-pointer"
+                >
+                  <option value="" disabled>
+                    Division
+                  </option>
                   <option value="Dhaka">Dhaka</option>
                   <option value="Chittagong">Chittagong</option>
                   <option value="Sylhet">Sylhet</option>
@@ -213,21 +288,53 @@ const PlaceOrder = () => {
           </div>
         </div>
 
-        {/* Right Side: Summary & Payment */}
+        {/* Summary & Payment */}
         <div className="flex flex-col gap-6 lg:w-[40%]">
           <div className="bg-[#121215] p-6 rounded-xl border border-zinc-800">
-            <h2 className="text-[#FF4955] text-xs font-bold mb-4 uppercase tracking-[2px]">Order Items</h2>
+            <h2 className="text-[#FF4955] text-xs font-bold mb-4 uppercase tracking-[2px]">
+              Order Items
+            </h2>
             <div className="flex flex-col gap-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
               {orderList.map((item, index) => (
-                <div key={index} className="flex gap-4 items-center border-b border-zinc-800 pb-4 last:border-0 last:pb-0">
-                  <img src={Array.isArray(item.image) ? item.image[0] : item.image} className="w-16 h-16 object-cover rounded bg-zinc-900 border border-zinc-800" alt="" />
+                <div
+                  key={index}
+                  className="flex gap-4 items-center border-b border-zinc-800 pb-4 last:border-0 last:pb-0"
+                >
+                  <img
+                    src={Array.isArray(item.image) ? item.image[0] : item.image}
+                    className="w-16 h-16 object-cover rounded bg-zinc-900 border border-zinc-800"
+                    alt=""
+                  />
                   <div className="flex-1">
-                    <h4 className="text-sm font-medium text-white line-clamp-1">{item.name}</h4>
-                    <p className="text-sm font-bold text-gray-300 mt-1">{currency} {item.offerPrice > 0 ? item.offerPrice : item.price}</p>
+                    <h4 className="text-sm font-medium text-white line-clamp-1">
+                      {item.name}
+                    </h4>
+                    <p className="text-sm font-bold text-gray-300 mt-1">
+                      {currency}{" "}
+                      {item.offerPrice > 0 ? item.offerPrice : item.price}
+                    </p>
                     <div className="flex items-center gap-3 mt-2 bg-zinc-900 border border-zinc-800 rounded-md w-max px-2 py-1">
-                      <button type="button" onClick={() => handleQuantityChange(item, item.quantity - 1)} className="text-zinc-500 hover:text-white transition-colors p-1"><Minus size={12} /></button>
-                      <span className="text-xs font-bold text-white w-4 text-center">{item.quantity}</span>
-                      <button type="button" onClick={() => handleQuantityChange(item, item.quantity + 1)} className="text-zinc-500 hover:text-[#FF4955] transition-colors p-1"><Plus size={12} /></button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleQuantityChange(item, item.quantity - 1)
+                        }
+                        className="text-zinc-500 hover:text-white transition-colors p-1"
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="text-xs font-bold text-white w-4 text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleQuantityChange(item, item.quantity + 1)
+                        }
+                        className="text-zinc-500 hover:text-[#FF4955] transition-colors p-1"
+                      >
+                        <Plus size={12} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -236,25 +343,59 @@ const PlaceOrder = () => {
           </div>
 
           <div className="bg-[#121215] p-6 rounded-xl border border-zinc-800">
-             <h2 className="text-[#FF4955] text-xs font-bold mb-4 uppercase tracking-[2px]">Payment Method</h2>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div onClick={() => setMethod('cod')} className={`flex items-center gap-3 border p-4 cursor-pointer rounded-lg transition-all ${method === 'cod' ? 'border-[#FF4955] bg-[#FF4955]/10 text-white' : 'border-zinc-800 text-gray-400'}`}>
-                   <Truck size={20} className={method === 'cod' ? 'text-[#FF4955]' : ''} />
-                   <span className="font-semibold text-sm">Cash On Delivery</span>
-                </div>
-                <div onClick={() => setMethod('bkash')} className={`flex items-center gap-3 border p-4 cursor-pointer rounded-lg transition-all ${method === 'bkash' ? 'border-[#FF4955] bg-[#FF4955]/10 text-white' : 'border-zinc-800 text-gray-400'}`}>
-                   <Smartphone size={20} className={method === 'bkash' ? 'text-[#FF4955]' : ''} />
-                   <span className="font-semibold text-sm">bKash/Nagad</span>
-                </div>
-             </div>
+            <h2 className="text-[#FF4955] text-xs font-bold mb-4 uppercase tracking-[2px]">
+              Payment Method
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div
+                onClick={() => setMethod("cod")}
+                className={`flex items-center gap-3 border p-4 cursor-pointer rounded-lg transition-all ${method === "cod" ? "border-[#FF4955] bg-[#FF4955]/10 text-white" : "border-zinc-800 text-gray-400"}`}
+              >
+                <Truck
+                  size={20}
+                  className={method === "cod" ? "text-[#FF4955]" : ""}
+                />
+                <span className="font-semibold text-sm">Cash On Delivery</span>
+              </div>
+              {/* <div
+                onClick={() => setMethod("bkash")}
+                className={`flex items-center gap-3 border p-4 cursor-pointer rounded-lg transition-all ${method === "bkash" ? "border-[#FF4955] bg-[#FF4955]/10 text-white" : "border-zinc-800 text-gray-400"}`}
+              >
+                <Smartphone
+                  size={20}
+                  className={method === "bkash" ? "text-[#FF4955]" : ""}
+                />
+                <span className="font-semibold text-sm">bKash/Nagad</span>
+              </div> */}
+            </div>
 
-             <div className="mt-8 space-y-3 text-sm border-t border-zinc-800 pt-6">
-                <div className="flex justify-between text-zinc-400"><span>Subtotal</span><span>{currency} {currentTotalAmount.toFixed(2)}</span></div>
-                <div className="flex justify-between text-zinc-400"><span>Delivery Fee</span><span>{currency} {delivery_fee.toFixed(2)}</span></div>
-                <div className="flex justify-between text-lg font-bold text-white pt-2"><span>Total</span><span className="text-[#FF4955]">{currency} {(currentTotalAmount + delivery_fee).toFixed(2)}</span></div>
-             </div>
+            <div className="mt-8 space-y-3 text-sm border-t border-zinc-800 pt-6">
+              <div className="flex justify-between text-zinc-400">
+                <span>Subtotal</span>
+                <span>
+                  {currency} {currentTotalAmount.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between text-zinc-400">
+                <span>Delivery Fee</span>
+                <span>
+                  {currency} {delivery_fee.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between text-lg font-bold text-white pt-2">
+                <span>Total</span>
+                <span className="text-[#FF4955]">
+                  {currency} {(currentTotalAmount + delivery_fee).toFixed(2)}
+                </span>
+              </div>
+            </div>
 
-             <button type="submit" className="w-full bg-[#FF4955] hover:bg-[#e03e49] text-white py-4 rounded-md font-bold mt-6 transition-all uppercase tracking-widest text-sm active:scale-[0.98]">Confirm Order</button>
+            <button
+              type="submit"
+              className="w-full bg-[#FF4955] hover:bg-[#e03e49] text-white py-4 rounded-md font-bold mt-6 transition-all uppercase tracking-widest text-sm active:scale-[0.98]"
+            >
+              Confirm Order
+            </button>
           </div>
         </div>
       </form>
