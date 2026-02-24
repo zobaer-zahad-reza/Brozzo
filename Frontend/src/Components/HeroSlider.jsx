@@ -68,21 +68,22 @@ const HeroSlider = () => {
   if (slides.length === 0) return null;
 
   return (
-    // FIXED: border-0 sm:border added to remove border on mobile view
-    <div className="w-full sm:mt-6 relative group overflow-hidden sm:rounded-md border-0 sm:border border-zinc-800 sm:shadow-2xl bg-black">
+    <div className="w-full mt-6   relative group overflow-hidden sm:rounded-md border-0 sm:border border-zinc-800 sm:shadow-2xl bg-black">
       <div
-        className="carousel w-full aspect-[16/9] sm:aspect-[21/7] flex overflow-x-hidden scroll-smooth bg-[#111113]"
+        className="carousel w-full flex overflow-x-hidden scroll-smooth bg-black"
         ref={carouselRef}
       >
         {slides.map((slide, index) => (
           <div
             key={slide._id || index}
             onClick={() => slide.link && navigate(slide.link)}
-            className="carousel-item relative w-full h-full flex-shrink-0 cursor-pointer"
+            /* FIXED: মোবাইলে কোনো aspect ratio নেই, ডেক্সটপের জন্য 21/7 রাখা হয়েছে */
+            className="carousel-item relative w-full flex-shrink-0 cursor-pointer sm:aspect-[21/7]"
           >
+            {/* FIXED: মোবাইলে w-full এবং h-auto দেওয়া হয়েছে যাতে অরিজিনাল সাইজ অনুযায়ী বসে, কোনো ক্রপ না হয় */}
             <img
               src={slide.image}
-              className="w-full h-full object-contain"
+              className="w-full h-auto sm:h-full sm:object-cover block"
               alt={`Slide ${index + 1}`}
             />
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500"></div>
@@ -91,13 +92,13 @@ const HeroSlider = () => {
       </div>
 
       {slides.length > 1 && (
-        <div className="absolute left-2 right-2 sm:left-4 sm:right-4 top-1/2 flex -translate-y-1/2 transform justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute left-2 right-2 sm:left-4 sm:right-4 top-1/2 flex -translate-y-1/2 transform justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           <button
             onClick={(e) => {
               e.stopPropagation();
               handlePrev();
             }}
-            className="w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/50 hover:bg-[#FF4955] text-white backdrop-blur-sm transition-all shadow-lg text-xs sm:text-base"
+            className="pointer-events-auto w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/50 hover:bg-[#FF4955] text-white backdrop-blur-sm transition-all shadow-lg text-xs sm:text-base"
           >
             ❮
           </button>
@@ -106,7 +107,7 @@ const HeroSlider = () => {
               e.stopPropagation();
               handleNext();
             }}
-            className="w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/50 hover:bg-[#FF4955] text-white backdrop-blur-sm transition-all shadow-lg text-xs sm:text-base"
+            className="pointer-events-auto w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/50 hover:bg-[#FF4955] text-white backdrop-blur-sm transition-all shadow-lg text-xs sm:text-base"
           >
             ❯
           </button>
