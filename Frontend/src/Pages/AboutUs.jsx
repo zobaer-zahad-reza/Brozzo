@@ -38,7 +38,7 @@ const AboutUs = () => {
 
   const stats = [
     { label: "Years of Style", value: 5, suffix: "+" },
-    { label: "Happy Clients", value: 600, suffix: "+" },
+    { label: "Happy Clients", value: 1000, suffix: "+" },
     { label: "Premium Products", value: 300, suffix: "+" },
   ];
 

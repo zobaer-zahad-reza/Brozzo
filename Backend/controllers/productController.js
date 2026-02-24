@@ -96,7 +96,7 @@ const singleProduct = async (req, res) => {
   }
 };
 
-// Update Product Function (FIXED FOR MULTER AND CLOUDINARY)
+// Update Product Function
 const updateProduct = async (req, res) => {
   try {
     const {
@@ -119,13 +119,10 @@ const updateProduct = async (req, res) => {
       return res.json({ success: false, message: "Product not found" });
     }
 
-    // ১. আগের ইমেজগুলো রিসিভ করা (যেগুলো ডিলিট করা হয়নি)
     let existingImages = req.body.image ? JSON.parse(req.body.image) : [];
 
-    // ২. নতুন ইমেজগুলো ক্লাউডিনারিতে আপলোড করা
     let newlyUploadedImages = [];
 
-    // upload.array('newImages', 4) ব্যবহার করার কারণে req.files নিজেই একটি array হবে
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
@@ -135,7 +132,6 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    // ৩. পুরোনো এবং নতুন ইমেজগুলো একসাথে করা
     const finalImages = [...existingImages, ...newlyUploadedImages];
 
     const updateData = {
@@ -150,7 +146,7 @@ const updateProduct = async (req, res) => {
       offerPrice: offerPrice ? Number(offerPrice) : 0,
       quantity: Number(quantity),
       watchGrade: watchGrade || "",
-      image: finalImages, // ফাইনালাইজড ইমেজ সেভ করা হলো
+      image: finalImages,
     };
 
     await productModel.findByIdAndUpdate(id, updateData);

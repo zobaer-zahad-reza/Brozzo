@@ -12,7 +12,7 @@ const AddProduct = ({ token }) => {
   const [image4, setImage4] = useState(false);
 
   const [name, setName] = useState("");
-  const [brand, setBrand] = useState(""); // <-- Added Brand State
+  const [brand, setBrand] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
@@ -65,7 +65,7 @@ const AddProduct = ({ token }) => {
     try {
       const formData = new FormData();
       formData.append("name", name);
-      formData.append("brand", brand); // <-- Appended Brand to FormData
+      formData.append("brand", brand);
       formData.append("description", description);
       formData.append("price", price);
       formData.append("offerPrice", offerPrice);
@@ -89,7 +89,7 @@ const AddProduct = ({ token }) => {
       if (response.data.success) {
         toast.success(response.data.message);
         setName("");
-        setBrand(""); // <-- Reset Brand field
+        setBrand("");
         setDescription("");
         setPrice("");
         setOfferPrice("");
@@ -125,9 +125,9 @@ const AddProduct = ({ token }) => {
       <div>
         <div className="mb-3">
           <p className="font-medium text-gray-400 text-sm">Upload Image</p>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-white mt-1">
             Required size: Width 3024px × Height 4032px | Supported formats:
-            PNG, JPG, WEBP
+            PNG, JPG, WEBP | Max size: 2MB
           </p>
         </div>
         <div className="flex gap-3">

@@ -26,7 +26,6 @@ productRouter.post("/remove", removeProduct);
 productRouter.post("/single", singleProduct);
 productRouter.get("/list", listProducts);
 
-// FIXED: 'newImages' নামে ডাটা রিসিভ করার জন্য upload.array ব্যবহার করা হলো
 productRouter.post("/update", upload.array("newImages", 4), updateProduct);
 
 export default productRouter;
