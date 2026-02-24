@@ -1,21 +1,32 @@
-import express from 'express';
-import { listProducts, addProduct, removeProduct, singleProduct, updateProduct } from '../controllers/productController.js';
-import upload from '../middleware/multer.js';
-import adminAuth from '../middleware/adminAuth.js';
+import express from "express";
+import {
+  listProducts,
+  addProduct,
+  removeProduct,
+  singleProduct,
+  updateProduct,
+} from "../controllers/productController.js";
+import upload from "../middleware/multer.js";
+import adminAuth from "../middleware/adminAuth.js";
 
 const productRouter = express.Router();
 
-productRouter.post('/add', upload.fields([
-    { name: 'image1', maxCount: 1 },
-    { name: 'image2', maxCount: 1 },
-    { name: 'image3', maxCount: 1 },
-    { name: 'image4', maxCount: 1 }
-]), addProduct);
+productRouter.post(
+  "/add",
+  upload.fields([
+    { name: "image1", maxCount: 1 },
+    { name: "image2", maxCount: 1 },
+    { name: "image3", maxCount: 1 },
+    { name: "image4", maxCount: 1 },
+  ]),
+  addProduct,
+);
 
-productRouter.post('/remove', removeProduct);
-productRouter.post('/single', singleProduct);
-productRouter.get('/list', listProducts);
+productRouter.post("/remove", removeProduct);
+productRouter.post("/single", singleProduct);
+productRouter.get("/list", listProducts);
 
-productRouter.post('/update', upload.array('image', 4), updateProduct); 
+// FIXED: 'newImages' নামে ডাটা রিসিভ করার জন্য upload.array ব্যবহার করা হলো
+productRouter.post("/update", upload.array("newImages", 4), updateProduct);
 
 export default productRouter;

@@ -8,7 +8,7 @@ const HeroSlider = () => {
   const [isLoading, setIsLoading] = useState(true);
   const carouselRef = useRef(null);
   const navigate = useNavigate();
-  
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
@@ -58,7 +58,9 @@ const HeroSlider = () => {
   if (isLoading) {
     return (
       <div className="w-full mt-6 aspect-[16/9] sm:aspect-[21/7] bg-[#111113] rounded-md flex items-center justify-center animate-pulse border border-zinc-800">
-         <span className="text-zinc-600 font-black uppercase tracking-widest text-sm">Loading Highlights...</span>
+        <span className="text-zinc-600 font-black uppercase tracking-widest text-sm">
+          Loading Highlights...
+        </span>
       </div>
     );
   }
@@ -66,7 +68,8 @@ const HeroSlider = () => {
   if (slides.length === 0) return null;
 
   return (
-    <div className="w-full mt-6 relative group overflow-hidden rounded-md border border-zinc-800 shadow-2xl">
+    // FIXED: border-0 sm:border added to remove border on mobile view
+    <div className="w-full sm:mt-6 relative group overflow-hidden sm:rounded-md border-0 sm:border border-zinc-800 sm:shadow-2xl bg-black">
       <div
         className="carousel w-full aspect-[16/9] sm:aspect-[21/7] flex overflow-x-hidden scroll-smooth bg-[#111113]"
         ref={carouselRef}
@@ -77,10 +80,9 @@ const HeroSlider = () => {
             onClick={() => slide.link && navigate(slide.link)}
             className="carousel-item relative w-full h-full flex-shrink-0 cursor-pointer"
           >
-
             <img
               src={slide.image}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               alt={`Slide ${index + 1}`}
             />
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500"></div>

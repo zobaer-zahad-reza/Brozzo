@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Upload, Loader2 } from "lucide-react"; // Loader icon আনা হয়েছে
+import { Upload, Loader2 } from "lucide-react";
 import axios from "axios";
 import { backendUrl } from "../App";
 import { toast } from "react-toastify";
@@ -12,17 +12,18 @@ const AddProduct = ({ token }) => {
   const [image4, setImage4] = useState(false);
 
   const [name, setName] = useState("");
+  const [brand, setBrand] = useState(""); // <-- Added Brand State
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
-  const [quantity, setQuantity] = useState(1); // নতুন Quantity স্টেট
+  const [quantity, setQuantity] = useState(1);
 
-  const [category, setCategory] = useState("Watch"); 
+  const [category, setCategory] = useState("Watch");
   const [subCategory, setSubCategory] = useState("No Subcategory");
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
-  
-  const [loading, setLoading] = useState(false); // আপলোড লোডিং স্টেট
+
+  const [loading, setLoading] = useState(false);
 
   const categoryData = [
     { name: "Watch", subCategories: [] },
@@ -39,7 +40,9 @@ const AddProduct = ({ token }) => {
   ];
 
   const selectedCategoryObj = categoryData.find((cat) => cat.name === category);
-  const availableSubCategories = selectedCategoryObj ? selectedCategoryObj.subCategories : [];
+  const availableSubCategories = selectedCategoryObj
+    ? selectedCategoryObj.subCategories
+    : [];
 
   useEffect(() => {
     if (availableSubCategories.length > 0) {
@@ -47,25 +50,26 @@ const AddProduct = ({ token }) => {
     } else {
       setSubCategory("No Subcategory");
     }
-  }, [category]); 
+  }, [category]);
 
   const preventMinus = (e) => {
-    if (e.key === '-' || e.key === 'e' || e.key === '+') {
-        e.preventDefault();
+    if (e.key === "-" || e.key === "e" || e.key === "+") {
+      e.preventDefault();
     }
   };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    setLoading(true); // আপলোড শুরু হলে লোডিং ট্রু হবে
-    
+    setLoading(true);
+
     try {
       const formData = new FormData();
       formData.append("name", name);
+      formData.append("brand", brand); // <-- Appended Brand to FormData
       formData.append("description", description);
       formData.append("price", price);
       formData.append("offerPrice", offerPrice);
-      formData.append("quantity", quantity); // Quantity যোগ করা হলো
+      formData.append("quantity", quantity);
       formData.append("category", category);
       formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
@@ -79,12 +83,13 @@ const AddProduct = ({ token }) => {
       const response = await axios.post(
         backendUrl + "/api/product/add",
         formData,
-        { headers: { token } }
+        { headers: { token } },
       );
 
       if (response.data.success) {
         toast.success(response.data.message);
         setName("");
+        setBrand(""); // <-- Reset Brand field
         setDescription("");
         setPrice("");
         setOfferPrice("");
@@ -101,19 +106,30 @@ const AddProduct = ({ token }) => {
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
     } finally {
-      setLoading(false); // আপলোড শেষ হলে (সফল বা ব্যর্থ যাই হোক) লোডিং ফলস হবে
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={onSubmitHandler} className="flex flex-col w-full items-start gap-4 text-gray-200 no-spinner mb-10">
+    <form
+      onSubmit={onSubmitHandler}
+      className="flex flex-col w-full items-start gap-4 text-gray-200 no-spinner mb-10"
+    >
       <div className="w-full pb-3 border-b border-zinc-800 mb-2">
-         <h2 className="text-xl font-bold text-white uppercase tracking-widest">Add New Product</h2>
+        <h2 className="text-xl font-bold text-white uppercase tracking-widest">
+          Add New Product
+        </h2>
       </div>
 
       {/* Image Upload Section */}
       <div>
-        <p className="mb-2 font-medium text-gray-400 text-sm">Upload Image</p>
+        <div className="mb-3">
+          <p className="font-medium text-gray-400 text-sm">Upload Image</p>
+          <p className="text-xs text-zinc-500 mt-1">
+            Required size: Width 3024px × Height 4032px | Supported formats:
+            PNG, JPG, WEBP
+          </p>
+        </div>
         <div className="flex gap-3">
           {[
             { id: "image1", state: image1, setter: setImage1 },
@@ -124,35 +140,68 @@ const AddProduct = ({ token }) => {
             <label key={imgData.id} htmlFor={imgData.id}>
               <div className="w-20 h-20 border border-dashed border-zinc-700 flex items-center justify-center cursor-pointer bg-[#18181b] rounded-md hover:border-[#FF4955] transition-colors">
                 {imgData.state ? (
-                  <img className="w-full h-full object-cover rounded-md" src={URL.createObjectURL(imgData.state)} alt="" />
+                  <img
+                    className="w-full h-full object-cover rounded-md"
+                    src={URL.createObjectURL(imgData.state)}
+                    alt=""
+                  />
                 ) : (
                   <Upload className="text-zinc-500" size={24} />
                 )}
               </div>
-              <input onChange={(e) => imgData.setter(e.target.files[0])} type="file" id={imgData.id} hidden />
+              <input
+                onChange={(e) => imgData.setter(e.target.files[0])}
+                type="file"
+                id={imgData.id}
+                accept=".png, .jpg, .jpeg, .webp"
+                hidden
+              />
             </label>
           ))}
         </div>
       </div>
 
-      {/* Product Name */}
-      <div className="w-full max-w-[500px]">
-        <p className="mb-2 font-medium text-gray-400 text-sm">Product Name</p>
-        <input
-          onChange={(e) => setName(e.target.value)}
-          value={name}
-          className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] text-white placeholder-zinc-600 transition-all"
-          type="text"
-          placeholder="Type product name"
-          required
-        />
+      {/* FIXED: Product Name & Brand Name (Side by Side) */}
+      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-[800px]">
+        {/* Product Name */}
+        <div className="flex-1">
+          <p className="mb-2 font-medium text-gray-400 text-sm">
+            Product Name <span className="text-red-500">*</span>
+          </p>
+          <input
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] text-white placeholder-zinc-600 transition-all"
+            type="text"
+            placeholder="Type product name"
+            required
+          />
+        </div>
+
+        {/* Brand Name (Optional) */}
+        <div className="flex-1">
+          <p className="mb-2 font-medium text-gray-400 text-sm">
+            Brand Name{" "}
+            <span className="text-zinc-500 text-xs ml-1">(Optional)</span>
+          </p>
+          <input
+            onChange={(e) => setBrand(e.target.value)}
+            value={brand}
+            // no "required" attribute here
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] text-white placeholder-zinc-600 transition-all"
+            type="text"
+            placeholder="e.g. Rolex, Nike, Apple"
+          />
+        </div>
       </div>
 
       {/* Product Description */}
-      <div className="w-full max-w-[500px]">
-        <p className="mb-2 font-medium text-gray-400 text-sm">Product Description</p>
-        <div className="border border-zinc-800 rounded-md overflow-hidden bg-[#18181b]">
-           <DescriptionEditor value={description} onChange={setDescription} />
+      <div className="w-full max-w-[800px] flex flex-col">
+        <p className="mb-2 font-medium text-gray-400 text-sm">
+          Product Description
+        </p>
+        <div className="border border-zinc-800 rounded-md bg-[#18181b] min-h-[300px] flex flex-col editor-container">
+          <DescriptionEditor value={description} onChange={setDescription} />
         </div>
       </div>
 
@@ -166,7 +215,9 @@ const AddProduct = ({ token }) => {
             className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white cursor-pointer transition-all"
           >
             {categoryData.map((cat) => (
-              <option key={cat.name} value={cat.name}>{cat.name}</option>
+              <option key={cat.name} value={cat.name}>
+                {cat.name}
+              </option>
             ))}
           </select>
         </div>
@@ -181,7 +232,9 @@ const AddProduct = ({ token }) => {
           >
             {availableSubCategories.length > 0 ? (
               availableSubCategories.map((sub) => (
-                <option key={sub} value={sub}>{sub}</option>
+                <option key={sub} value={sub}>
+                  {sub}
+                </option>
               ))
             ) : (
               <option value="No Subcategory">No Subcategory</option>
@@ -190,7 +243,9 @@ const AddProduct = ({ token }) => {
         </div>
 
         <div className="w-[120px]">
-          <p className="mb-2 font-medium text-gray-400 text-sm">Regular Price</p>
+          <p className="mb-2 font-medium text-gray-400 text-sm">
+            Regular Price
+          </p>
           <input
             onChange={(e) => setPrice(e.target.value)}
             value={price}
@@ -234,12 +289,20 @@ const AddProduct = ({ token }) => {
 
       {/* Product Sizes */}
       <div className="pt-2">
-        <p className="mb-2 font-medium text-gray-400 text-sm">Product Sizes / Variations</p>
+        <p className="mb-2 font-medium text-gray-400 text-sm">
+          Product Sizes / Variations
+        </p>
         <div className="flex gap-3 flex-wrap">
           {["S", "M", "L", "XL", "XXL", "Free Size"].map((size) => (
             <div
               key={size}
-              onClick={() => setSizes((prev) => prev.includes(size) ? prev.filter((item) => item !== size) : [...prev, size])}
+              onClick={() =>
+                setSizes((prev) =>
+                  prev.includes(size)
+                    ? prev.filter((item) => item !== size)
+                    : [...prev, size],
+                )
+              }
               className={`px-4 py-1.5 cursor-pointer border rounded-md transition-all text-sm ${
                 sizes.includes(size)
                   ? "bg-[#FF4955]/10 border-[#FF4955] text-[#FF4955] font-bold shadow-sm shadow-[#FF4955]/20"
@@ -260,14 +323,18 @@ const AddProduct = ({ token }) => {
           id="bestseller"
           className="w-5 h-5 cursor-pointer accent-[#FF4955] bg-[#18181b] border-zinc-800 rounded"
         />
-        <label className="cursor-pointer text-gray-300 font-medium select-none" htmlFor="bestseller">Add to Bestseller List</label>
+        <label
+          className="cursor-pointer text-gray-300 font-medium select-none"
+          htmlFor="bestseller"
+        >
+          Add to Bestseller List
+        </label>
       </div>
 
-      {/* Loading functionality added to button */}
       <button
         type="submit"
         disabled={loading}
-        className={`w-48 py-3 mt-6 bg-[#FF4955] text-white font-bold rounded-md hover:bg-[#e03e49] active:scale-95 transition-all uppercase tracking-widest text-sm shadow-lg shadow-[#FF4955]/20 flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+        className={`w-48 py-3 mt-6 bg-[#FF4955] text-white font-bold rounded-md hover:bg-[#e03e49] active:scale-95 transition-all uppercase tracking-widest text-sm shadow-lg shadow-[#FF4955]/20 flex items-center justify-center gap-2 ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
       >
         {loading ? (
           <>
@@ -287,6 +354,18 @@ const AddProduct = ({ token }) => {
         }
         .no-spinner input[type=number] {
           -moz-appearance: textfield;
+        }
+        
+        .editor-container .ql-container {
+          flex: 1;
+          min-height: 250px;
+        }
+        
+        .editor-container .ql-toolbar {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          background-color: #18181b;
         }
       `}</style>
     </form>

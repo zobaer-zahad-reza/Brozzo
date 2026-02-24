@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FaTrash, FaSearch, FaPen, FaRegEdit } from "react-icons/fa";
+import { FaTrash, FaSearch, FaPen } from "react-icons/fa";
+import { Loader2 } from "lucide-react";
 import DescriptionEditor from "../Components/DescriptionEditor";
 
 const ListProduct = ({ token, backendUrl, currency }) => {
@@ -11,8 +12,24 @@ const ListProduct = ({ token, backendUrl, currency }) => {
 
   // Edit Modal States
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // FIXED: Added saving state
   const [discount, setDiscount] = useState(0);
   const [showSize, setShowSize] = useState(false);
+
+  // Categories Data for Dropdowns
+  const categoryData = [
+    { name: "Watch", subCategories: [] },
+    {
+      name: "Men Accesoric",
+      subCategories: ["Wallets", "Belts", "Caps", "Chain", "Ring"],
+    },
+    { name: "Sun Glasses", subCategories: [] },
+    {
+      name: "Tech Accesoric",
+      subCategories: ["Headphones", "Chargers", "Cases"],
+    },
+    { name: "Men Cloths", subCategories: ["T-Shirts", "Shirts", "Pants"] },
+  ];
 
   const [editingProduct, setEditingProduct] = useState({
     id: "",
@@ -20,7 +37,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     brand: "",
     description: "",
     category: "Watch",
-    subCategory: "Men",
+    subCategory: "No Subcategory",
     watchGrade: "Original",
     price: "",
     offerPrice: "",
@@ -28,8 +45,30 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     sizes: [],
     bestseller: false,
     image: [],
-    newImages: {},
+    newImagesList: [],
   });
+
+  // Dynamic Subcategory logic based on selected category
+  const selectedCategoryObj = categoryData.find(
+    (cat) => cat.name === editingProduct.category,
+  );
+  const availableSubCategories = selectedCategoryObj
+    ? selectedCategoryObj.subCategories
+    : [];
+
+  useEffect(() => {
+    // When category changes, reset subcategory to first available option or 'No Subcategory'
+    if (availableSubCategories.length > 0) {
+      if (!availableSubCategories.includes(editingProduct.subCategory)) {
+        setEditingProduct((prev) => ({
+          ...prev,
+          subCategory: availableSubCategories[0],
+        }));
+      }
+    } else {
+      setEditingProduct((prev) => ({ ...prev, subCategory: "No Subcategory" }));
+    }
+  }, [editingProduct.category]);
 
   useEffect(() => {
     const regularPrice = parseFloat(editingProduct.price);
@@ -65,12 +104,13 @@ const ListProduct = ({ token, backendUrl, currency }) => {
   };
 
   const removeProduct = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
     try {
       const response = await axios.post(
         backendUrl + "/api/product/remove",
         { id },
-        { headers: { token } }
+        { headers: { token } },
       );
       if (response.data.success) {
         toast.success(response.data.message);
@@ -90,7 +130,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       brand: item.brand || "",
       description: item.description,
       category: item.category,
-      subCategory: item.subCategory,
+      subCategory: item.subCategory || "No Subcategory",
       watchGrade: item.watchGrade || "Original",
       price: item.price,
       offerPrice: item.offerPrice || "",
@@ -98,7 +138,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       sizes: item.sizes || [],
       bestseller: item.bestseller,
       image: item.image || [],
-      newImages: {},
+      newImagesList: [],
     });
     setShowSize(item.sizes && item.sizes.length > 0);
     setShowEditModal(true);
@@ -125,18 +165,36 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     });
   };
 
-  const handleImageUpload = (e, index) => {
+  const handleRemoveExistingImage = (indexToRemove) => {
+    setEditingProduct((prev) => {
+      const updatedImages = [...prev.image];
+      updatedImages.splice(indexToRemove, 1);
+      return { ...prev, image: updatedImages };
+    });
+  };
+
+  const handleRemoveNewImage = (indexToRemove) => {
+    setEditingProduct((prev) => {
+      const updatedNewImages = [...prev.newImagesList];
+      updatedNewImages.splice(indexToRemove, 1);
+      return { ...prev, newImagesList: updatedNewImages };
+    });
+  };
+
+  const handleAddNewImage = (e) => {
     const file = e.target.files[0];
     if (file) {
       setEditingProduct((prev) => ({
         ...prev,
-        newImages: { ...prev.newImages, [index]: file },
+        newImagesList: [...prev.newImagesList, file],
       }));
     }
+    e.target.value = "";
   };
 
   const submitEdit = async (e) => {
     e.preventDefault();
+    setIsSaving(true); // FIXED: Start loading
     try {
       const formData = new FormData();
       formData.append("id", editingProduct.id);
@@ -155,16 +213,16 @@ const ListProduct = ({ token, backendUrl, currency }) => {
         formData.append("watchGrade", editingProduct.watchGrade);
       }
 
-      const imageIndexes = Object.keys(editingProduct.newImages);
-      formData.append("imageIndexes", JSON.stringify(imageIndexes));
-      imageIndexes.forEach((index) => {
-        formData.append("image", editingProduct.newImages[index]);
+      formData.append("image", JSON.stringify(editingProduct.image));
+
+      editingProduct.newImagesList.forEach((file) => {
+        formData.append("newImages", file);
       });
 
       const response = await axios.post(
         `${backendUrl}/api/product/update`,
         formData,
-        { headers: { token } }
+        { headers: { token } },
       );
 
       if (response.data.success) {
@@ -177,6 +235,8 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     } catch (error) {
       console.error(error);
       toast.error("Failed to update product.");
+    } finally {
+      setIsSaving(false); // FIXED: Stop loading
     }
   };
 
@@ -187,12 +247,11 @@ const ListProduct = ({ token, backendUrl, currency }) => {
   const filteredList = list.filter(
     (item) =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchTerm.toLowerCase())
+      item.category.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
     <div className="w-full text-gray-200">
-      
       {/* Header & Search */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 border-b border-zinc-800 pb-4">
         <h2 className="text-xl font-bold text-white uppercase tracking-widest">
@@ -205,13 +264,15 @@ const ListProduct = ({ token, backendUrl, currency }) => {
             className="w-full bg-[#18181b] border border-zinc-800 rounded-md py-2.5 px-4 pl-10 focus:outline-none focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] text-white transition-all text-sm"
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <FaSearch className="absolute left-3 top-3.5 text-zinc-500" size={14} />
+          <FaSearch
+            className="absolute left-3 top-3.5 text-zinc-500"
+            size={14}
+          />
         </div>
       </div>
 
       {/* Product Table */}
       <div className="flex flex-col border border-zinc-800 bg-[#121215] rounded-md overflow-hidden shadow-lg">
-        
         {/* Table Header */}
         <div className="hidden md:grid grid-cols-[1fr_3fr_1.5fr_1fr_1fr_1fr] items-center py-3 px-4 bg-zinc-900 border-b border-zinc-800 text-xs font-bold text-zinc-400 uppercase tracking-wider">
           <span>Image</span>
@@ -245,7 +306,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 {item.offerPrice > 0 ? item.offerPrice : item.price}
               </p>
               <p className="text-center text-zinc-400">{item.quantity}</p>
-              
+
               {/* Actions */}
               <div className="flex justify-center gap-2">
                 <button
@@ -276,51 +337,96 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       {showEditModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[100] overflow-y-auto p-4">
           <div className="bg-[#121215] border border-zinc-800 p-6 md:p-8 rounded-lg shadow-2xl w-full max-w-4xl my-auto">
-            
             <div className="flex justify-between items-center mb-6 border-b border-zinc-800 pb-4">
               <h2 className="text-xl font-bold text-white uppercase tracking-widest">
                 Edit Product
               </h2>
               <button
+                type="button"
+                disabled={isSaving} // Prevent closing while saving
                 onClick={() => setShowEditModal(false)}
-                className="text-zinc-500 hover:text-[#FF4955] transition-colors font-bold text-xl"
+                className="text-zinc-500 hover:text-[#FF4955] transition-colors font-bold text-xl disabled:opacity-50"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={submitEdit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              
-              {/* Images */}
+            <form
+              onSubmit={submitEdit}
+              className="grid grid-cols-1 md:grid-cols-2 gap-5"
+            >
+              {/* Images Section */}
               <div className="col-span-1 md:col-span-2">
                 <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">
-                  Images (Click to Change)
+                  Images (Add / Remove)
                 </p>
-                <div className="flex gap-3 flex-wrap">
+                <div className="flex gap-4 flex-wrap">
+                  {/* Existing Images */}
                   {editingProduct.image.map((img, index) => (
-                    <label
-                      key={index}
-                      className="cursor-pointer relative group w-20 h-20 border border-zinc-700 rounded-md overflow-hidden bg-[#18181b] hover:border-[#FF4955] transition-colors"
+                    <div
+                      key={`existing-${index}`}
+                      className="relative group w-20 h-20 border border-zinc-700 rounded-md overflow-hidden bg-black shadow-lg"
                     >
                       <img
-                        src={
-                          editingProduct.newImages[index]
-                            ? URL.createObjectURL(editingProduct.newImages[index])
-                            : img
-                        }
+                        src={img}
                         className="w-full h-full object-cover"
                         alt=""
                       />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveExistingImage(index)}
+                        className="absolute top-1 right-1 bg-red-500/90 hover:bg-red-600 text-white p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove Image"
+                      >
+                        <FaTrash size={12} />
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* New Uploaded Images */}
+                  {editingProduct.newImagesList.map((file, index) => (
+                    <div
+                      key={`new-${index}`}
+                      className="relative group w-20 h-20 border-2 border-[#FF4955]/50 rounded-md overflow-hidden bg-black shadow-lg"
+                    >
+                      <img
+                        src={URL.createObjectURL(file)}
+                        className="w-full h-full object-cover"
+                        alt=""
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveNewImage(index)}
+                        className="absolute top-1 right-1 bg-red-500/90 hover:bg-red-600 text-white p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove Image"
+                      >
+                        <FaTrash size={12} />
+                      </button>
+                      <span className="absolute bottom-0 left-0 right-0 bg-[#FF4955] text-white text-[9px] font-black text-center uppercase tracking-widest py-0.5">
+                        New
+                      </span>
+                    </div>
+                  ))}
+
+                  {/* Add New Image Button (Max 4 images total) */}
+                  {editingProduct.image.length +
+                    editingProduct.newImagesList.length <
+                    4 && (
+                    <label className="cursor-pointer w-20 h-20 border border-dashed border-zinc-600 flex flex-col items-center justify-center rounded-md bg-[#18181b] hover:border-[#FF4955] hover:text-[#FF4955] transition-colors text-zinc-500">
+                      <span className="text-2xl font-light leading-none mb-1">
+                        +
+                      </span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider">
+                        Add
+                      </span>
                       <input
                         type="file"
                         hidden
-                        onChange={(e) => handleImageUpload(e, index)}
+                        accept=".png, .jpg, .jpeg, .webp"
+                        onChange={handleAddNewImage}
                       />
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <FaRegEdit className="text-white" size={20} />
-                      </div>
                     </label>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -348,6 +454,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                   value={editingProduct.brand}
                   onChange={handleEditChange}
                   className="w-full bg-[#18181b] border border-zinc-800 text-white p-3 rounded-md focus:border-[#FF4955] outline-none transition-colors text-sm"
+                  placeholder="e.g. Rolex, Nike"
                 />
               </div>
 
@@ -357,14 +464,14 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                   Description
                 </label>
                 <div className="border border-zinc-800 rounded-md overflow-hidden bg-[#18181b]">
-                   <DescriptionEditor
-                     value={editingProduct.description}
-                     onChange={handleDescriptionChange}
-                   />
+                  <DescriptionEditor
+                    value={editingProduct.description}
+                    onChange={handleDescriptionChange}
+                  />
                 </div>
               </div>
 
-              {/* Category & SubCategory */}
+              {/* Category & SubCategory (FIXED: Dynamic Dropdown) */}
               <div>
                 <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
                   Category
@@ -373,28 +480,37 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                   name="category"
                   value={editingProduct.category}
                   onChange={handleEditChange}
-                  className="w-full bg-[#18181b] border border-zinc-800 text-white p-3 rounded-md focus:border-[#FF4955] outline-none transition-colors text-sm"
+                  className="w-full bg-[#18181b] border border-zinc-800 text-white p-3 rounded-md focus:border-[#FF4955] outline-none transition-colors text-sm cursor-pointer"
                 >
-                  <option value="Watch">Watch</option>
-                  <option value="Men Accesoric">Men Accesoric</option>
-                  <option value="Sun Glasses">Sun Glasses</option>
-                  <option value="Tech Accesoric">Tech Accesoric</option>
-                  <option value="Men Cloths">Men Cloths</option>
+                  {categoryData.map((cat) => (
+                    <option key={cat.name} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
                   Sub Category
                 </label>
-                <input
-                    type="text"
-                    name="subCategory"
-                    value={editingProduct.subCategory}
-                    onChange={handleEditChange}
-                    className="w-full bg-[#18181b] border border-zinc-800 text-white p-3 rounded-md focus:border-[#FF4955] outline-none transition-colors text-sm"
-                    placeholder="e.g. Wallets, Shirts"
-                />
+                <select
+                  name="subCategory"
+                  value={editingProduct.subCategory}
+                  onChange={handleEditChange}
+                  className="w-full bg-[#18181b] border border-zinc-800 text-white p-3 rounded-md focus:border-[#FF4955] outline-none transition-colors text-sm cursor-pointer disabled:opacity-50"
+                  disabled={availableSubCategories.length === 0}
+                >
+                  {availableSubCategories.length > 0 ? (
+                    availableSubCategories.map((sub) => (
+                      <option key={sub} value={sub}>
+                        {sub}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="No Subcategory">No Subcategory</option>
+                  )}
+                </select>
               </div>
 
               {/* Pricing */}
@@ -450,11 +566,15 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 <input
                   type="checkbox"
                   name="bestseller"
+                  id="edit-bestseller"
                   checked={editingProduct.bestseller}
                   onChange={handleEditChange}
                   className="w-5 h-5 cursor-pointer accent-[#FF4955] bg-[#18181b] border-zinc-800 rounded"
                 />
-                <label className="text-sm font-bold text-gray-300 cursor-pointer">
+                <label
+                  htmlFor="edit-bestseller"
+                  className="text-sm font-bold text-gray-300 cursor-pointer"
+                >
                   Add to Bestseller
                 </label>
               </div>
@@ -464,15 +584,19 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 <div className="flex items-center gap-3 mb-3">
                   <input
                     type="checkbox"
+                    id="edit-hasSize"
                     checked={showSize}
                     onChange={() => setShowSize(!showSize)}
                     className="w-4 h-4 cursor-pointer accent-[#FF4955]"
                   />
-                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                  <label
+                    htmlFor="edit-hasSize"
+                    className="text-xs font-bold text-zinc-400 uppercase tracking-wider cursor-pointer"
+                  >
                     Has Sizes / Variations?
                   </label>
                 </div>
-                
+
                 {showSize && (
                   <div className="flex gap-2 flex-wrap">
                     {["S", "M", "L", "XL", "XXL", "Free Size"].map((size) => (
@@ -492,23 +616,31 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 )}
               </div>
 
-              {/* Buttons */}
+              {/* Buttons (FIXED: Added Loading State) */}
               <div className="col-span-1 md:col-span-2 flex justify-end gap-3 mt-4 pt-6 border-t border-zinc-800">
                 <button
                   type="button"
+                  disabled={isSaving}
                   onClick={() => setShowEditModal(false)}
-                  className="px-6 py-2.5 bg-zinc-800 text-gray-300 text-sm font-bold rounded-md hover:bg-zinc-700 transition-colors uppercase tracking-wider"
+                  className="px-6 py-2.5 bg-zinc-800 text-gray-300 text-sm font-bold rounded-md hover:bg-zinc-700 transition-colors uppercase tracking-wider disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-[#FF4955] text-white text-sm font-bold rounded-md hover:bg-[#e03e49] active:scale-95 transition-all shadow-lg shadow-[#FF4955]/20 uppercase tracking-wider"
+                  disabled={isSaving}
+                  className="flex items-center justify-center gap-2 min-w-[150px] px-6 py-2.5 bg-[#FF4955] text-white text-sm font-bold rounded-md hover:bg-[#e03e49] active:scale-95 transition-all shadow-lg shadow-[#FF4955]/20 uppercase tracking-wider disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Save Changes
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="animate-spin" size={16} />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
                 </button>
               </div>
-
             </form>
           </div>
         </div>

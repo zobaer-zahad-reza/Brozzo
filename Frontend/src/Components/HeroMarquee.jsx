@@ -6,19 +6,22 @@ import { Link } from "react-router-dom";
 const HeroMarquee = ({ message, targetDate }) => {
   return (
     <div className="relative bg-[#18181b] border border-zinc-800 rounded-md mt-10 shadow-lg overflow-hidden h-14 md:h-20">
-      
       {/* Left Logo Section */}
-      {/* rgba(24,24,27,1) is the RGB equivalent of #18181b to create a seamless masking shadow */}
+
       <div className="absolute left-0 z-20 h-full flex items-center bg-[#18181b] pr-4 pl-3 md:pl-6 md:pr-10 shadow-[15px_0_20px_rgba(24,24,27,1)] cursor-pointer">
         <Link to="/">
-          <img className="w-16 md:w-24 object-contain" src={vividLogo} alt="Brozzo Logo" />
+          <img
+            className="w-16 md:w-24 object-contain"
+            src={vividLogo}
+            alt="Brozzo Logo"
+          />
         </Link>
       </div>
 
       {/* Marquee Text */}
       <div className="absolute inset-0 z-10 flex items-center">
         <div className="whitespace-nowrap font-bold text-gray-200 animate-scroll text-xs md:text-lg lg:text-xl uppercase tracking-widest">
-            {message}
+          {message}
         </div>
       </div>
 
@@ -27,9 +30,9 @@ const HeroMarquee = ({ message, targetDate }) => {
         <div className="scale-[0.65] origin-right md:scale-90">
           <Countdown targetDate={targetDate} />
         </div>
-        <Link to={'/collection'}>
+        <Link to={"/collection"}>
           <button className="px-4 py-2 text-[10px] md:text-xs font-bold rounded-sm md:rounded-md bg-[#FF4955] text-white hover:bg-[#e03e49] shadow-md transition-all uppercase tracking-wider active:scale-95">
-              Explore
+            Explore
           </button>
         </Link>
       </div>

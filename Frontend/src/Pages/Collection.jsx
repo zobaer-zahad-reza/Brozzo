@@ -52,7 +52,6 @@ const Collection = () => {
   // Initialize Category and Search from URL
   useEffect(() => {
     let catList = [];
-    
 
     if (categorySlug) {
       catList.push(decodeURIComponent(categorySlug));
@@ -63,7 +62,7 @@ const Collection = () => {
       }
     }
     setSelectedCategories(catList);
-    
+
     const newExpanded = {};
     catList.forEach((c) => {
       newExpanded[c] = true;
@@ -72,7 +71,7 @@ const Collection = () => {
 
     const searchQuery = searchParams.get("search");
     if (searchQuery) {
-        setSearch(searchQuery);
+      setSearch(searchQuery);
     }
   }, [categorySlug, searchParams, setSearch]);
 
@@ -84,10 +83,11 @@ const Collection = () => {
 
     // Search filter logic added
     if (search && search.trim() !== "") {
-        cp = cp.filter(item => 
-            item.name.toLowerCase().includes(search.toLowerCase()) || 
-            item.category.toLowerCase().includes(search.toLowerCase())
-        );
+      cp = cp.filter(
+        (item) =>
+          item.name.toLowerCase().includes(search.toLowerCase()) ||
+          item.category.toLowerCase().includes(search.toLowerCase()),
+      );
     }
 
     // Category filter
@@ -118,7 +118,7 @@ const Collection = () => {
     }
 
     setFilterProducts(cp);
-  }, [products, selectedCategories, selectedSubCategories, sortType, search]); 
+  }, [products, selectedCategories, selectedSubCategories, sortType, search]);
 
   const toggleCategory = (catName) => {
     if (catName === "All") {
@@ -153,7 +153,6 @@ const Collection = () => {
 
   return (
     <div className="relative text-center flex flex-col sm:flex-row gap-1 sm:gap-10 sm:pt-4 px-4 bg-black min-h-screen text-gray-200 pt-28">
-      
       {/* Mobile Filter Overlay */}
       {showFilter && (
         <div
@@ -254,10 +253,8 @@ const Collection = () => {
 
       {/* Product Area */}
       <div className="flex-1 pb-10">
-        
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between mb-6 items-center gap-4 border-b border-zinc-900 pb-4 mt-4">
-          
           {/* Title & Search Indicator */}
           <div className="flex flex-col items-start gap-1 self-start sm:self-auto">
             <div className="inline-flex items-center gap-3">
@@ -266,13 +263,21 @@ const Collection = () => {
               </p>
               <div className="hidden sm:block w-12 h-[2px] bg-[#FF4955]"></div>
             </div>
-            
+
             {/* Show what user is searching for */}
             {search && search.trim() !== "" && (
               <div className="flex items-center gap-2 mt-2 bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full w-max">
-                 <FaSearch size={10} className="text-[#FF4955]"/>
-                 <span className="text-xs font-medium text-gray-400">Results for: <strong className="text-white">"{search}"</strong></span>
-                 <button onClick={() => setSearch('')} className="ml-1 text-zinc-500 hover:text-red-500"><IoClose size={14}/></button>
+                <FaSearch size={10} className="text-[#FF4955]" />
+                <span className="text-xs font-medium text-gray-400">
+                  Results for:{" "}
+                  <strong className="text-white">"{search}"</strong>
+                </span>
+                <button
+                  onClick={() => setSearch("")}
+                  className="ml-1 text-zinc-500 hover:text-red-500"
+                >
+                  <IoClose size={14} />
+                </button>
               </div>
             )}
           </div>
@@ -329,9 +334,9 @@ const Collection = () => {
 
         {/* Product Grid */}
         {!products || products.length === 0 ? (
-           <div className="w-full h-40 flex items-center justify-center text-gray-500 text-sm tracking-widest animate-pulse mt-10">
-             LOADING COLLECTION...
-           </div>
+          <div className="w-full h-40 flex items-center justify-center text-gray-500 text-sm tracking-widest animate-pulse mt-10">
+            LOADING COLLECTION...
+          </div>
         ) : filterProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 gap-y-6 md:gap-y-8 text-left">
             {filterProducts.map((item) => (
