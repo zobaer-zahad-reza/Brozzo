@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const HeroMarquee = ({ message, targetDate }) => {
   return (
-    <div className="relative w-full bg-[#18181b] border border-zinc-800 rounded-xl mt-10 shadow-2xl overflow-hidden h-16 md:h-[76px] flex items-center group">
+    <div className="relative w-full bg-[#18181b] border border-zinc-800 rounded-xl  shadow-2xl overflow-hidden h-16 md:h-[76px] flex items-center group">
       {/* Marquee Text (Background Layer) */}
       <div className="absolute inset-0 z-0 flex items-center w-full">
         <div className="whitespace-nowrap font-bold text-gray-300/90 animate-scroll text-sm md:text-xl uppercase tracking-[0.2em] md:tracking-[0.3em]">
@@ -17,15 +17,15 @@ const HeroMarquee = ({ message, targetDate }) => {
 
       {/* Left Logo Section (Foreground Layer) */}
       {/* FIXED: Reduced padding and shadow spread on mobile so it doesn't cover the text */}
-      <div className="absolute left-0 z-10 h-full flex items-center justify-center bg-[#18181b] px-3 md:px-8 shadow-[15px_0_15px_5px_#18181b] md:shadow-[30px_0_30px_15px_#18181b]">
+      {/* <div className="absolute left-0 z-10 h-full flex items-center justify-center bg-[#18181b] px-3 md:px-8 shadow-[15px_0_15px_5px_#18181b] md:shadow-[30px_0_30px_15px_#18181b]">
         <Link to="/" className="flex items-center">
           <img
-            className="w-16 md:w-28 object-contain hover:scale-105 transition-transform duration-300"
+            className="w-16 md:w-24 object-contain hover:scale-105 transition-transform duration-300"
             src={vividLogo}
             alt="Brozzo Logo"
           />
         </Link>
-      </div>
+      </div> */}
 
       {/* Right Controls Section (Foreground Layer) */}
       {/* FIXED: Reduced left padding (pl-4) and shadow to leave space in the middle */}
