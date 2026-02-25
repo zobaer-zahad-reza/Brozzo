@@ -3,8 +3,7 @@ import { lazy } from "react";
 
 import App from "../App";
 import ErrorPage from "../Pages/ErrorPage";
-// import PrivacyNotice from "../Components/PrivacyNotice";
-
+import PrivacyPolicy from "../Pages/PrivacyPolicy";
 
 const Home = lazy(() => import("../Pages/Home"));
 const Contact = lazy(() => import("../Pages/Contact"));
@@ -33,8 +32,8 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/privacy-notice",
-        // element: <PrivacyNotice />
+        path: "/privacy-policy",
+        element: <PrivacyPolicy />,
       },
       {
         path: "/contact",

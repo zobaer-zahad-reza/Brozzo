@@ -26,15 +26,16 @@ const AddProduct = ({ token }) => {
   const [loading, setLoading] = useState(false);
 
   const categoryData = [
+    { name: "All", subCategories: [] },
     { name: "Watch", subCategories: [] },
     {
-      name: "Men Accesoric",
+      name: "Men Accessories",
       subCategories: ["Wallets", "Belts", "Caps", "Chain", "Ring"],
     },
     { name: "Sun Glasses", subCategories: [] },
     {
-      name: "Tech Accesoric",
-      subCategories: ["Headphones", "Chargers", "Cases"],
+      name: "Tech Accessories",
+      subCategories: ["Headphones", "Wireless Earbuds", "Speakers"],
     },
     { name: "Men Cloths", subCategories: ["T-Shirts", "Shirts", "Pants"] },
   ];

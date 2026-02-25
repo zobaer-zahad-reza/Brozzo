@@ -12,21 +12,22 @@ const ListProduct = ({ token, backendUrl, currency }) => {
 
   // Edit Modal States
   const [showEditModal, setShowEditModal] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // FIXED: Added saving state
+  const [isSaving, setIsSaving] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [showSize, setShowSize] = useState(false);
 
   // Categories Data for Dropdowns
   const categoryData = [
+    { name: "All", subCategories: [] },
     { name: "Watch", subCategories: [] },
     {
-      name: "Men Accesoric",
+      name: "Men Accessories",
       subCategories: ["Wallets", "Belts", "Caps", "Chain", "Ring"],
     },
     { name: "Sun Glasses", subCategories: [] },
     {
-      name: "Tech Accesoric",
-      subCategories: ["Headphones", "Chargers", "Cases"],
+      name: "Tech Accessories",
+      subCategories: ["Headphones", "Wireless Earbuds", "Speakers"],
     },
     { name: "Men Cloths", subCategories: ["T-Shirts", "Shirts", "Pants"] },
   ];
@@ -57,7 +58,6 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     : [];
 
   useEffect(() => {
-    // When category changes, reset subcategory to first available option or 'No Subcategory'
     if (availableSubCategories.length > 0) {
       if (!availableSubCategories.includes(editingProduct.subCategory)) {
         setEditingProduct((prev) => ({
@@ -194,7 +194,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
 
   const submitEdit = async (e) => {
     e.preventDefault();
-    setIsSaving(true); // FIXED: Start loading
+    setIsSaving(true);
     try {
       const formData = new FormData();
       formData.append("id", editingProduct.id);
@@ -236,7 +236,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       console.error(error);
       toast.error("Failed to update product.");
     } finally {
-      setIsSaving(false); // FIXED: Stop loading
+      setIsSaving(false);
     }
   };
 
@@ -343,7 +343,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
               </h2>
               <button
                 type="button"
-                disabled={isSaving} // Prevent closing while saving
+                disabled={isSaving}
                 onClick={() => setShowEditModal(false)}
                 className="text-zinc-500 hover:text-[#FF4955] transition-colors font-bold text-xl disabled:opacity-50"
               >
@@ -408,7 +408,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                     </div>
                   ))}
 
-                  {/* Add New Image Button (Max 4 images total) */}
+                  {/* Add New Image Button  */}
                   {editingProduct.image.length +
                     editingProduct.newImagesList.length <
                     4 && (
@@ -471,7 +471,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 </div>
               </div>
 
-              {/* Category & SubCategory (FIXED: Dynamic Dropdown) */}
+              {/* Category & SubCategory */}
               <div>
                 <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
                   Category
@@ -616,7 +616,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 )}
               </div>
 
-              {/* Buttons (FIXED: Added Loading State) */}
+              {/* Buttons */}
               <div className="col-span-1 md:col-span-2 flex justify-end gap-3 mt-4 pt-6 border-t border-zinc-800">
                 <button
                   type="button"
