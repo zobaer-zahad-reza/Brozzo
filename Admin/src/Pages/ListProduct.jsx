@@ -244,11 +244,17 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     fetchList();
   }, []);
 
-  const filteredList = list.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredList = list.filter((item) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      item.name.toLowerCase().includes(searchLower) ||
+      item.category.toLowerCase().includes(searchLower) ||
+      String(item.price).toLowerCase().includes(searchLower) ||
+      (item.offerPrice &&
+        String(item.offerPrice).toLowerCase().includes(searchLower)) ||
+      String(item.quantity).toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
     <div className="w-full text-gray-200">
@@ -260,7 +266,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
         <div className="relative w-full sm:w-80">
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search by name, price, quantity..."
             className="w-full bg-[#18181b] border border-zinc-800 rounded-md py-2.5 px-4 pl-10 focus:outline-none focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] text-white transition-all text-sm"
             onChange={(e) => setSearchTerm(e.target.value)}
           />
