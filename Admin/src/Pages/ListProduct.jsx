@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaTrash, FaSearch, FaPen } from "react-icons/fa";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Minus } from "lucide-react";
 import DescriptionEditor from "../Components/DescriptionEditor";
 
 const ListProduct = ({ token, backendUrl, currency }) => {
   const [list, setList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [updatingQuantityId, setUpdatingQuantityId] = useState(null); // To track which item's quantity is being updated
 
   // Edit Modal States
   const [showEditModal, setShowEditModal] = useState(false);
@@ -120,6 +121,64 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       }
     } catch (error) {
       toast.error(error.message);
+    }
+  };
+
+  // --- FIXED: Quick Quantity Update directly from the list ---
+  const handleQuickQuantityUpdate = async (item, action) => {
+    if (updatingQuantityId) return; // Prevent multiple clicks
+
+    let newQuantity = Number(item.quantity);
+    if (action === "increase") {
+      newQuantity += 1;
+    } else if (action === "decrease") {
+      if (newQuantity <= 0) return; // Cannot go below 0
+      newQuantity -= 1;
+    }
+
+    setUpdatingQuantityId(item._id);
+
+    try {
+      // Reconstruct form data for backend based on existing item details
+      const formData = new FormData();
+      formData.append("id", item._id);
+      formData.append("name", item.name);
+      formData.append("brand", item.brand || "");
+      formData.append("description", item.description);
+      formData.append("category", item.category);
+      formData.append("subCategory", item.subCategory || "");
+      formData.append("price", item.price);
+      formData.append("offerPrice", item.offerPrice || "");
+      formData.append("quantity", newQuantity); // The new updated quantity
+      formData.append("bestseller", item.bestseller || false);
+      formData.append("sizes", JSON.stringify(item.sizes || []));
+      formData.append("image", JSON.stringify(item.image || [])); // Send existing images back
+
+      if (item.category === "Watch") {
+        formData.append("watchGrade", item.watchGrade || "");
+      }
+
+      const response = await axios.post(
+        `${backendUrl}/api/product/update`,
+        formData,
+        { headers: { token } },
+      );
+
+      if (response.data.success) {
+        // Update the local list instantly to reflect the change without fetching everything again
+        setList((prevList) =>
+          prevList.map((p) =>
+            p._id === item._id ? { ...p, quantity: newQuantity } : p,
+          ),
+        );
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update quantity");
+    } finally {
+      setUpdatingQuantityId(null);
     }
   };
 
@@ -280,12 +339,12 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       {/* Product Table */}
       <div className="flex flex-col border border-zinc-800 bg-[#121215] rounded-md overflow-hidden shadow-lg">
         {/* Table Header */}
-        <div className="hidden md:grid grid-cols-[1fr_3fr_1.5fr_1fr_1fr_1fr] items-center py-3 px-4 bg-zinc-900 border-b border-zinc-800 text-xs font-bold text-zinc-400 uppercase tracking-wider">
+        <div className="hidden md:grid grid-cols-[1fr_3fr_1.5fr_1fr_1.5fr_1fr] items-center py-3 px-4 bg-zinc-900 border-b border-zinc-800 text-xs font-bold text-zinc-400 uppercase tracking-wider">
           <span>Image</span>
           <span>Name</span>
           <span>Category</span>
           <span>Price</span>
-          <span>Quantity</span>
+          <span className="text-center">Quantity</span>
           <span className="text-center">Action</span>
         </div>
 
@@ -298,7 +357,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
           filteredList.map((item, index) => (
             <div
               key={index}
-              className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1.5fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border-b border-zinc-800 hover:bg-[#18181b] transition-colors text-sm"
+              className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1.5fr_1fr_1.5fr_1fr] items-center gap-4 py-3 px-4 border-b border-zinc-800 hover:bg-[#18181b] transition-colors text-sm"
             >
               <img
                 className="w-12 h-12 object-cover rounded-md border border-zinc-700 bg-black"
@@ -306,12 +365,42 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 alt={item.name}
               />
               <p className="truncate font-medium text-white">{item.name}</p>
-              <p className="text-zinc-400 text-xs">{item.category}</p>
+              <p className="text-zinc-400 text-xs hidden md:block">
+                {item.category}
+              </p>
               <p className="font-semibold text-gray-300">
                 {currency}
                 {item.offerPrice > 0 ? item.offerPrice : item.price}
               </p>
-              <p className="text-center text-zinc-400">{item.quantity}</p>
+
+              {/* FIXED: Quick Quantity Editor (+ / -) */}
+              <div className="flex items-center justify-center gap-3">
+                <div className="flex items-center border border-zinc-700 bg-black rounded-md px-1 py-1">
+                  <button
+                    onClick={() => handleQuickQuantityUpdate(item, "decrease")}
+                    disabled={
+                      updatingQuantityId === item._id || item.quantity <= 0
+                    }
+                    className="p-1 text-zinc-400 hover:text-[#FF4955] hover:bg-zinc-800 rounded transition-colors disabled:opacity-30"
+                  >
+                    <Minus size={12} />
+                  </button>
+                  <span className="w-8 text-center font-bold text-white text-xs">
+                    {updatingQuantityId === item._id ? (
+                      <Loader2 className="w-3 h-3 animate-spin mx-auto text-[#FF4955]" />
+                    ) : (
+                      item.quantity
+                    )}
+                  </span>
+                  <button
+                    onClick={() => handleQuickQuantityUpdate(item, "increase")}
+                    disabled={updatingQuantityId === item._id}
+                    className="p-1 text-zinc-400 hover:text-[#FF4955] hover:bg-zinc-800 rounded transition-colors disabled:opacity-30"
+                  >
+                    <Plus size={12} />
+                  </button>
+                </div>
+              </div>
 
               {/* Actions */}
               <div className="flex justify-center gap-2">
@@ -339,7 +428,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
         )}
       </div>
 
-      {/* Edit Modal */}
+      {/* Edit Modal (unchanged from your previous setup) */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[100] overflow-y-auto p-4">
           <div className="bg-[#121215] border border-zinc-800 p-6 md:p-8 rounded-lg shadow-2xl w-full max-w-4xl my-auto">
