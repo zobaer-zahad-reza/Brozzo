@@ -9,6 +9,7 @@ import Sidebar from "./Components/Sidebar";
 import Login from "./Components/Login";
 import ListProduct from "./Pages/ListProduct";
 import HomePageE from "./Pages/SubPages/HomePageE";
+import FraudCheck from "./Pages/FraudCheck";
 // import FooterInfo from "./Pages/SubPages/FooterInfo";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -49,6 +50,10 @@ const App = () => {
                 <Route
                   path="/edit-home-page"
                   element={<HomePageE token={token} backendUrl={backendUrl} />}
+                />
+                <Route
+                  path="/fraud-check"
+                  element={<FraudCheck token={token} backendUrl={backendUrl} />}
                 />
                 {/* <Route path="/edit-footer" element={<FooterInfo token={token} backendUrl={backendUrl} />} /> */}
                 <Route path="*" element={<div>Page Not Found</div>} />
