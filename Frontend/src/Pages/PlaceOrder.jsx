@@ -67,7 +67,7 @@ const PlaceOrder = () => {
   }, [cartItems, products, isBuyNow, location.state]);
 
   const isDhaka = formData.division === "Dhaka";
-  const delivery_fee = formData.division ? (isDhaka ? 80 : 120) : 0;
+  const delivery_fee = formData.division ? (isDhaka ? 80 : 130) : 0;
   const currency = "৳";
 
   useEffect(() => {

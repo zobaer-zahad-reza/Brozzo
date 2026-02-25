@@ -22,7 +22,7 @@ const Login = () => {
     e.preventDefault();
     try {
       Swal.fire({
-        title: "অপেক্ষা করুন...",
+        title: "Please wait...",
         allowOutsideClick: false,
         background: "#111113",
         color: "#fff",
@@ -40,8 +40,8 @@ const Login = () => {
 
         Swal.fire({
           icon: "success",
-          title: "স্বাগতম!",
-          text: "লগইন সফল হয়েছে।",
+          title: "Welcome!",
+          text: "Logged in successfully.",
           timer: 2000,
           showConfirmButton: false,
           background: "#111113",
@@ -53,8 +53,8 @@ const Login = () => {
       } else {
         Swal.fire({
           icon: "error",
-          title: "লগইন ব্যর্থ",
-          text: response.data.message || "ইমেইল বা পাসওয়ার্ড ভুল।",
+          title: "Login Failed",
+          text: response.data.message || "Invalid email or password.",
           confirmButtonColor: "#FF4955",
           background: "#111113",
           color: "#fff",
@@ -63,8 +63,8 @@ const Login = () => {
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "দুঃখিত",
-        text: "সার্ভারের সাথে সংযোগ করা যাচ্ছে না।",
+        title: "Oops...",
+        text: "Unable to connect to the server.",
         confirmButtonColor: "#FF4955",
         background: "#111113",
         color: "#fff",
