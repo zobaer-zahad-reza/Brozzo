@@ -40,6 +40,23 @@ const PlaceOrder = () => {
   const [orderList, setOrderList] = useState([]);
   const isBuyNow = location.state && location.state.buyNowItem;
 
+  // Authentication Check Effect
+  useEffect(() => {
+    if (!token) {
+      toast.error("Please login to place an order.", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+      navigate("/login");
+    }
+  }, [token, navigate]);
+
   useEffect(() => {
     if (isBuyNow) {
       setOrderList([location.state.buyNowItem]);
@@ -172,6 +189,11 @@ const PlaceOrder = () => {
       toast.error(error.response?.data?.message || error.message);
     }
   };
+
+
+  if (!token) {
+    return null; 
+  }
 
   return (
     <div className="bg-black min-h-screen pt-28 pb-20 px-4 md:px-8 font-sans text-gray-200">
