@@ -114,40 +114,43 @@ const AddProduct = ({ token }) => {
   return (
     <form
       onSubmit={onSubmitHandler}
-      className="flex flex-col w-full items-start gap-4 text-gray-200 no-spinner mb-10"
+      className="flex flex-col w-full items-start gap-6 text-gray-200 no-spinner mb-10 px-4 sm:px-0"
     >
-      <div className="w-full pb-3 border-b border-zinc-800 mb-2">
-        <h2 className="text-xl font-bold text-white uppercase tracking-widest">
+      <div className="w-full pb-3 border-b border-zinc-800">
+        <h2 className="text-lg sm:text-xl font-bold text-white uppercase tracking-widest">
           Add New Product
         </h2>
       </div>
 
       {/* Image Upload Section */}
-      <div>
+      <div className="w-full">
         <div className="mb-3">
           <p className="font-medium text-gray-400 text-sm">Upload Image</p>
-          <p className="text-xs text-white mt-1">
-            Required size: Width 3024px × Height 4032px | Supported formats:
-            PNG, JPG, WEBP | Max size: 2MB
+          <p className="text-[10px] sm:text-xs text-zinc-500 mt-1">
+            Min: 3024px × 4032px | Max size: 2MB
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="grid grid-cols-4 sm:flex gap-3">
           {[
             { id: "image1", state: image1, setter: setImage1 },
             { id: "image2", state: image2, setter: setImage2 },
             { id: "image3", state: image3, setter: setImage3 },
             { id: "image4", state: image4, setter: setImage4 },
           ].map((imgData) => (
-            <label key={imgData.id} htmlFor={imgData.id}>
-              <div className="w-20 h-20 border border-dashed border-zinc-700 flex items-center justify-center cursor-pointer bg-[#18181b] rounded-md hover:border-[#FF4955] transition-colors">
+            <label
+              key={imgData.id}
+              htmlFor={imgData.id}
+              className="w-full sm:w-20"
+            >
+              <div className="aspect-square sm:w-20 sm:h-20 border border-dashed border-zinc-700 flex items-center justify-center cursor-pointer bg-[#18181b] rounded-md hover:border-[#FF4955] transition-colors overflow-hidden">
                 {imgData.state ? (
                   <img
-                    className="w-full h-full object-cover rounded-md"
+                    className="w-full h-full object-cover"
                     src={URL.createObjectURL(imgData.state)}
                     alt=""
                   />
                 ) : (
-                  <Upload className="text-zinc-500" size={24} />
+                  <Upload className="text-zinc-500" size={20} />
                 )}
               </div>
               <input
@@ -162,9 +165,8 @@ const AddProduct = ({ token }) => {
         </div>
       </div>
 
-      {/* FIXED: Product Name & Brand Name (Side by Side) */}
-      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-[800px]">
-        {/* Product Name */}
+      {/* Product Name & Brand Name */}
+      <div className="flex flex-col md:flex-row gap-4 w-full max-w-[800px]">
         <div className="flex-1">
           <p className="mb-2 font-medium text-gray-400 text-sm">
             Product Name <span className="text-red-500">*</span>
@@ -172,14 +174,13 @@ const AddProduct = ({ token }) => {
           <input
             onChange={(e) => setName(e.target.value)}
             value={name}
-            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] text-white placeholder-zinc-600 transition-all"
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white placeholder-zinc-600 transition-all text-sm"
             type="text"
             placeholder="Type product name"
             required
           />
         </div>
 
-        {/* Brand Name (Optional) */}
         <div className="flex-1">
           <p className="mb-2 font-medium text-gray-400 text-sm">
             Brand Name{" "}
@@ -188,10 +189,9 @@ const AddProduct = ({ token }) => {
           <input
             onChange={(e) => setBrand(e.target.value)}
             value={brand}
-            // no "required" attribute here
-            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] focus:ring-1 focus:ring-[#FF4955] text-white placeholder-zinc-600 transition-all"
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white placeholder-zinc-600 transition-all text-sm"
             type="text"
-            placeholder="e.g. Rolex, Nike, Apple"
+            placeholder="e.g. Rolex, Nike"
           />
         </div>
       </div>
@@ -201,19 +201,19 @@ const AddProduct = ({ token }) => {
         <p className="mb-2 font-medium text-gray-400 text-sm">
           Product Description
         </p>
-        <div className="border border-zinc-800 rounded-md bg-[#18181b] min-h-[300px] flex flex-col editor-container">
+        <div className="border border-zinc-800 rounded-md bg-[#18181b] min-h-[250px] sm:min-h-[300px] flex flex-col editor-container overflow-hidden">
           <DescriptionEditor value={description} onChange={setDescription} />
         </div>
       </div>
 
       {/* Category, SubCategory, Price & Quantity */}
-      <div className="flex flex-wrap gap-4 w-full pt-2">
-        <div className="flex-1 min-w-[200px] max-w-[240px]">
+      <div className="grid grid-cols-2 md:flex md:flex-wrap gap-4 w-full max-w-[800px]">
+        <div className="col-span-2 md:flex-1 md:min-w-[180px]">
           <p className="mb-2 font-medium text-gray-400 text-sm">Category</p>
           <select
             onChange={(e) => setCategory(e.target.value)}
             value={category}
-            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white cursor-pointer transition-all"
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white text-sm cursor-pointer"
           >
             {categoryData.map((cat) => (
               <option key={cat.name} value={cat.name}>
@@ -223,12 +223,12 @@ const AddProduct = ({ token }) => {
           </select>
         </div>
 
-        <div className="flex-1 min-w-[200px] max-w-[240px]">
+        <div className="col-span-2 md:flex-1 md:min-w-[180px]">
           <p className="mb-2 font-medium text-gray-400 text-sm">Sub Category</p>
           <select
             onChange={(e) => setSubCategory(e.target.value)}
             value={subCategory}
-            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white text-sm cursor-pointer disabled:opacity-50"
             disabled={availableSubCategories.length === 0}
           >
             {availableSubCategories.length > 0 ? (
@@ -243,44 +243,44 @@ const AddProduct = ({ token }) => {
           </select>
         </div>
 
-        <div className="w-[120px]">
-          <p className="mb-2 font-medium text-gray-400 text-sm">
+        <div className="flex-1">
+          <p className="mb-2 font-medium text-gray-400 text-[13px] whitespace-nowrap">
             Regular Price
           </p>
           <input
             onChange={(e) => setPrice(e.target.value)}
             value={price}
-            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white placeholder-zinc-600 transition-all"
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white text-sm"
             type="number"
-            min={0}
             onKeyDown={preventMinus}
             placeholder="1000"
             required
           />
         </div>
 
-        <div className="w-[120px]">
-          <p className="mb-2 font-medium text-gray-400 text-sm">Offer Price</p>
+        <div className="flex-1">
+          <p className="mb-2 font-medium text-gray-400 text-[13px] whitespace-nowrap">
+            Offer Price
+          </p>
           <input
             onChange={(e) => setOfferPrice(e.target.value)}
             value={offerPrice}
-            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white placeholder-zinc-600 transition-all"
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white text-sm"
             type="number"
-            min={0}
             onKeyDown={preventMinus}
             placeholder="800"
           />
         </div>
 
-        {/* Quantity Field */}
-        <div className="w-[100px]">
-          <p className="mb-2 font-medium text-gray-400 text-sm">Quantity</p>
+        <div className="flex-1">
+          <p className="mb-2 font-medium text-gray-400 text-[13px] whitespace-nowrap">
+            Quantity
+          </p>
           <input
             onChange={(e) => setQuantity(e.target.value)}
             value={quantity}
-            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white placeholder-zinc-600 transition-all"
+            className="w-full px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white text-sm"
             type="number"
-            min={1}
             onKeyDown={preventMinus}
             placeholder="10"
             required
@@ -289,11 +289,11 @@ const AddProduct = ({ token }) => {
       </div>
 
       {/* Product Sizes */}
-      <div className="pt-2">
-        <p className="mb-2 font-medium text-gray-400 text-sm">
+      <div className="w-full">
+        <p className="mb-3 font-medium text-gray-400 text-sm">
           Product Sizes / Variations
         </p>
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-2.5 flex-wrap">
           {["S", "M", "L", "XL", "XXL", "Free Size"].map((size) => (
             <div
               key={size}
@@ -304,9 +304,9 @@ const AddProduct = ({ token }) => {
                     : [...prev, size],
                 )
               }
-              className={`px-4 py-1.5 cursor-pointer border rounded-md transition-all text-sm ${
+              className={`px-3 sm:px-4 py-2 cursor-pointer border rounded-md transition-all text-xs sm:text-sm ${
                 sizes.includes(size)
-                  ? "bg-[#FF4955]/10 border-[#FF4955] text-[#FF4955] font-bold shadow-sm shadow-[#FF4955]/20"
+                  ? "bg-[#FF4955]/10 border-[#FF4955] text-[#FF4955] font-bold"
                   : "bg-[#18181b] border-zinc-800 text-gray-400 hover:border-zinc-500"
               }`}
             >
@@ -316,26 +316,28 @@ const AddProduct = ({ token }) => {
         </div>
       </div>
 
-      <div className="flex gap-3 items-center mt-4">
+      {/* Bestseller Checkbox */}
+      <div className="flex gap-3 items-center">
         <input
           onChange={() => setBestseller((prev) => !prev)}
           checked={bestseller}
           type="checkbox"
           id="bestseller"
-          className="w-5 h-5 cursor-pointer accent-[#FF4955] bg-[#18181b] border-zinc-800 rounded"
+          className="w-5 h-5 cursor-pointer accent-[#FF4955]"
         />
         <label
-          className="cursor-pointer text-gray-300 font-medium select-none"
+          className="cursor-pointer text-gray-300 text-sm font-medium select-none"
           htmlFor="bestseller"
         >
           Add to Bestseller List
         </label>
       </div>
 
+      {/* Submit Button */}
       <button
         type="submit"
         disabled={loading}
-        className={`w-48 py-3 mt-6 bg-[#FF4955] text-white font-bold rounded-md hover:bg-[#e03e49] active:scale-95 transition-all uppercase tracking-widest text-sm shadow-lg shadow-[#FF4955]/20 flex items-center justify-center gap-2 ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+        className={`w-full sm:w-48 py-3.5 bg-[#FF4955] text-white font-bold rounded-md hover:bg-[#e03e49] active:scale-[0.98] transition-all uppercase tracking-widest text-xs sm:text-sm shadow-lg shadow-[#FF4955]/20 flex items-center justify-center gap-2 ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
       >
         {loading ? (
           <>
@@ -356,12 +358,15 @@ const AddProduct = ({ token }) => {
         .no-spinner input[type=number] {
           -moz-appearance: textfield;
         }
-        
         .editor-container .ql-container {
           flex: 1;
-          min-height: 250px;
+          min-height: 200px;
         }
-        
+        @media (min-width: 640px) {
+          .editor-container .ql-container {
+            min-height: 250px;
+          }
+        }
         .editor-container .ql-toolbar {
           position: sticky;
           top: 0;

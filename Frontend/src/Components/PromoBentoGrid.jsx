@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 const PromoBentoGrid = () => {
   const navigate = useNavigate();
 
-  // --- STATIC DATA UPDATED WITH MATCHING IMAGES ---
   const staticGridData = {
     1: {
       title: "Mens <br/> Collection",
@@ -27,7 +26,7 @@ const PromoBentoGrid = () => {
       title: "Audio <br/> Gear",
       image:
         "https://i.pinimg.com/1200x/96/26/9f/96269fd0bf319760dac98ecda5b6de06.jpg",
-      category: "Tech Accesoric",
+      category: "Tech Accessories",
       bgColor: "#18181b",
       textColor: "text-gray-200",
     },

@@ -77,10 +77,8 @@ const HeroSlider = () => {
           <div
             key={slide._id || index}
             onClick={() => slide.link && navigate(slide.link)}
-            /* FIXED: মোবাইলে কোনো aspect ratio নেই, ডেক্সটপের জন্য 21/7 রাখা হয়েছে */
             className="carousel-item relative w-full flex-shrink-0 cursor-pointer sm:aspect-[21/7]"
           >
-            {/* FIXED: মোবাইলে w-full এবং h-auto দেওয়া হয়েছে যাতে অরিজিনাল সাইজ অনুযায়ী বসে, কোনো ক্রপ না হয় */}
             <img
               src={slide.image}
               className="w-full h-auto sm:h-full sm:object-cover block"
