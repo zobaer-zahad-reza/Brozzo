@@ -9,8 +9,7 @@ import cartRouter from "./routes/cartRoute.js";
 import marqueeRouter from "./routes/marqueeRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import sliderRouter from "./routes/sliderRoute.js";
-import bentoRouter from './routes/bentoRoute.js';
-
+// import bentoRouter from './routes/bentoRoute.js';
 
 // App Config
 const app = express();
@@ -21,8 +20,30 @@ connectDB();
 connectCloudinary();
 
 // Middlewares
-app.use(express.json());
-app.use(cors());
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// CORS configuration
+const allowedOrigins = [
+  'https://brozzo.net',
+  'https://admin.brozzo.net'
+  // 'http://localhost:5173', 
+  // 'http://localhost:5174'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 
 // API Endpoints
 app.use("/api/product", productRouter);
@@ -31,8 +52,6 @@ app.use("/api/cart", cartRouter);
 app.use("/api/marquee", marqueeRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/slider", sliderRouter);
-// app.use("/api/category", categoryRouter);
-// app.use('/api/bento', bentoRouter);
 
 app.get("/", (req, res) => {
   res.send("API Working for Brozzo");
