@@ -10,7 +10,6 @@ const Contact = lazy(() => import("../Pages/Contact"));
 const Blog = lazy(() => import("../Pages/Blog"));
 const Collection = lazy(() => import("../Pages/Collection"));
 const AboutUs = lazy(() => import("../Pages/AboutUs"));
-const OurTeam = lazy(() => import("../Pages/OurTeam"));
 const ProductDetails = lazy(() => import("../Pages/ProductDetails"));
 const Login = lazy(() => import("../Pages/Login"));
 const Cart = lazy(() => import("../Pages/Cart"));
