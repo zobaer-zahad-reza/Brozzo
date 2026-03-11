@@ -40,8 +40,6 @@ const PlaceOrder = () => {
   const [orderList, setOrderList] = useState([]);
   const isBuyNow = location.state && location.state.buyNowItem;
 
-  // --- লগইন চেক করার useEffect টা রিমুভ করা হয়েছে, যাতে গেস্টরাও এখানে আসতে পারে ---
-
   useEffect(() => {
     if (isBuyNow) {
       setOrderList([location.state.buyNowItem]);
@@ -147,14 +145,13 @@ const PlaceOrder = () => {
         address: formData,
         items: orderList,
         amount: currentTotalAmount + delivery_fee,
-        paymentMethod: method === "cod" ? "COD" : method,
-        payment: false,
-        date: new Date().toISOString(),
+        paymentMethod: method === 'cod' ? 'COD' : method,
+        payment: false, 
+        date: new Date().toISOString()
       };
 
       if (method === "cod") {
         if (token) {
-          // --- ইউজার লগইন করা থাকলে ডাটাবেসে সেভ হবে ---
           const response = await axios.post(
             backendUrl + "/api/order/place",
             orderData,
@@ -168,35 +165,37 @@ const PlaceOrder = () => {
             toast.error(response.data.message);
           }
         } else {
-          // --- ইউজার লগইন করা না থাকলে (Guest) লোকাল স্টোরেজে সেভ হবে ---
-          const existingGuestOrders =
-            JSON.parse(localStorage.getItem("brozzo_guest_orders")) || [];
-
-          const guestOrderData = {
-            ...orderData,
-            orderId: "GUEST-" + Date.now().toString().slice(-6), // একটি ইউনিক আইডি তৈরি করা হলো
-            status: "Order Placed",
-          };
-
-          existingGuestOrders.push(guestOrderData);
-          localStorage.setItem(
-            "brozzo_guest_orders",
-            JSON.stringify(existingGuestOrders),
+          const response = await axios.post(
+            backendUrl + "/api/order/place-guest", 
+            orderData
           );
 
-          toast.success("Order Placed Successfully!");
-          if (!isBuyNow) setCartItems({});
-          navigate("/orders");
+          if (response.data.success) {
+            const existingGuestOrders = JSON.parse(localStorage.getItem('brozzo_guest_orders')) || [];
+            
+            const guestOrderData = {
+              ...orderData,
+              orderId: response.data.orderId || "GUEST-" + Date.now().toString().slice(-6),
+              status: "Order Placed"
+            };
+
+            existingGuestOrders.push(guestOrderData);
+            localStorage.setItem('brozzo_guest_orders', JSON.stringify(existingGuestOrders));
+
+            toast.success("Order Placed Successfully!");
+            if (!isBuyNow) setCartItems({});
+            navigate("/orders");
+          } else {
+            toast.error(response.data.message || "Failed to place order.");
+          }
         }
       } else {
         toast.info("Payment gateway integration coming soon.");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || "Something went wrong! Please try again.");
     }
   };
-
-  // --- if (!token) { return null; } এই লাইনটাও রিমুভ করা হয়েছে ---
 
   return (
     <div className="bg-black min-h-screen pt-28 pb-20 px-4 md:px-8 font-sans text-gray-200">

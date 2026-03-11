@@ -2,9 +2,9 @@ import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import Stripe from 'stripe'
 
-
 const currency = 'usd'
 const deliveryCharge = 10
+
 
 const placeOrder = async (req, res) => {
     try {
@@ -33,6 +33,32 @@ const placeOrder = async (req, res) => {
     }
 }
 
+
+const placeGuestOrder = async (req, res) => {
+    try {
+        const { items, amount, address } = req.body;
+
+        const orderData = {
+            userId: "Guest_" + Date.now().toString().slice(-6),
+            items,
+            address,
+            amount,
+            paymentMethod: "COD",
+            payment: false,
+            date: Date.now()
+        }
+
+        const newOrder = new orderModel(orderData);
+        await newOrder.save();
+
+        res.json({ success: true, message: "Guest Order Placed", orderId: newOrder._id });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
 // All Orders data for Frontend
 const userOrders = async (req, res) => {
     try {
@@ -44,7 +70,6 @@ const userOrders = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 }
-
 
 const allOrders = async (req, res) => {
     try {
@@ -66,4 +91,5 @@ const updateStatus = async (req, res) => {
     }
 }
 
-export { placeOrder, userOrders, allOrders, updateStatus }
+
+export { placeOrder, placeGuestOrder, userOrders, allOrders, updateStatus }
