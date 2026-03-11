@@ -50,12 +50,11 @@ const Navbar = () => {
     setCartItems({});
   };
 
-  // Added global setSearch update
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      setSearch(searchTerm); // Update global search state
-      navigate(`/collection?search=${encodeURIComponent(searchTerm)}`); // Navigate to collection
+      setSearch(searchTerm); 
+      navigate(`/collection?search=${encodeURIComponent(searchTerm)}`); 
     }
   };
 
@@ -223,12 +222,27 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <Link
-                to={"/login"}
-                className="px-5 py-1.5 rounded-full bg-[#FF4955] font-semibold text-xs text-white hover:bg-[#e03e49] shadow-[0_0_10px_rgba(255,73,85,0.3)] transition-all active:scale-95"
-              >
-                {t("login")}
-              </Link>
+              <div className="flex items-center gap-4">
+
+                
+
+                {/* Login Button */}
+                <Link
+                  to={"/login"}
+                  className="px-5 py-1.5 rounded-full bg-[#FF4955] font-semibold text-xs text-white hover:bg-[#e03e49] shadow-[0_0_10px_rgba(255,73,85,0.3)] transition-all active:scale-95"
+                >
+                  {t("login")}
+                </Link>
+
+
+                <Link
+                  to={"/orders"}
+                  className="relative flex items-center p-1.5 hover:bg-zinc-800 rounded-full transition-colors group"
+                  title="Track Orders"
+                >
+                  <Package  className="w-5 h-5 text-gray-300 group-hover:text-[#FF4955] transition-colors" />
+                </Link>
+              </div>
             )}
 
             {/* Cart Icon */}

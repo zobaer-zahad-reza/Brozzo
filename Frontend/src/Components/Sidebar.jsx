@@ -19,9 +19,8 @@ const Sidebar = ({ isOpen, onClose }) => {
   const { token, setToken, navigate, setCartItems, backendUrl, getCartCount } = useContext(ShopContext);
 
   const [expandedCategory, setExpandedCategory] = useState(null);
-  const [userData, setUserData] = useState(null); // ইউজারের ডেটা রাখার জন্য স্টেট
+  const [userData, setUserData] = useState(null);
 
-  // ইউজারের প্রোফাইল ডেটা ফেচ করার ফাংশন
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (token) {
@@ -36,11 +35,11 @@ const Sidebar = ({ isOpen, onClose }) => {
           console.error("Error fetching user profile:", error);
         }
       } else {
-        setUserData(null); // টোকেন না থাকলে ডেটা মুছে ফেলা হবে
+        setUserData(null);
       }
     };
 
-    if (isOpen) { // সাইডবার ওপেন হলেই শুধু ডেটা ফেচ করবে (পারফরম্যান্সের জন্য ভালো)
+    if (isOpen) { 
         fetchUserProfile();
     }
   }, [token, backendUrl, isOpen]);
@@ -89,7 +88,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       <div
         className={`fixed top-0 left-0 h-full w-[85%] max-w-[320px] bg-black border-r border-zinc-800 z-[1200] transform transition-transform duration-300 ease-in-out shadow-2xl flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        {/* Header - Update with User Profile */}
+        {/* Header */}
         <div className="bg-[#18181b] border-b border-zinc-800 text-white p-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {token && userData?.image ? (
@@ -188,49 +187,50 @@ const Sidebar = ({ isOpen, onClose }) => {
               Settings & Help
             </h3>
             <ul className="space-y-1">
+              
+              {/* Profile Link */}
               {token && (
-                <>
-                  <li>
-                    <Link
-                      to="/profile"
-                      className="flex items-center gap-3 px-3 py-3 text-gray-300 hover:bg-zinc-900 hover:text-white rounded-md transition-colors"
-                      onClick={onClose}
-                    >
-                      <User size={18} className="text-[#FF4955]" />{" "}
-                      <span>My Profile</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/orders"
-                      className="flex items-center gap-3 px-3 py-3 text-gray-300 hover:bg-zinc-900 hover:text-white rounded-md transition-colors"
-                      onClick={onClose}
-                    >
-                      <Package size={18} className="text-[#FF4955]" />{" "}
-                      <span>My Orders</span>
-                    </Link>
-                  </li>
-                  {/* NEW: My Cart Button */}
-                  <li>
-                    <Link
-                      to="/cart"
-                      className="flex items-center justify-between px-3 py-3 text-gray-300 hover:bg-zinc-900 hover:text-white rounded-md transition-colors group"
-                      onClick={onClose}
-                    >
-                      <div className="flex items-center gap-3">
-                        <ShoppingCart size={18} className="text-[#FF4955]" /> 
-                        <span>My Cart</span>
-                      </div>
-                      {/* Optional: Show cart count badge */}
-                      {getCartCount && getCartCount() > 0 && (
-                          <span className="bg-[#FF4955] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                              {getCartCount()}
-                          </span>
-                      )}
-                    </Link>
-                  </li>
-                </>
+                <li>
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-3 px-3 py-3 text-gray-300 hover:bg-zinc-900 hover:text-white rounded-md transition-colors"
+                    onClick={onClose}
+                  >
+                    <User size={18} className="text-[#FF4955]" />{" "}
+                    <span>My Profile</span>
+                  </Link>
+                </li>
               )}
+
+              {/* My Orders and My Cart */}
+              <li>
+                <Link
+                  to="/orders"
+                  className="flex items-center gap-3 px-3 py-3 text-gray-300 hover:bg-zinc-900 hover:text-white rounded-md transition-colors"
+                  onClick={onClose}
+                >
+                  <Package size={18} className="text-[#FF4955]" />{" "}
+                  <span>My Orders</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/cart"
+                  className="flex items-center justify-between px-3 py-3 text-gray-300 hover:bg-zinc-900 hover:text-white rounded-md transition-colors group"
+                  onClick={onClose}
+                >
+                  <div className="flex items-center gap-3">
+                    <ShoppingCart size={18} className="text-[#FF4955]" /> 
+                    <span>My Cart</span>
+                  </div>
+                  {getCartCount && getCartCount() > 0 && (
+                      <span className="bg-[#FF4955] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          {getCartCount()}
+                      </span>
+                  )}
+                </Link>
+              </li>
+
               <li>
                 <Link
                   to="/contact"
