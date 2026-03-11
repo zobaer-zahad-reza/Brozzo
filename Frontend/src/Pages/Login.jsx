@@ -49,7 +49,16 @@ const Login = () => {
           iconColor: "#FF4955",
         });
 
-        navigate("/");
+        // Buy Now
+        const pendingBuyNow = localStorage.getItem("pendingBuyNow");
+
+        if (pendingBuyNow) {
+          const buyNowItem = JSON.parse(pendingBuyNow);
+          localStorage.removeItem("pendingBuyNow");
+          navigate("/place-order", { state: { buyNowItem } });
+        } else {
+          navigate("/");
+        }
       } else {
         Swal.fire({
           icon: "error",

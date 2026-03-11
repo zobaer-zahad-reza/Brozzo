@@ -48,20 +48,17 @@ const ProductDetails = () => {
     );
   }
 
-  // Add to Cart Function
   const handleAddToCart = () => {
     if (product.sizes && product.sizes.length > 0 && !size) {
       toast.error("Please select a size or variation");
       return;
     }
-
     const selectedSize = size || "Free Size";
-
     addToCart(product._id, selectedSize, quantity);
-
     toast.success(`${product.name} added to bag!`);
   };
 
+  // আপডেট করা Buy Now লজিক (লগইন ছাড়াই Place Order এ যাবে)
   const handleBuyNow = () => {
     if (product.sizes && product.sizes.length > 0 && !size) {
       toast.error("Please select a size or variation");
@@ -74,6 +71,8 @@ const ProductDetails = () => {
       size: selectedSize,
       quantity: quantity,
     };
+
+    // সরাসরি Place Order পেজে পাঠিয়ে দিচ্ছি
     navigate("/place-order", { state: { buyNowItem } });
   };
 
@@ -259,7 +258,6 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* RELATED PRODUCTS SECTION */}
         <RelatedProducts
           currentCategory={product.category}
           currentProductId={product._id}

@@ -40,22 +40,7 @@ const PlaceOrder = () => {
   const [orderList, setOrderList] = useState([]);
   const isBuyNow = location.state && location.state.buyNowItem;
 
-  // Authentication Check Effect
-  useEffect(() => {
-    if (!token) {
-      toast.error("Please login to place an order.", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-      navigate("/login");
-    }
-  }, [token, navigate]);
+  // --- লগইন চেক করার useEffect টা রিমুভ করা হয়েছে, যাতে গেস্টরাও এখানে আসতে পারে ---
 
   useEffect(() => {
     if (isBuyNow) {
@@ -148,11 +133,6 @@ const PlaceOrder = () => {
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     try {
-      if (!token) {
-        toast.error("Please login to place an order");
-        return navigate("/login");
-      }
-
       if (orderList.length === 0) {
         toast.error("No items in the order!");
         return;
@@ -167,20 +147,46 @@ const PlaceOrder = () => {
         address: formData,
         items: orderList,
         amount: currentTotalAmount + delivery_fee,
+        paymentMethod: method === "cod" ? "COD" : method,
+        payment: false,
+        date: new Date().toISOString(),
       };
 
       if (method === "cod") {
-        const response = await axios.post(
-          backendUrl + "/api/order/place",
-          orderData,
-          { headers: { token } },
-        );
-        if (response.data.success) {
+        if (token) {
+          // --- ইউজার লগইন করা থাকলে ডাটাবেসে সেভ হবে ---
+          const response = await axios.post(
+            backendUrl + "/api/order/place",
+            orderData,
+            { headers: { token } },
+          );
+          if (response.data.success) {
+            toast.success("Order Placed Successfully!");
+            if (!isBuyNow) setCartItems({});
+            navigate("/orders");
+          } else {
+            toast.error(response.data.message);
+          }
+        } else {
+          // --- ইউজার লগইন করা না থাকলে (Guest) লোকাল স্টোরেজে সেভ হবে ---
+          const existingGuestOrders =
+            JSON.parse(localStorage.getItem("brozzo_guest_orders")) || [];
+
+          const guestOrderData = {
+            ...orderData,
+            orderId: "GUEST-" + Date.now().toString().slice(-6), // একটি ইউনিক আইডি তৈরি করা হলো
+            status: "Order Placed",
+          };
+
+          existingGuestOrders.push(guestOrderData);
+          localStorage.setItem(
+            "brozzo_guest_orders",
+            JSON.stringify(existingGuestOrders),
+          );
+
           toast.success("Order Placed Successfully!");
           if (!isBuyNow) setCartItems({});
           navigate("/orders");
-        } else {
-          toast.error(response.data.message);
         }
       } else {
         toast.info("Payment gateway integration coming soon.");
@@ -190,10 +196,7 @@ const PlaceOrder = () => {
     }
   };
 
-
-  if (!token) {
-    return null; 
-  }
+  // --- if (!token) { return null; } এই লাইনটাও রিমুভ করা হয়েছে ---
 
   return (
     <div className="bg-black min-h-screen pt-28 pb-20 px-4 md:px-8 font-sans text-gray-200">
@@ -379,16 +382,6 @@ const PlaceOrder = () => {
                 />
                 <span className="font-semibold text-sm">Cash On Delivery</span>
               </div>
-              {/* <div
-                onClick={() => setMethod("bkash")}
-                className={`flex items-center gap-3 border p-4 cursor-pointer rounded-lg transition-all ${method === "bkash" ? "border-[#FF4955] bg-[#FF4955]/10 text-white" : "border-zinc-800 text-gray-400"}`}
-              >
-                <Smartphone
-                  size={20}
-                  className={method === "bkash" ? "text-[#FF4955]" : ""}
-                />
-                <span className="font-semibold text-sm">bKash/Nagad</span>
-              </div> */}
             </div>
 
             <div className="mt-8 space-y-3 text-sm border-t border-zinc-800 pt-6">

@@ -10,9 +10,10 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
 
   const nameSlug = name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-') 
-    .replace(/(^-|-$)+/g, '');   
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
 
+  // আপডেট করা Buy Now লজিক (লগইন ছাড়াই Place Order এ যাবে)
   const handleBuyNow = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -24,15 +25,17 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
       name,
       price: finalPrice,
       quantity: 1,
-      size: "Free Size"
+      size: "Free Size",
     };
+
+    // সরাসরি Place Order পেজে পাঠিয়ে দিচ্ছি
     navigate("/place-order", { state: { buyNowItem: productData } });
   };
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     addToCart(id, "Free Size");
   };
 
@@ -67,11 +70,20 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
         <div className="flex items-center gap-2 mb-1">
           {hasDiscount ? (
             <>
-              <span className="text-white font-bold text-base">{currency}{offerPrice}</span>
-              <span className="text-gray-500 text-xs line-through">{currency}{price}</span>
+              <span className="text-white font-bold text-base">
+                {currency}
+                {offerPrice}
+              </span>
+              <span className="text-gray-500 text-xs line-through">
+                {currency}
+                {price}
+              </span>
             </>
           ) : (
-            <span className="text-white font-bold text-base">{currency}{price}</span>
+            <span className="text-white font-bold text-base">
+              {currency}
+              {price}
+            </span>
           )}
         </div>
 
