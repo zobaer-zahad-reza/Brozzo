@@ -24,6 +24,7 @@ const ProductDetails = () => {
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
 
   useEffect(() => {
     if (products && products.length > 0) {
@@ -31,6 +32,7 @@ const ProductDetails = () => {
       if (foundProduct) {
         setProduct(foundProduct);
         setMainImage(foundProduct.image[0]);
+        setSelectedColor("");
 
         if (foundProduct.sizes && foundProduct.sizes.length > 0) {
         } else {
@@ -53,8 +55,12 @@ const ProductDetails = () => {
       toast.error("Please select a size or variation");
       return;
     }
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+      toast.error("Please select a color");
+      return;
+    }
     const selectedSize = size || "Free Size";
-    addToCart(product._id, selectedSize, quantity);
+    addToCart(product._id, selectedSize, quantity, selectedColor);
     toast.success(`${product.name} added to bag!`);
   };
 
@@ -64,11 +70,16 @@ const ProductDetails = () => {
       toast.error("Please select a size or variation");
       return;
     }
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+      toast.error("Please select a color");
+      return;
+    }
 
     const selectedSize = size || "Free Size";
     const buyNowItem = {
       ...product,
       size: selectedSize,
+      color: selectedColor,
       quantity: quantity,
     };
 
@@ -82,6 +93,7 @@ const ProductDetails = () => {
     let message = `Hello Brozzo,\n\nI would like to order this product:\n*${product.name}*\n`;
 
     if (size) message += `Size: ${size}\n`;
+    if (selectedColor) message += `Color: ${selectedColor}\n`;
     message += `Quantity: ${quantity}\nPrice: ${product.offerPrice > 0 ? product.offerPrice : product.price} Tk\n\nLink: ${productUrl}`;
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -175,6 +187,44 @@ const ProductDetails = () => {
                       }`}
                     >
                       {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Color Selection */}
+            {product.colors && product.colors.length > 0 && (
+              <div className="space-y-4">
+                <p className="font-bold text-zinc-400 uppercase text-xs tracking-widest">
+                  Select Color
+                  {selectedColor && (
+                    <span className="ml-2 normal-case text-white font-semibold">
+                      — {selectedColor}
+                    </span>
+                  )}
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {product.colors.map((colorObj, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setSelectedColor(colorObj.name)}
+                      title={colorObj.name}
+                      className={`relative w-9 h-9 rounded-full border-2 transition-all ${
+                        selectedColor === colorObj.name
+                          ? "border-[#FF4955] scale-110 shadow-[0_0_12px_rgba(255,73,85,0.5)]"
+                          : "border-zinc-700 hover:border-zinc-400"
+                      }`}
+                      style={{ backgroundColor: colorObj.hex }}
+                    >
+                      {selectedColor === colorObj.name && (
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>

@@ -57,25 +57,27 @@ const ShopContextProvider = (props) => {
     }
   };
 
-  const addToCart = async (itemId, size, quantity = 1) => {
+  const addToCart = async (itemId, size, quantity = 1, color = "") => {
     if (!size) {
       toast.error("Select Product Size");
       return;
     }
 
     const qty = Number(quantity);
+    // Cart key combines size and color so different colors are tracked separately
+    const cartKey = color ? `${size}||${color}` : size;
 
     setCartItems((prevCart) => {
       let cartData = JSON.parse(JSON.stringify(prevCart));
       if (cartData[itemId]) {
-        if (cartData[itemId][size]) {
-          cartData[itemId][size] += qty;
+        if (cartData[itemId][cartKey]) {
+          cartData[itemId][cartKey] += qty;
         } else {
-          cartData[itemId][size] = qty;
+          cartData[itemId][cartKey] = qty;
         }
       } else {
         cartData[itemId] = {};
-        cartData[itemId][size] = qty;
+        cartData[itemId][cartKey] = qty;
       }
       return cartData;
     });
@@ -86,7 +88,7 @@ const ShopContextProvider = (props) => {
       try {
         await axios.post(
           backendUrl + "/api/cart/add",
-          { itemId, size, quantity: qty },
+          { itemId, size: cartKey, quantity: qty },
           { headers: { token } },
         );
       } catch (error) {

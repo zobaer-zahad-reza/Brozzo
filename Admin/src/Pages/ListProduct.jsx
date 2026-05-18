@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaTrash, FaSearch, FaPen } from "react-icons/fa";
-import { Loader2, Plus, Minus } from "lucide-react";
+import { Loader2, Plus, Minus, X } from "lucide-react";
 import DescriptionEditor from "../Components/DescriptionEditor";
 
 const ListProduct = ({ token, backendUrl, currency }) => {
@@ -16,6 +16,8 @@ const ListProduct = ({ token, backendUrl, currency }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [showSize, setShowSize] = useState(false);
+  const [editColorName, setEditColorName] = useState("");
+  const [editColorHex, setEditColorHex] = useState("#000000");
 
   // Categories Data for Dropdowns
   const categoryData = [
@@ -45,6 +47,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     offerPrice: "",
     quantity: "",
     sizes: [],
+    colors: [],
     bestseller: false,
     image: [],
     newImagesList: [],
@@ -152,6 +155,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       formData.append("quantity", newQuantity); // The new updated quantity
       formData.append("bestseller", item.bestseller || false);
       formData.append("sizes", JSON.stringify(item.sizes || []));
+      formData.append("colors", JSON.stringify(item.colors || []));
       formData.append("image", JSON.stringify(item.image || [])); // Send existing images back
 
       if (item.category === "Watch") {
@@ -195,6 +199,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       offerPrice: item.offerPrice || "",
       quantity: item.quantity,
       sizes: item.sizes || [],
+      colors: item.colors || [],
       bestseller: item.bestseller,
       image: item.image || [],
       newImagesList: [],
@@ -267,6 +272,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       formData.append("quantity", editingProduct.quantity);
       formData.append("bestseller", editingProduct.bestseller);
       formData.append("sizes", JSON.stringify(editingProduct.sizes));
+      formData.append("colors", JSON.stringify(editingProduct.colors || []));
 
       if (editingProduct.category === "Watch") {
         formData.append("watchGrade", editingProduct.watchGrade);
@@ -711,6 +717,97 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 )}
               </div>
 
+              {/* ===== COLOR SECTION IN EDIT MODAL ===== */}
+              <div className="col-span-1 md:col-span-2">
+                <p className="text-sm font-medium text-gray-400 mb-3">
+                  Product Colors{" "}
+                  <span className="text-zinc-500 text-xs">(Optional)</span>
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 mb-3">
+                  <input
+                    type="text"
+                    value={editColorName}
+                    onChange={(e) => setEditColorName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (!editColorName.trim()) return;
+                        const isDup = (editingProduct.colors || []).some(
+                          (c) => c.name.toLowerCase() === editColorName.trim().toLowerCase()
+                        );
+                        if (isDup) { toast.error("এই color ইতিমধ্যে আছে"); return; }
+                        setEditingProduct((prev) => ({
+                          ...prev,
+                          colors: [...(prev.colors || []), { name: editColorName.trim(), hex: editColorHex }],
+                        }));
+                        setEditColorName("");
+                        setEditColorHex("#000000");
+                      }
+                    }}
+                    placeholder="Color name (e.g. Red, Navy Blue)"
+                    className="flex-1 bg-[#18181b] border border-zinc-800 text-white p-2.5 rounded-md focus:border-[#FF4955] outline-none text-sm"
+                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={editColorHex}
+                      onChange={(e) => setEditColorHex(e.target.value)}
+                      className="color-picker-input"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!editColorName.trim()) { toast.error("Color name লিখুন"); return; }
+                        const isDup = (editingProduct.colors || []).some(
+                          (c) => c.name.toLowerCase() === editColorName.trim().toLowerCase()
+                        );
+                        if (isDup) { toast.error("এই color ইতিমধ্যে আছে"); return; }
+                        setEditingProduct((prev) => ({
+                          ...prev,
+                          colors: [...(prev.colors || []), { name: editColorName.trim(), hex: editColorHex }],
+                        }));
+                        setEditColorName("");
+                        setEditColorHex("#000000");
+                      }}
+                      className="flex items-center gap-1 px-3 py-2.5 bg-[#FF4955] text-white text-xs font-bold rounded-md hover:bg-[#e03e49] transition-all"
+                    >
+                      <Plus size={13} /> Add
+                    </button>
+                  </div>
+                </div>
+                {(editingProduct.colors || []).length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {(editingProduct.colors || []).map((color, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 bg-[#18181b] border border-zinc-800 rounded-full pl-1 pr-3 py-1"
+                      >
+                        <span
+                          className="w-5 h-5 rounded-full border border-zinc-700 shrink-0"
+                          style={{ backgroundColor: color.hex }}
+                        />
+                        <span className="text-xs text-gray-300">{color.name}</span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditingProduct((prev) => ({
+                              ...prev,
+                              colors: prev.colors.filter((_, i) => i !== index),
+                            }))
+                          }
+                          className="ml-1 text-zinc-600 hover:text-[#FF4955] transition-colors"
+                        >
+                          <X size={11} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-zinc-600 italic">কোনো color নেই</p>
+                )}
+              </div>
+              {/* ===== END COLOR SECTION ===== */}
+
               {/* Buttons */}
               <div className="col-span-1 md:col-span-2 flex justify-end gap-3 mt-4 pt-6 border-t border-zinc-800">
                 <button
@@ -739,7 +836,20 @@ const ListProduct = ({ token, backendUrl, currency }) => {
             </form>
           </div>
         </div>
-      )}
+      )}\r\n      <style>{`
+        .color-picker-input {
+          -webkit-appearance: none;
+          width: 40px;
+          height: 40px;
+          border: 2px solid #3f3f46;
+          border-radius: 8px;
+          cursor: pointer;
+          padding: 2px;
+          background: #18181b;
+        }
+        .color-picker-input::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-picker-input::-webkit-color-swatch { border: none; border-radius: 5px; }
+      `}</style>
     </div>
   );
 };

@@ -106,7 +106,15 @@ const Orders = ({ token, backendUrl }) => {
                   {order.items.map((item, idx) => (
                     <p className="font-medium text-white" key={idx}>
                       • {item.name} <span className="text-zinc-500">x {item.quantity}</span>
-                      {item.size && item.size !== "Free Size" && <span className="text-[#FF4955] ml-2">[{item.size}]</span>}
+                      {item.size && (() => {
+                        const [sz, cl] = item.size.includes('||') ? item.size.split('||') : [item.size, ''];
+                        return (
+                          <>
+                            {sz && sz !== 'Free Size' && <span className="text-[#FF4955] ml-2">[{sz}]</span>}
+                            {cl && <span className="text-yellow-400 ml-1">[{cl}]</span>}
+                          </>
+                        );
+                      })()}
                     </p>
                   ))}
                 </div>

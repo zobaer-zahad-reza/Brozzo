@@ -35,10 +35,13 @@ const Cart = () => {
           if (cartItems[items][item] > 0) {
             const productInfo = products.find((p) => p._id === items);
             if (productInfo) {
+              const [sizeVal, colorVal] = item.includes('||') ? item.split('||') : [item, ''];
               tempData.push({
                 ...productInfo,
                 _id: items,
                 size: item,
+                displaySize: sizeVal,
+                displayColor: colorVal,
                 quantity: cartItems[items][item],
               });
             }
@@ -118,7 +121,16 @@ const Cart = () => {
                         {item.name}
                       </h3>
                       <p className="text-[10px] font-black uppercase text-[#FF4955] mt-2 bg-[#FF4955]/10 w-fit px-2 py-1 rounded">
-                        Size: {item.size}
+                        {item.displaySize}
+                        {item.displayColor && (
+                          <span className="flex items-center gap-1.5">
+                            <span
+                              className="inline-block w-3.5 h-3.5 rounded-full border border-zinc-600"
+                              style={{ backgroundColor: (item.colors || []).find(c => c.name === item.displayColor)?.hex || item.displayColor }}
+                            />
+                            {item.displayColor}
+                          </span>
+                        )}
                       </p>
                     </div>
                     <button

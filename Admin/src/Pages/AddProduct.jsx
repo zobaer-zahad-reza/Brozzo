@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, Plus, X } from "lucide-react";
 import axios from "axios";
 import { backendUrl } from "../App";
 import { toast } from "react-toastify";
@@ -22,6 +22,11 @@ const AddProduct = ({ token }) => {
   const [subCategory, setSubCategory] = useState("No Subcategory");
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
+
+  // Color states
+  const [colors, setColors] = useState([]);
+  const [colorName, setColorName] = useState("");
+  const [colorHex, setColorHex] = useState("#000000");
 
   const [loading, setLoading] = useState(false);
 
@@ -59,6 +64,27 @@ const AddProduct = ({ token }) => {
     }
   };
 
+  const addColor = () => {
+    if (!colorName.trim()) {
+      toast.error("Color name লিখুন");
+      return;
+    }
+    const isDuplicate = colors.some(
+      (c) => c.name.toLowerCase() === colorName.trim().toLowerCase()
+    );
+    if (isDuplicate) {
+      toast.error("এই color ইতিমধ্যে আছে");
+      return;
+    }
+    setColors((prev) => [...prev, { name: colorName.trim(), hex: colorHex }]);
+    setColorName("");
+    setColorHex("#000000");
+  };
+
+  const removeColor = (index) => {
+    setColors((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -75,6 +101,7 @@ const AddProduct = ({ token }) => {
       formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
+      formData.append("colors", JSON.stringify(colors));
 
       image1 && formData.append("image1", image1);
       image2 && formData.append("image2", image2);
@@ -96,6 +123,9 @@ const AddProduct = ({ token }) => {
         setOfferPrice("");
         setQuantity(1);
         setSizes([]);
+        setColors([]);
+        setColorName("");
+        setColorHex("#000000");
         setBestseller(false);
         setImage1(false);
         setImage2(false);
@@ -316,6 +346,70 @@ const AddProduct = ({ token }) => {
         </div>
       </div>
 
+      {/* ===== COLOR SECTION ===== */}
+      <div className="w-full max-w-[800px]">
+        <p className="mb-3 font-medium text-gray-400 text-sm">
+          Product Colors{" "}
+          <span className="text-zinc-500 text-xs ml-1">(Optional)</span>
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <input
+            type="text"
+            value={colorName}
+            onChange={(e) => setColorName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addColor())}
+            placeholder="Color name (e.g. Red, Navy Blue)"
+            className="flex-1 px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white placeholder-zinc-600 text-sm"
+          />
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={colorHex}
+              onChange={(e) => setColorHex(e.target.value)}
+              className="color-picker-input"
+              title="Pick color"
+            />
+            <button
+              type="button"
+              onClick={addColor}
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-[#FF4955] text-white text-xs font-bold rounded-md hover:bg-[#e03e49] transition-all uppercase tracking-wider"
+            >
+              <Plus size={14} /> Add
+            </button>
+          </div>
+        </div>
+
+        {colors.length > 0 ? (
+          <div className="flex flex-wrap gap-2.5">
+            {colors.map((color, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 bg-[#18181b] border border-zinc-800 rounded-full pl-1 pr-3 py-1 hover:border-zinc-600 transition-colors"
+              >
+                <span
+                  className="w-6 h-6 rounded-full border border-zinc-700 shrink-0"
+                  style={{ backgroundColor: color.hex }}
+                />
+                <span className="text-xs text-gray-300 font-medium">{color.name}</span>
+                <button
+                  type="button"
+                  onClick={() => removeColor(index)}
+                  className="ml-1 text-zinc-600 hover:text-[#FF4955] transition-colors"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-zinc-600 italic">
+            কোনো color add করা হয়নি — add করলে customer order এর সময় color select করতে পারবে।
+          </p>
+        )}
+      </div>
+      {/* ===== END COLOR SECTION ===== */}
+
       {/* Bestseller Checkbox */}
       <div className="flex gap-3 items-center">
         <input
@@ -373,6 +467,18 @@ const AddProduct = ({ token }) => {
           z-index: 10;
           background-color: #18181b;
         }
+        .color-picker-input {
+          -webkit-appearance: none;
+          width: 44px;
+          height: 44px;
+          border: 2px solid #3f3f46;
+          border-radius: 8px;
+          cursor: pointer;
+          padding: 2px;
+          background: #18181b;
+        }
+        .color-picker-input::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-picker-input::-webkit-color-swatch { border: none; border-radius: 5px; }
       `}</style>
     </form>
   );

@@ -52,10 +52,14 @@ const PlaceOrder = () => {
               (product) => product._id === items,
             );
             if (productInfo) {
-              tempData.push({
+                         const [sizeVal, colorVal] = item.includes('||') ? item.split('||') : [item, ''];
+             tempData.push({
                 ...productInfo,
                 _id: items,
                 size: item,
+                displaySize: sizeVal,
+                displayColor: colorVal,
+                color: colorVal,
                 quantity: cartItems[items][item],
               });
             }
@@ -337,6 +341,22 @@ const PlaceOrder = () => {
                       {currency}{" "}
                       {item.offerPrice > 0 ? item.offerPrice : item.price}
                     </p>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {(item.displaySize || item.size) && (
+                        <span className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">
+                          {item.displaySize || item.size}
+                        </span>
+                      )}
+                      {(item.displayColor || item.color) && (
+                        <span className="flex items-center gap-1 text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-zinc-600"
+                            style={{ backgroundColor: (item.colors || []).find(c => c.name === (item.displayColor || item.color))?.hex || '#888' }}
+                          />
+                          {item.displayColor || item.color}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-3 mt-2 bg-zinc-900 border border-zinc-800 rounded-md w-max px-2 py-1">
                       <button
                         type="button"
