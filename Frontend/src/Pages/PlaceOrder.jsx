@@ -32,9 +32,7 @@ const PlaceOrder = () => {
     email: "",
     phone: "",
     street: "",
-    area: "",
-    city: "",
-    division: "",
+    division: "", // Used for Inside/Outside Dhaka
   });
 
   const [orderList, setOrderList] = useState([]);
@@ -52,8 +50,10 @@ const PlaceOrder = () => {
               (product) => product._id === items,
             );
             if (productInfo) {
-                         const [sizeVal, colorVal] = item.includes('||') ? item.split('||') : [item, ''];
-             tempData.push({
+              const [sizeVal, colorVal] = item.includes("||")
+                ? item.split("||")
+                : [item, ""];
+              tempData.push({
                 ...productInfo,
                 _id: items,
                 size: item,
@@ -70,7 +70,8 @@ const PlaceOrder = () => {
     }
   }, [cartItems, products, isBuyNow, location.state]);
 
-  const isDhaka = formData.division === "Dhaka";
+  // Delivery fee logic updated based on Inside/Outside Dhaka
+  const isDhaka = formData.division === "Inside Dhaka";
   const delivery_fee = formData.division ? (isDhaka ? 80 : 130) : 0;
   const currency = "৳";
 
@@ -94,8 +95,6 @@ const PlaceOrder = () => {
               email: user.email || "",
               phone: user.phone || "",
               street: savedAddr.street || "",
-              area: savedAddr.area || "",
-              city: savedAddr.city || "",
               division: savedAddr.division || "",
             }));
           }
@@ -141,7 +140,7 @@ const PlaceOrder = () => {
       }
 
       if (!formData.division) {
-        toast.error("Please select a division!");
+        toast.error("Please select a delivery location!");
         return;
       }
 
@@ -149,9 +148,9 @@ const PlaceOrder = () => {
         address: formData,
         items: orderList,
         amount: currentTotalAmount + delivery_fee,
-        paymentMethod: method === 'cod' ? 'COD' : method,
-        payment: false, 
-        date: new Date().toISOString()
+        paymentMethod: method === "cod" ? "COD" : method,
+        payment: false,
+        date: new Date().toISOString(),
       };
 
       if (method === "cod") {
@@ -170,21 +169,27 @@ const PlaceOrder = () => {
           }
         } else {
           const response = await axios.post(
-            backendUrl + "/api/order/place-guest", 
-            orderData
+            backendUrl + "/api/order/place-guest",
+            orderData,
           );
 
           if (response.data.success) {
-            const existingGuestOrders = JSON.parse(localStorage.getItem('brozzo_guest_orders')) || [];
-            
+            const existingGuestOrders =
+              JSON.parse(localStorage.getItem("brozzo_guest_orders")) || [];
+
             const guestOrderData = {
               ...orderData,
-              orderId: response.data.orderId || "GUEST-" + Date.now().toString().slice(-6),
-              status: "Order Placed"
+              orderId:
+                response.data.orderId ||
+                "GUEST-" + Date.now().toString().slice(-6),
+              status: "Order Placed",
             };
 
             existingGuestOrders.push(guestOrderData);
-            localStorage.setItem('brozzo_guest_orders', JSON.stringify(existingGuestOrders));
+            localStorage.setItem(
+              "brozzo_guest_orders",
+              JSON.stringify(existingGuestOrders),
+            );
 
             toast.success("Order Placed Successfully!");
             if (!isBuyNow) setCartItems({});
@@ -197,7 +202,10 @@ const PlaceOrder = () => {
         toast.info("Payment gateway integration coming soon.");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong! Please try again.");
+      toast.error(
+        error.response?.data?.message ||
+          "Something went wrong! Please try again.",
+      );
     }
   };
 
@@ -234,24 +242,22 @@ const PlaceOrder = () => {
                 placeholder="First Name"
               />
               <input
-                required
                 name="lastName"
                 onChange={onChangeHandler}
                 value={formData.lastName}
                 className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
                 type="text"
-                placeholder="Last Name"
+                placeholder="Last Name (Optional)"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
-                required
                 name="email"
                 onChange={onChangeHandler}
                 value={formData.email}
                 className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
                 type="email"
-                placeholder="Email Address"
+                placeholder="Email Address (Optional)"
               />
               <input
                 required
@@ -270,48 +276,24 @@ const PlaceOrder = () => {
               value={formData.street}
               className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
               type="text"
-              placeholder="House/Road No."
+              placeholder="Full Address"
             />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input
+
+            {/* Location Select (Inside/Outside Dhaka) */}
+            <div className="relative">
+              <select
                 required
-                name="area"
+                name="division"
                 onChange={onChangeHandler}
-                value={formData.area}
-                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
-                type="text"
-                placeholder="Area"
-              />
-              <input
-                required
-                name="city"
-                onChange={onChangeHandler}
-                value={formData.city}
-                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
-                type="text"
-                placeholder="City/District"
-              />
-              <div className="relative">
-                <select
-                  required
-                  name="division"
-                  onChange={onChangeHandler}
-                  value={formData.division}
-                  className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none appearance-none cursor-pointer"
-                >
-                  <option value="" disabled>
-                    Division
-                  </option>
-                  <option value="Dhaka">Dhaka</option>
-                  <option value="Chittagong">Chittagong</option>
-                  <option value="Sylhet">Sylhet</option>
-                  <option value="Rajshahi">Rajshahi</option>
-                  <option value="Khulna">Khulna</option>
-                  <option value="Barisal">Barisal</option>
-                  <option value="Rangpur">Rangpur</option>
-                  <option value="Mymensingh">Mymensingh</option>
-                </select>
-              </div>
+                value={formData.division}
+                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none appearance-none cursor-pointer"
+              >
+                <option value="" disabled>
+                  Select Delivery Location
+                </option>
+                <option value="Inside Dhaka">Inside Dhaka</option>
+                <option value="Outside Dhaka">Outside Dhaka</option>
+              </select>
             </div>
           </div>
         </div>
@@ -351,7 +333,14 @@ const PlaceOrder = () => {
                         <span className="flex items-center gap-1 text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">
                           <span
                             className="w-2.5 h-2.5 rounded-full border border-zinc-600"
-                            style={{ backgroundColor: (item.colors || []).find(c => c.name === (item.displayColor || item.color))?.hex || '#888' }}
+                            style={{
+                              backgroundColor:
+                                (item.colors || []).find(
+                                  (c) =>
+                                    c.name ===
+                                    (item.displayColor || item.color),
+                                )?.hex || "#888",
+                            }}
                           />
                           {item.displayColor || item.color}
                         </span>

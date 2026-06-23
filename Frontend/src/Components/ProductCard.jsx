@@ -48,7 +48,7 @@ const ProductCard = ({ id, image, name, price, offerPrice }) => {
     <Link
       to={`/product/${nameSlug}/${id}`}
       onClick={() => window.scrollTo(0, 0)}
-      className="group block w-full bg-[#18181b] border border-zinc-800/60 rounded-md overflow-hidden hover:border-[#FF4955]/50 hover:shadow-lg transition-all duration-300 relative"
+      className="group block w-full bg-[#18181b] border border-zinc-800/60 rounded-md overflow-hidden transform-gpu  hover:border-[#FF4955]/50 hover:shadow-lg transition-all duration-300 relative"
     >
       <div className="relative w-full aspect-square overflow-hidden bg-zinc-900">
         <img
