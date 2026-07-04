@@ -32,7 +32,7 @@ const PlaceOrder = () => {
     email: "",
     phone: "",
     street: "",
-    division: "", // Used for Inside/Outside Dhaka
+    division: "",
   });
 
   const [orderList, setOrderList] = useState([]);
@@ -70,7 +70,6 @@ const PlaceOrder = () => {
     }
   }, [cartItems, products, isBuyNow, location.state]);
 
-  // Delivery fee logic updated based on Inside/Outside Dhaka
   const isDhaka = formData.division === "Inside Dhaka";
   const delivery_fee = formData.division ? (isDhaka ? 80 : 130) : 0;
   const currency = "৳";
@@ -231,7 +230,7 @@ const PlaceOrder = () => {
           </div>
 
           <div className="bg-[#121215] p-6 md:p-8 rounded-xl border border-zinc-800 space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="">
               <input
                 required
                 name="firstName"
@@ -239,15 +238,7 @@ const PlaceOrder = () => {
                 value={formData.firstName}
                 className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
                 type="text"
-                placeholder="First Name"
-              />
-              <input
-                name="lastName"
-                onChange={onChangeHandler}
-                value={formData.lastName}
-                className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
-                type="text"
-                placeholder="Last Name (Optional)"
+                placeholder="আপনার নাম লেখুন *"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,7 +248,7 @@ const PlaceOrder = () => {
                 value={formData.email}
                 className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
                 type="email"
-                placeholder="Email Address (Optional)"
+                placeholder="ইমেইল"
               />
               <input
                 required
@@ -266,7 +257,7 @@ const PlaceOrder = () => {
                 value={formData.phone}
                 className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
                 type="tel"
-                placeholder="Phone Number"
+                placeholder="আপনার ফোন নাম্বার লিখুন *"
               />
             </div>
             <input
@@ -276,7 +267,7 @@ const PlaceOrder = () => {
               value={formData.street}
               className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none"
               type="text"
-              placeholder="Full Address"
+              placeholder="আপনার সম্পূর্ণ ঠিকানা লিখুন *"
             />
 
             {/* Location Select (Inside/Outside Dhaka) */}
@@ -289,10 +280,14 @@ const PlaceOrder = () => {
                 className="w-full bg-[#18181b] border border-zinc-800 rounded-md p-3 text-sm focus:border-[#FF4955] outline-none appearance-none cursor-pointer"
               >
                 <option value="" disabled>
-                  Select Delivery Location
+                  SHIPPING (Inside/Outside Dhaka)
                 </option>
-                <option value="Inside Dhaka">Inside Dhaka</option>
-                <option value="Outside Dhaka">Outside Dhaka</option>
+                <option value="Inside Dhaka">
+                  ঢাকার শহরের ভিতরে ডেলিভারি চার্জ ৮০ ৳
+                </option>
+                <option value="Outside Dhaka">
+                  ঢাকার বাইরে ডেলিভারি চার্জ ১৩০ ৳
+                </option>
               </select>
             </div>
           </div>
