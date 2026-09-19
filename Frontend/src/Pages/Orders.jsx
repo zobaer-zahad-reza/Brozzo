@@ -2,8 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../Context/ShopContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { FaHashtag } from "react-icons/fa";
-import { Box, Truck, ArrowLeft, RefreshCw } from "lucide-react";
+import { Box, Truck, ArrowLeft } from "lucide-react";
 
 const Orders = () => {
   const { backendUrl, token, currency } = useContext(ShopContext);
@@ -15,7 +14,6 @@ const Orders = () => {
       setLoading(true);
       let allOrdersItem = [];
 
-      // ১. Local Storage থেকে Guest Orders আনবে (লগআউট ইউজারদের জন্য)
       const guestOrders =
         JSON.parse(localStorage.getItem("brozzo_guest_orders")) || [];
 
@@ -31,7 +29,6 @@ const Orders = () => {
         });
       });
 
-      // ২. Database থেকে Orders আনবে (লগইন ইউজারদের জন্য)
       if (token) {
         const response = await axios.post(
           backendUrl + "/api/order/userorders",
@@ -52,7 +49,6 @@ const Orders = () => {
         }
       }
 
-      // ডেট অনুযায়ী সর্ট করা (নতুন অর্ডার উপরে দেখাবে)
       allOrdersItem.sort((a, b) => new Date(b.date) - new Date(a.date));
       setOrderData(allOrdersItem);
     } catch (error) {
@@ -99,7 +95,10 @@ const Orders = () => {
                     <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
                       <img
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        src={item.image[0]}
+                        // Fixed Image crash issue
+                        src={
+                          Array.isArray(item.image) ? item.image[0] : item.image
+                        }
                         alt={item.name}
                       />
                     </div>
@@ -111,7 +110,8 @@ const Orders = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[9px] font-black uppercase tracking-widest text-[#FF4955] bg-[#FF4955]/10 px-2 py-0.5 rounded border border-[#FF4955]/20">
-                        ID: {item.orderId.slice(-8).toUpperCase()}
+                        {/* Fixed safe slice issue */}
+                        ID: {String(item.orderId).slice(-8).toUpperCase()}
                       </span>
                     </div>
 
@@ -130,6 +130,19 @@ const Orders = () => {
                           Size:{" "}
                           <span className="text-zinc-300">{item.size}</span>
                         </p>
+                      )}
+
+                      {/* Added Color Display UX */}
+                      {item.color && (
+                        <>
+                          <span className="hidden sm:inline text-zinc-800">
+                            |
+                          </span>
+                          <p className="text-zinc-500 font-bold uppercase">
+                            Color:{" "}
+                            <span className="text-zinc-300">{item.color}</span>
+                          </p>
+                        </>
                       )}
 
                       <span className="hidden sm:inline text-zinc-800">|</span>
@@ -153,7 +166,11 @@ const Orders = () => {
                 <div className="flex items-center justify-between md:justify-end md:gap-10 border-t md:border-t-0 border-zinc-900 pt-4 md:pt-0">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-2 h-2 rounded-full ${item.status === "Delivered" ? "bg-green-500" : "bg-[#FF4955] animate-pulse"}`}
+                      className={`w-2 h-2 rounded-full ${
+                        item.status === "Delivered"
+                          ? "bg-green-500"
+                          : "bg-[#FF4955] animate-pulse"
+                      }`}
                     ></div>
                     <p className="text-xs font-black uppercase tracking-[1px] text-white">
                       {item.status}

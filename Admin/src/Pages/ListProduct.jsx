@@ -5,11 +5,72 @@ import { FaTrash, FaSearch, FaPen } from "react-icons/fa";
 import { Loader2, Plus, Minus, X } from "lucide-react";
 import DescriptionEditor from "../Components/DescriptionEditor";
 
+// Image compression utility function
+const compressImage = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Set max dimensions for reasonable file size in KB
+        const MAX_WIDTH = 1200;
+        const MAX_HEIGHT = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to WebP format with 0.8 quality
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Canvas is empty"));
+              return;
+            }
+            const newFile = new File(
+              [blob],
+              file.name.replace(/\.[^/.]+$/, ".webp"),
+              {
+                type: "image/webp",
+                lastModified: Date.now(),
+              },
+            );
+            resolve(newFile);
+          },
+          "image/webp",
+          0.8,
+        );
+      };
+      img.onerror = (error) => reject(error);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 const ListProduct = ({ token, backendUrl, currency }) => {
   const [list, setList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [updatingQuantityId, setUpdatingQuantityId] = useState(null); // To track which item's quantity is being updated
+  const [updatingQuantityId, setUpdatingQuantityId] = useState(null);
 
   // Edit Modal States
   const [showEditModal, setShowEditModal] = useState(false);
@@ -53,7 +114,6 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     newImagesList: [],
   });
 
-  // Dynamic Subcategory logic based on selected category
   const selectedCategoryObj = categoryData.find(
     (cat) => cat.name === editingProduct.category,
   );
@@ -127,22 +187,20 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     }
   };
 
-  // --- FIXED: Quick Quantity Update directly from the list ---
   const handleQuickQuantityUpdate = async (item, action) => {
-    if (updatingQuantityId) return; // Prevent multiple clicks
+    if (updatingQuantityId) return;
 
     let newQuantity = Number(item.quantity);
     if (action === "increase") {
       newQuantity += 1;
     } else if (action === "decrease") {
-      if (newQuantity <= 0) return; // Cannot go below 0
+      if (newQuantity <= 0) return;
       newQuantity -= 1;
     }
 
     setUpdatingQuantityId(item._id);
 
     try {
-      // Reconstruct form data for backend based on existing item details
       const formData = new FormData();
       formData.append("id", item._id);
       formData.append("name", item.name);
@@ -152,11 +210,11 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       formData.append("subCategory", item.subCategory || "");
       formData.append("price", item.price);
       formData.append("offerPrice", item.offerPrice || "");
-      formData.append("quantity", newQuantity); // The new updated quantity
+      formData.append("quantity", newQuantity);
       formData.append("bestseller", item.bestseller || false);
       formData.append("sizes", JSON.stringify(item.sizes || []));
       formData.append("colors", JSON.stringify(item.colors || []));
-      formData.append("image", JSON.stringify(item.image || [])); // Send existing images back
+      formData.append("image", JSON.stringify(item.image || []));
 
       if (item.category === "Watch") {
         formData.append("watchGrade", item.watchGrade || "");
@@ -169,7 +227,6 @@ const ListProduct = ({ token, backendUrl, currency }) => {
       );
 
       if (response.data.success) {
-        // Update the local list instantly to reflect the change without fetching everything again
         setList((prevList) =>
           prevList.map((p) =>
             p._id === item._id ? { ...p, quantity: newQuantity } : p,
@@ -245,13 +302,19 @@ const ListProduct = ({ token, backendUrl, currency }) => {
     });
   };
 
-  const handleAddNewImage = (e) => {
+  const handleAddNewImage = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setEditingProduct((prev) => ({
-        ...prev,
-        newImagesList: [...prev.newImagesList, file],
-      }));
+      try {
+        const compressedFile = await compressImage(file);
+        setEditingProduct((prev) => ({
+          ...prev,
+          newImagesList: [...prev.newImagesList, compressedFile],
+        }));
+      } catch (error) {
+        toast.error("Image compression failed!");
+        console.error(error);
+      }
     }
     e.target.value = "";
   };
@@ -379,7 +442,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 {item.offerPrice > 0 ? item.offerPrice : item.price}
               </p>
 
-              {/* FIXED: Quick Quantity Editor (+ / -) */}
+              {/* Quick Quantity Editor */}
               <div className="flex items-center justify-center gap-3">
                 <div className="flex items-center border border-zinc-700 bg-black rounded-md px-1 py-1">
                   <button
@@ -434,7 +497,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
         )}
       </div>
 
-      {/* Edit Modal (unchanged from your previous setup) */}
+      {/* Edit Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[100] overflow-y-auto p-4">
           <div className="bg-[#121215] border border-zinc-800 p-6 md:p-8 rounded-lg shadow-2xl w-full max-w-4xl my-auto">
@@ -458,8 +521,11 @@ const ListProduct = ({ token, backendUrl, currency }) => {
             >
               {/* Images Section */}
               <div className="col-span-1 md:col-span-2">
-                <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">
+                <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">
                   Images (Add / Remove)
+                </p>
+                <p className="text-[10px] text-zinc-500 mb-3 italic">
+                  New images will be auto-compressed to WebP format.
                 </p>
                 <div className="flex gap-4 flex-wrap">
                   {/* Existing Images */}
@@ -509,7 +575,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                     </div>
                   ))}
 
-                  {/* Add New Image Button  */}
+                  {/* Image Add Button  */}
                   {editingProduct.image.length +
                     editingProduct.newImagesList.length <
                     4 && (
@@ -717,7 +783,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                 )}
               </div>
 
-              {/* ===== COLOR SECTION IN EDIT MODAL ===== */}
+              {/* COLOR SECTION */}
               <div className="col-span-1 md:col-span-2">
                 <p className="text-sm font-medium text-gray-400 mb-3">
                   Product Colors{" "}
@@ -733,12 +799,20 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                         e.preventDefault();
                         if (!editColorName.trim()) return;
                         const isDup = (editingProduct.colors || []).some(
-                          (c) => c.name.toLowerCase() === editColorName.trim().toLowerCase()
+                          (c) =>
+                            c.name.toLowerCase() ===
+                            editColorName.trim().toLowerCase(),
                         );
-                        if (isDup) { toast.error("এই color ইতিমধ্যে আছে"); return; }
+                        if (isDup) {
+                          toast.error("এই color ইতিমধ্যে আছে");
+                          return;
+                        }
                         setEditingProduct((prev) => ({
                           ...prev,
-                          colors: [...(prev.colors || []), { name: editColorName.trim(), hex: editColorHex }],
+                          colors: [
+                            ...(prev.colors || []),
+                            { name: editColorName.trim(), hex: editColorHex },
+                          ],
                         }));
                         setEditColorName("");
                         setEditColorHex("#000000");
@@ -757,14 +831,25 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                     <button
                       type="button"
                       onClick={() => {
-                        if (!editColorName.trim()) { toast.error("Color name লিখুন"); return; }
+                        if (!editColorName.trim()) {
+                          toast.error("Color name লিখুন");
+                          return;
+                        }
                         const isDup = (editingProduct.colors || []).some(
-                          (c) => c.name.toLowerCase() === editColorName.trim().toLowerCase()
+                          (c) =>
+                            c.name.toLowerCase() ===
+                            editColorName.trim().toLowerCase(),
                         );
-                        if (isDup) { toast.error("এই color ইতিমধ্যে আছে"); return; }
+                        if (isDup) {
+                          toast.error("এই color ইতিমধ্যে আছে");
+                          return;
+                        }
                         setEditingProduct((prev) => ({
                           ...prev,
-                          colors: [...(prev.colors || []), { name: editColorName.trim(), hex: editColorHex }],
+                          colors: [
+                            ...(prev.colors || []),
+                            { name: editColorName.trim(), hex: editColorHex },
+                          ],
                         }));
                         setEditColorName("");
                         setEditColorHex("#000000");
@@ -786,7 +871,9 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                           className="w-5 h-5 rounded-full border border-zinc-700 shrink-0"
                           style={{ backgroundColor: color.hex }}
                         />
-                        <span className="text-xs text-gray-300">{color.name}</span>
+                        <span className="text-xs text-gray-300">
+                          {color.name}
+                        </span>
                         <button
                           type="button"
                           onClick={() =>
@@ -806,7 +893,7 @@ const ListProduct = ({ token, backendUrl, currency }) => {
                   <p className="text-xs text-zinc-600 italic">কোনো color নেই</p>
                 )}
               </div>
-              {/* ===== END COLOR SECTION ===== */}
+              {/* END COLOR SECTION */}
 
               {/* Buttons */}
               <div className="col-span-1 md:col-span-2 flex justify-end gap-3 mt-4 pt-6 border-t border-zinc-800">
@@ -836,7 +923,8 @@ const ListProduct = ({ token, backendUrl, currency }) => {
             </form>
           </div>
         </div>
-      )}\r\n      <style>{`
+      )}
+      <style>{`
         .color-picker-input {
           -webkit-appearance: none;
           width: 40px;

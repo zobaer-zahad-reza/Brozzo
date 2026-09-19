@@ -5,6 +5,67 @@ import { backendUrl } from "../App";
 import { toast } from "react-toastify";
 import DescriptionEditor from "../Components/DescriptionEditor";
 
+// Image compression utility function
+const compressImage = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Set max dimensions for reasonable file size in KB
+        const MAX_WIDTH = 1200;
+        const MAX_HEIGHT = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to WebP format with 0.8 quality
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Canvas is empty"));
+              return;
+            }
+            const newFile = new File(
+              [blob],
+              file.name.replace(/\.[^/.]+$/, ".webp"),
+              {
+                type: "image/webp",
+                lastModified: Date.now(),
+              },
+            );
+            resolve(newFile);
+          },
+          "image/webp",
+          0.8,
+        );
+      };
+      img.onerror = (error) => reject(error);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 const AddProduct = ({ token }) => {
   const [image1, setImage1] = useState(false);
   const [image2, setImage2] = useState(false);
@@ -70,7 +131,7 @@ const AddProduct = ({ token }) => {
       return;
     }
     const isDuplicate = colors.some(
-      (c) => c.name.toLowerCase() === colorName.trim().toLowerCase()
+      (c) => c.name.toLowerCase() === colorName.trim().toLowerCase(),
     );
     if (isDuplicate) {
       toast.error("এই color ইতিমধ্যে আছে");
@@ -83,6 +144,19 @@ const AddProduct = ({ token }) => {
 
   const removeColor = (index) => {
     setColors((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleImageUpload = async (e, setter) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const compressedFile = await compressImage(file);
+        setter(compressedFile);
+      } catch (error) {
+        toast.error("Image compression failed!");
+        console.error(error);
+      }
+    }
   };
 
   const onSubmitHandler = async (e) => {
@@ -157,7 +231,7 @@ const AddProduct = ({ token }) => {
         <div className="mb-3">
           <p className="font-medium text-gray-400 text-sm">Upload Image</p>
           <p className="text-[10px] sm:text-xs text-zinc-500 mt-1">
-            Min: 3024px × 4032px | Max size: 2MB
+            Min: 3024px × 4032px | Max size: 2MB (Auto-compressed to WebP)
           </p>
         </div>
         <div className="grid grid-cols-4 sm:flex gap-3">
@@ -184,7 +258,7 @@ const AddProduct = ({ token }) => {
                 )}
               </div>
               <input
-                onChange={(e) => imgData.setter(e.target.files[0])}
+                onChange={(e) => handleImageUpload(e, imgData.setter)}
                 type="file"
                 id={imgData.id}
                 accept=".png, .jpg, .jpeg, .webp"
@@ -358,7 +432,9 @@ const AddProduct = ({ token }) => {
             type="text"
             value={colorName}
             onChange={(e) => setColorName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addColor())}
+            onKeyDown={(e) =>
+              e.key === "Enter" && (e.preventDefault(), addColor())
+            }
             placeholder="Color name (e.g. Red, Navy Blue)"
             className="flex-1 px-4 py-2.5 bg-[#18181b] border border-zinc-800 rounded-md focus:outline-none focus:border-[#FF4955] text-white placeholder-zinc-600 text-sm"
           />
@@ -391,7 +467,9 @@ const AddProduct = ({ token }) => {
                   className="w-6 h-6 rounded-full border border-zinc-700 shrink-0"
                   style={{ backgroundColor: color.hex }}
                 />
-                <span className="text-xs text-gray-300 font-medium">{color.name}</span>
+                <span className="text-xs text-gray-300 font-medium">
+                  {color.name}
+                </span>
                 <button
                   type="button"
                   onClick={() => removeColor(index)}
@@ -404,7 +482,8 @@ const AddProduct = ({ token }) => {
           </div>
         ) : (
           <p className="text-xs text-zinc-600 italic">
-            কোনো color add করা হয়নি — add করলে customer order এর সময় color select করতে পারবে।
+            কোনো color add করা হয়নি — add করলে customer order এর সময় color
+            select করতে পারবে।
           </p>
         )}
       </div>
@@ -431,7 +510,9 @@ const AddProduct = ({ token }) => {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full sm:w-48 py-3.5 bg-[#FF4955] text-white font-bold rounded-md hover:bg-[#e03e49] active:scale-[0.98] transition-all uppercase tracking-widest text-xs sm:text-sm shadow-lg shadow-[#FF4955]/20 flex items-center justify-center gap-2 ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+        className={`w-full sm:w-48 py-3.5 bg-[#FF4955] text-white font-bold rounded-md hover:bg-[#e03e49] active:scale-[0.98] transition-all uppercase tracking-widest text-xs sm:text-sm shadow-lg shadow-[#FF4955]/20 flex items-center justify-center gap-2 ${
+          loading ? "opacity-70 cursor-not-allowed" : ""
+        }`}
       >
         {loading ? (
           <>

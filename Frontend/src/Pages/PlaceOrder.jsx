@@ -1,14 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { ShopContext } from "../Context/ShopContext";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import {
-  ArrowLeft,
-  Trash2,
-  Truck,
-  Smartphone,
-  Plus,
-  Minus,
-} from "lucide-react";
+import { ArrowLeft, Truck, Plus, Minus, CheckCircle, X } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -36,6 +29,7 @@ const PlaceOrder = () => {
   });
 
   const [orderList, setOrderList] = useState([]);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false); // Popup state
   const isBuyNow = location.state && location.state.buyNowItem;
 
   useEffect(() => {
@@ -160,9 +154,8 @@ const PlaceOrder = () => {
             { headers: { token } },
           );
           if (response.data.success) {
-            toast.success("Order Placed Successfully!");
             if (!isBuyNow) setCartItems({});
-            navigate("/orders");
+            setShowSuccessPopup(true); // Show popup instead of immediate navigation
           } else {
             toast.error(response.data.message);
           }
@@ -190,9 +183,8 @@ const PlaceOrder = () => {
               JSON.stringify(existingGuestOrders),
             );
 
-            toast.success("Order Placed Successfully!");
             if (!isBuyNow) setCartItems({});
-            navigate("/orders");
+            setShowSuccessPopup(true); // Show popup instead of immediate navigation
           } else {
             toast.error(response.data.message || "Failed to place order.");
           }
@@ -206,6 +198,11 @@ const PlaceOrder = () => {
           "Something went wrong! Please try again.",
       );
     }
+  };
+
+  const handlePopupClose = () => {
+    setShowSuccessPopup(false);
+    navigate("/orders");
   };
 
   return (
@@ -417,6 +414,36 @@ const PlaceOrder = () => {
           </div>
         </div>
       </form>
+
+      {/* Success Popup Modal */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#111113] border border-zinc-800 p-8 rounded-3xl shadow-2xl max-w-sm w-full relative flex flex-col items-center text-center animate-in zoom-in duration-300">
+            <button
+              onClick={handlePopupClose}
+              className="absolute top-4 right-4 text-zinc-500 hover:text-[#FF4955] transition-colors"
+            >
+              <X size={20} />
+            </button>
+            <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center mb-6">
+              <CheckCircle className="text-green-500 w-8 h-8" />
+            </div>
+            <h2 className="text-xl font-black text-white uppercase tracking-widest mb-2">
+              Order Successful!
+            </h2>
+            <p className="text-zinc-400 text-sm mb-8 leading-relaxed">
+              Brozzo থেকে কেনাকাটা করার জন্য আপনাকে অসংখ্য ধন্যবাদ। আপনার
+              অর্ডারটি সফলভাবে রিসিভ করা হয়েছে! 🎉
+            </p>
+            <button
+              onClick={handlePopupClose}
+              className="w-full py-3.5 bg-[#FF4955] text-white font-black uppercase text-xs tracking-[2px] rounded-xl hover:bg-[#e03e49] transition-all shadow-lg shadow-[#FF4955]/20 active:scale-95"
+            >
+              View Orders
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
