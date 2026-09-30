@@ -1,4 +1,3 @@
-import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModel.js";
 
 // Add product
@@ -28,13 +27,10 @@ const addProduct = async (req, res) => {
       (item) => item !== undefined,
     );
 
-    let imagesUrl = await Promise.all(
-      images.map(async (item) => {
-        let result = await cloudinary.uploader.upload(item.path, {
-          resource_type: "image",
-        });
-        return result.secure_url;
-      }),
+    const baseUrl = `\({req.protocol}://\){req.get("host")}`;
+
+    let imagesUrl = images.map(
+      (item) => `\({baseUrl}/uploads/\){item.filename}`,
     );
 
     const productData = {
@@ -125,13 +121,11 @@ const updateProduct = async (req, res) => {
     let existingImages = req.body.image ? JSON.parse(req.body.image) : [];
 
     let newlyUploadedImages = [];
+    const baseUrl = `\({req.protocol}://\){req.get("host")}`;
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
-        const result = await cloudinary.uploader.upload(file.path, {
-          resource_type: "image",
-        });
-        newlyUploadedImages.push(result.secure_url);
+        newlyUploadedImages.push(`\({baseUrl}/uploads/\){file.filename}`);
       }
     }
 
