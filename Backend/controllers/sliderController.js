@@ -1,6 +1,4 @@
-import { v2 as cloudinary } from "cloudinary";
 import sliderModel from "../models/sliderModel.js";
-
 
 // add slide
 const addSlider = async (req, res) => {
@@ -12,8 +10,8 @@ const addSlider = async (req, res) => {
             return res.json({ success: false, message: "Image not found" });
         }
 
-        const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
-        const imageUrl = imageUpload.secure_url;
+        // Cloudinary bad diye direct VPS Local Uploads path set kora holo
+        const imageUrl = `https://brozzo.net/uploads/${imageFile.filename}`;
 
         const sliderData = new sliderModel({
             image: imageUrl,

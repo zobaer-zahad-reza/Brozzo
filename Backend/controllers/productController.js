@@ -24,13 +24,14 @@ const addProduct = async (req, res) => {
     const image4 = req.files.image4 && req.files.image4[0];
 
     const images = [image1, image2, image3, image4].filter(
-      (item) => item !== undefined,
+      (item) => item !== undefined
     );
 
-    const baseUrl = `\({req.protocol}://\){req.get("host")}`;
+    // Bulletproof Base URL and correct template literals
+    const baseUrl = "https://brozzo.net";
 
     let imagesUrl = images.map(
-      (item) => `\({baseUrl}/uploads/\){item.filename}`,
+      (item) => `\({baseUrl}/uploads/\){item.filename}`
     );
 
     const productData = {
@@ -121,7 +122,9 @@ const updateProduct = async (req, res) => {
     let existingImages = req.body.image ? JSON.parse(req.body.image) : [];
 
     let newlyUploadedImages = [];
-    const baseUrl = `\({req.protocol}://\){req.get("host")}`;
+    
+    // Bulletproof Base URL
+    const baseUrl = "https://brozzo.net";
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
