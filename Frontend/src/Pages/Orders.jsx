@@ -122,7 +122,9 @@ const Orders = () => {
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs">
                       <p className="font-black text-white">
                         {currency}
-                        {item.price}
+                        {Number(item.offerPrice) > 0
+                          ? item.offerPrice
+                          : item.price}
                       </p>
 
                       {item.size && (
